@@ -46,7 +46,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~Player()= default;//---UNCOVER---
+    ~Player()= default;//---UNCOVER---
 
     /**
      * @brief Access to the player's position.

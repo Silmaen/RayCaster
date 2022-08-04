@@ -18,6 +18,7 @@
  * @namespace rc
  * @brief Base namespace of the project library
  */
+
 /**
  * @brief Namespace for base objects
  */
@@ -28,6 +29,9 @@ namespace rc::base {
  */
 class Engine {
 public:
+    /// Type for screen resolution
+    using ResolutionType=math::Vector2<int32_t>;
+
     Engine(const Engine&)= delete;
     Engine(Engine&&)= delete;
     Engine& operator=(const Engine&)= delete;
@@ -35,7 +39,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~Engine()= default;
+    ~Engine()= default;
     /**
      * @brief Get engine instance
      * @return The engine instance
@@ -44,6 +48,13 @@ public:
         static Engine instance;
         return instance;
     }
+
+    /**
+     * @brief Access the screen resolution
+     * @return Screen resolution
+     */
+    const ResolutionType& getResolution()const{return resolution;}
+
     /**
      * @brief Initialize game engine
      * @param argc Number of argument
@@ -86,8 +97,9 @@ public:
     /**
      * @brief Draw a quad
      * @param quad Quad's data
+     * @param color Quad's color
      */
-    void drawQuad(const graphics::Quad2<double>& quad,  const graphics::Color& color);
+    void drawQuad(const graphics::Quad2<double>& quad,  const graphics::Color& color) const;
 
 #ifndef INTERNAL
 private:
@@ -98,6 +110,9 @@ private:
     void display();
     /**
      * @brief Glut input callback function
+     * @param key Input key
+     * @param x X placement
+     * @param y Y placement
      */
     void button(uint8_t key, int32_t x, int32_t y);
 #ifdef INTERNAL
@@ -111,10 +126,8 @@ private:
     bool initialized = false;
     /// If engine is running
     bool running = false;
-    /// Screen width
-    uint32_t width_ = 1024;
-    /// Screen height
-    uint32_t height = 510;
+    /// Screen resolution
+    ResolutionType resolution{1024,512};
     /// Link to the player
     std::shared_ptr<Player> player = nullptr;
 

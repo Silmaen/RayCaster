@@ -149,8 +149,8 @@ Map::rayCastResult Map::castRay(const math::Vector2<double>& from, const math::V
 
 Map::gridCoordinate Map::whichCell(const math::Vector2<double>& from) const {
     gridCoordinate result;
-    result[0] = static_cast<uint64_t>(from[0]) / cubeSize;
-    result[1] = static_cast<uint64_t>(from[1]) / cubeSize;
+    result[0] = static_cast<unsigned char>(static_cast<uint64_t>(from[0]) / cubeSize);
+    result[1] = static_cast<unsigned char>(static_cast<uint64_t>(from[1]) / cubeSize);
     return result;
 }
 
@@ -163,8 +163,8 @@ bool Map::isIn(const gridCoordinate& from) const {
 }
 
 void Map::updateSize() {
-    maxWidth  = width() * cubeSize;
-    maxHeight = height() * cubeSize;
+    maxWidth  = static_cast<double>(width() * cubeSize);
+    maxHeight = static_cast<double>(height() * cubeSize);
 }
 
 }// namespace rc::base

@@ -5,5 +5,7 @@
 using Engine=rc::base::Engine;
 
 TEST(Engine, base){
-    Engine& engine = Engine::get();
+    auto& engine = Engine::get();
+    EXPECT_EQ(engine.getResolution()[0], 1024);
+    EXPECT_EQ(engine.getResolution()[1], 512);
 }

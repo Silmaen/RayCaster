@@ -44,7 +44,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~Color()= default;
+    ~Color()= default;
     /**
      * @brief Define color by its channels
      * @param red Red channel

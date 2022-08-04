@@ -43,7 +43,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~Angle() = default;//---UNCOVER---
+    ~Angle() = default;//---UNCOVER---
     /**
      * @brief List of angle's units
      */

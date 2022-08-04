@@ -1,7 +1,7 @@
 #include "base/Engine.h"
 #include "base/Map.h"
 
-void drawRays2D(const std::shared_ptr<rc::base::Player>& player, const rc::base::Map& map) {
+static void drawRays2D(const std::shared_ptr<rc::base::Player>& player, const rc::base::Map& map) {
     using Unit = rc::math::Angle::Unit;
     auto& engine = rc::base::Engine::get();
     double fov = 60.0;

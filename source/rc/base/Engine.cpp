@@ -30,12 +30,13 @@ static void button_cb(uint8_t key, int32_t x, int32_t y){
 void Engine::init(int argc, char* argv[]) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-    glutInitWindowSize(width_, height);
+    glutInitWindowSize(resolution[0], resolution[1]);
     glutCreateWindow("RayCaster");
-    glClearColor(0.3, 0.3, 0.3, 0);
-    gluOrtho2D(0, width_, height, 0);
+    glClearColor(static_cast<GLclampf>(0.3), static_cast<GLclampf>(0.3), static_cast<GLclampf>(0.3), 0);
+    gluOrtho2D(0, resolution[0], resolution[1], 0);
     glutDisplayFunc(display_cb);
     glutKeyboardFunc(button_cb);
+    initialized = true;
 }
 
 void Engine::display() {
@@ -47,7 +48,7 @@ void Engine::display() {
     glutSwapBuffers();
 }
 
-void Engine::button(uint8_t key, int32_t x, int32_t y) {
+void Engine::button(uint8_t key, [[maybe_unused]]int32_t x, [[maybe_unused]]int32_t y) {
     if (player==nullptr)
         return;
     if(key == 'q') {
@@ -66,6 +67,8 @@ void Engine::button(uint8_t key, int32_t x, int32_t y) {
 }
 
 void Engine::run() {
+    if (!initialized)
+        return;
     running = true;
     glutMainLoop();
 }
@@ -86,7 +89,7 @@ void Engine::drawPoint(const math::Vector2<double>& location, double size, const
     if (!running)
         return;
     setColor(color);
-    glPointSize(size);
+    glPointSize(static_cast<GLfloat>(size));
     glBegin(GL_POINTS);
     pushVertex(location);
     glEnd();
@@ -95,13 +98,13 @@ void Engine::drawLine(const graphics::Line2<double>& line, double width, const g
     if (!running)
         return;
     setColor(color);
-    glLineWidth(width);
+    glLineWidth(static_cast<GLfloat>(width));
     glBegin(GL_LINES);
     pushVertex(line.getPoint(0));
     pushVertex(line.getPoint(1));
     glEnd();
 }
-void Engine::drawQuad(const graphics::Quad2<double>& quad, const graphics::Color& color) {
+void Engine::drawQuad(const graphics::Quad2<double>& quad, const graphics::Color& color) const {
     if (!running)
         return;
     setColor(color);

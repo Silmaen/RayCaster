@@ -55,7 +55,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~Map() = default;
+    ~Map() = default;
 
     /**
      * @brief Construct map by size
