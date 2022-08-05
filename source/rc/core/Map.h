@@ -12,7 +12,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace rc::base {
+namespace rc::core {
 
 /**
  * @brief Class Map
@@ -20,13 +20,13 @@ namespace rc::base {
 class Map {
 public:
     /// Base type map tile data
-    using BaseType       = uint8_t;
+    using BaseType = uint8_t;
     /// Map line's type
-    using LineType       = std::vector<BaseType>;
+    using LineType = std::vector<BaseType>;
     /// Map data's type
-    using DataType       = std::vector<LineType>;
+    using DataType = std::vector<LineType>;
     /// Index's type in mapa data
-    using IndexType      = uint8_t;
+    using IndexType = uint8_t;
     /// Grid coordinate's type
     using gridCoordinate = math::Vector2<IndexType>;
 
@@ -80,11 +80,6 @@ public:
     Map(DataType&& data, uint8_t cube = 64);
 
     /**
-     * @brief Draw the map
-     */
-    void draw();
-
-    /**
      * @brief Set the map dat
      * @param data The map data
      *
@@ -110,13 +105,13 @@ public:
      * @param location coordinates
      * @return The local map data
      */
-    BaseType& operator()(const gridCoordinate& location){return at(location);}
+    BaseType& operator()(const gridCoordinate& location) { return at(location); }
     /**
      * @brief Access to map value at the coordinate
      * @param location coordinates
      * @return The local map data
      */
-    const BaseType& operator()(const gridCoordinate& location) const{return at(location);}
+    const BaseType& operator()(const gridCoordinate& location) const { return at(location); }
 
     /**
      * @brief Access to map value at the coordinate
@@ -129,7 +124,7 @@ public:
      * @param location coordinates
      * @return The local map data
      */
-    const BaseType& at(const gridCoordinate& location) const;
+    [[nodiscard]] const BaseType& at(const gridCoordinate& location) const;
 
     /**
      * @brief Get the map's width
@@ -140,7 +135,7 @@ public:
      * @brief Get the map's height
      * @return Map's height
      */
-    [[nodiscard]] size_t height() const { return mapArray.empty()?0:mapArray.front().size(); }
+    [[nodiscard]] size_t height() const { return mapArray.empty() ? 0 : mapArray.front().size(); }
     /**
      * @brief Check the map validity
      * @return True if map valid.
@@ -150,10 +145,10 @@ public:
     /**
      * @brief Ray casting result
      */
-    struct rayCastResult{
-        double distance; ///< Distance of the hit
-        math::Vector2<double> wallPoint; ///< Point on the wall
-        bool hitVertical; ///< If we hit a vertical wall
+    struct rayCastResult {
+        double distance;                ///< Distance of the hit
+        math::Vector2<double> wallPoint;///< Point on the wall
+        bool hitVertical;               ///< If we hit a vertical wall
     };
     /**
      * @brief Cast a ray in the 2D space
@@ -161,7 +156,7 @@ public:
      * @param direction Ray's direction
      * @return Hit data
      */
-    [[nodiscard]] rayCastResult castRay(const math::Vector2<double>& from, const math::Vector2<double>& direction)const;
+    [[nodiscard]] rayCastResult castRay(const math::Vector2<double>& from, const math::Vector2<double>& direction) const;
 
     /**
      * @brief Determine the cell where the point lies.
@@ -174,13 +169,29 @@ public:
      * @param from The point to check
      * @return True if in the map
      */
-    [[nodiscard]] bool isIn(const math::Vector2<double>& from)const;
+    [[nodiscard]] bool isIn(const math::Vector2<double>& from) const;
     /**
      * @brief Checks if grid coordinates are in the map
      * @param from Grid coordinates to check
      * @return True if in the map
      */
-    [[nodiscard]] bool isIn(const gridCoordinate& from)const;
+    [[nodiscard]] bool isIn(const gridCoordinate& from) const;
+
+    /**
+     * @brief Get the cube's size
+     * @return Cube's size
+     */
+    [[nodiscard]] uint8_t getCellSize()const{return cubeSize;}
+    /**
+     * @brief Get the full pixel width of the map
+     * @return Pixel width of the map
+     */
+    [[nodiscard]] uint32_t fullWidth()const{return width()*cubeSize;}
+    /**
+     * @brief Get the full pixel height of the map
+     * @return Pixel height of the map
+     */
+    [[nodiscard]] uint32_t fullHeight()const{return height()*cubeSize;}
 private:
     /**
      * @brief Reset the map to the given size
@@ -196,8 +207,8 @@ private:
     uint8_t cubeSize = 64;
     /// The map data
     DataType mapArray;
-    double maxWidth = 0;
+    double maxWidth  = 0;
     double maxHeight = 0;
 };
 
-}// namespace rc::base
+}// namespace rc::core

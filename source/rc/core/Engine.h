@@ -9,6 +9,7 @@
 
 #include "Map.h"
 #include "Player.h"
+#include "graphics/Box2.h"
 #include "graphics/Line2.h"
 #include "graphics/Quad2.h"
 #include "renderer/BaseRenderer.h"
@@ -24,7 +25,7 @@
 /**
  * @brief Namespace for base objects
  */
-namespace rc::base {
+namespace rc::core {
 
 /**
  * @brief Engine setings
@@ -34,6 +35,12 @@ struct EngineSettings {
     renderer::RendererType rendererType;
     /// Renderer Settings
     renderer::Settings rendererSettings;
+    /// Screen zone where to draw the 3D scene
+    graphics::Box2 layout3D;
+    /// Screen zone where to draw the map
+    graphics::Box2 layoutMap;
+    /// If daw the rays in the map
+    bool drawRays;
 };
 
 /**
@@ -42,21 +49,21 @@ struct EngineSettings {
 class Engine {
 public:
     /// Type for screen resolution
-    using ResolutionType=math::Vector2<int32_t>;
+    using ResolutionType = math::Vector2<int32_t>;
 
-    Engine(const Engine&)= delete;
-    Engine(Engine&&)= delete;
-    Engine& operator=(const Engine&)= delete;
-    Engine& operator=(Engine&&)= delete;
+    Engine(const Engine&)            = delete;
+    Engine(Engine&&)                 = delete;
+    Engine& operator=(const Engine&) = delete;
+    Engine& operator=(Engine&&)      = delete;
     /**
      * @brief Destructor.
      */
-    ~Engine()= default;
+    ~Engine() = default;
     /**
      * @brief Get engine instance
      * @return The engine instance
      */
-    static Engine& get(){
+    static Engine& get() {
         static Engine instance;
         return instance;
     }
@@ -65,7 +72,7 @@ public:
      * @brief Access the settings
      * @return Settings
      */
-    [[nodiscard]] const EngineSettings& getSettings()const{return settings;}
+    [[nodiscard]] const EngineSettings& getSettings() const { return settings; }
 
 
     /**
@@ -111,16 +118,38 @@ public:
      * @brief Glut display call back function
      */
     void display();
-private:
 
+private:
+    /**
+     * @brief Function that draw the 3D environment
+     */
     void drawRayCasting();
 
     /**
+     * @brief Function that draw the map
+     */
+     void drawMap();
+     /**
+      * @brief Function that draw player's position in the map
+      */
+     void drawPlayerOnMap();
+
+     /**
+      * @brief Compute map layout infos
+      * @return Scalefactor and offset point
+      */
+     [[nodiscard]] std::tuple<double,math::Vector2<double>> getMapLayoutInfo()const;
+    /**
      * @brief Default constructor.
      */
-    Engine()= default;
+    Engine() = default;
     /// Engine's settings
-    EngineSettings settings{renderer::RendererType::OpenGL,{{1024,512}}};
+    EngineSettings settings{
+            renderer::RendererType::OpenGL,
+            {{1280, 720}},
+            {{0, 0}, {860, 550}},
+            {{880, 150}, {1280, 550}},
+            true};
     /// Link to the renderer
     std::shared_ptr<renderer::BaseRenderer> renderer = nullptr;
     /// Link to the map
@@ -131,4 +160,4 @@ private:
     std::vector<std::function<void()>> toRender;
 };
 
-}// namespace rc::base
+}// namespace rc::core

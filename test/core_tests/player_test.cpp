@@ -1,8 +1,8 @@
 
-#include "base/Player.h"
+#include "core/Player.h"
 #include "testHelper.h"
 
-using Player=rc::base::Player;
+using Player=rc::core::Player;
 using Unit=rc::math::Angle::Unit;
 
 TEST(Player, base){

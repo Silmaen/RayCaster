@@ -86,6 +86,20 @@ public:
     const VertexType& getPoint(uint8_t idx)const { return idx == 0 ? P1 : idx == 1 ? P2 :
                                                        idx == 2         ? P3 :
                                                                           P4; }
+    /**
+     * @brief Translate the quad
+     * @param displacement Amount of displacement
+     */
+    void move(const VertexType& displacement){
+        P1+=displacement;P2+=displacement;P3+=displacement;P4+=displacement;
+    }
+    /**
+     * @brief Translate the quad to destination point
+     * @param location Destination
+     */
+    void moveTo(const VertexType& location){
+        move(location-P1);
+    }
 private:
     /// First vertex
     VertexType P1;

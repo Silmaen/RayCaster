@@ -8,7 +8,7 @@
 
 #include "NullRenderer.h"
 
-namespace rc::base::renderer {
+namespace rc::core::renderer {
 
 void NullRenderer::Init() {
     status = Status::Ready;

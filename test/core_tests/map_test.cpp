@@ -1,12 +1,12 @@
 
-#include "base/Map.h"
+#include "core/Map.h"
 #include "testHelper.h"
 #include <chrono>
 using testClock = std::chrono::steady_clock;
 using timePoint = testClock::time_point;
 using timeDelta = testClock::duration;
 
-using Map = rc::base::Map;
+using Map = rc::core::Map;
 
 TEST(Map, base) {
     Map map;

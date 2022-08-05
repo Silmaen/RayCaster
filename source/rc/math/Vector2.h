@@ -52,6 +52,20 @@ public:
      * @param y Second coordinates
      */
     Vector2(DataType x, DataType y):X(x),Y(y) {}
+
+    /**
+     * @brief Comparison operator
+     * @param other Other vector to compare
+     * @return True if equal
+     */
+    bool operator==(const Vector2& other)const{return X==other.X && Y==other.Y;}
+
+    /**
+     * @brief Comparison operator
+     * @param other Other vector to compare
+     * @return True if not equal
+     */
+    bool operator!=(const Vector2& other)const{return X!=other.X || Y!=other.Y;}
     /**
      * @brief Data access
      * @param idx component index
