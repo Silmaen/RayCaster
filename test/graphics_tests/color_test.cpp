@@ -29,3 +29,18 @@ TEST(Color, copy){
     Color color3{std::move(color2)};
     EXPECT_EQ(color3.red(), 78);
 }
+
+TEST(Color, doubleFloat){
+    Color color = Color::fromDouble(0.3,0.3,0.3);
+    EXPECT_NEAR(color.redf(), 0.3, 0.01);
+    EXPECT_NEAR(color.greenf(), 0.3, 0.01);
+    EXPECT_NEAR(color.bluef(), 0.3, 0.01);
+    EXPECT_NEAR(color.alphaf(), 1.0, 0.01);
+}
+
+TEST(Color, compare){
+    Color color1{255,255,255,255};
+    Color color2{0,0,0,0};
+    EXPECT_EQ(color1, color1);
+    EXPECT_NE(color1, color2);
+}

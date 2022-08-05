@@ -1,0 +1,157 @@
+/**
+ * @file BaseRenderer.h
+ * @author Silmaen
+ * @date 05/08/2022
+ * Copyright © 2022 All rights reserved.
+ * All modification must get authorization from the author.
+ */
+
+#pragma once
+#include <functional>
+
+#include "graphics/Color.h"
+#include "graphics/Line2.h"
+#include "graphics/Quad2.h"
+#include "math/Vector2.h"
+
+namespace rc::base::renderer {
+
+/// Base type for screen resolution
+using Resolution = math::Vector2<int32_t>;
+
+/**
+ * @brief The renderer statuses
+ */
+enum struct Status {
+    Uninitialized,    ///< Un initialized
+    Ready,            ///< Initialized and OK
+    BadInitialization,///< Problem in initialization
+    Running,          ///< Current running
+};
+
+/**
+ * @brief Renderer errors
+ */
+enum struct Error {
+    OK,///< No error
+};
+
+/**
+* @brief Renderer setting
+*/
+struct Settings {
+    /// Screen resolution
+    Resolution ScreenResolution{1024, 512};
+    /// Background color
+    graphics::Color Background = graphics::Color::fromDouble(0.3, 0.3, 0.3);
+};
+
+/**
+ * @brief Renderer's type
+ */
+enum struct RendererType {
+    Null,  ///< Null renderer
+    OpenGL,///< OpenGL renderer
+    Unknown///< anythong else
+};
+
+/**
+ * @brief Class BaseRenderer
+ */
+class BaseRenderer {
+public:
+    BaseRenderer(const BaseRenderer&)            = delete;
+    BaseRenderer(BaseRenderer&&)                 = delete;
+    BaseRenderer& operator=(const BaseRenderer&) = delete;
+    BaseRenderer& operator=(BaseRenderer&&)      = delete;
+    /**
+     * @brief Default constructor.
+     */
+    BaseRenderer() = default;
+    /**
+     * @brief Destructor.
+     */
+    virtual ~BaseRenderer();
+
+    // --------- SETTINGS ----------------
+    /**
+     * @brief Access to renderer Settings
+     * @return Renderer Settings
+     */
+    Settings& settings() { return settingInternal; }
+
+    // --------- STATUS & ERRORS ------
+    /**
+     * @brief Get the renderer status
+     * @return The renderer status
+     */
+    [[nodiscard]] const Status& getStatus() const { return status; }
+    /**
+     * @brief Get the last error
+     * @return The las error
+     */
+    [[nodiscard]] const Error& getError() const { return lastError; }
+    /**
+     * @brief Initialize the renderer
+     */
+    virtual void Init() = 0;
+    /**
+     * @brief Starts the renderer
+     */
+    virtual void run() = 0;
+
+    /**
+     * @brief Force display update
+     */
+    virtual void update() = 0;
+
+    /**
+     * @brief Defines the main draw call back
+     * @param func The drawing callback
+     */
+     virtual void setDrawingCallback(const std::function<void()>& func) = 0;
+     /**
+      * @brief Defines the main draw call back
+      * @param func The drawing callback
+      */
+     virtual void setButtonCallback(const std::function<void(uint8_t key,int32_t x,int32_t y)>& func) = 0;
+
+    /**
+     * @brief Gets the renderer Type
+     * @return Renderer type
+     */
+    [[nodiscard]] virtual RendererType getType() const { return RendererType::Unknown; }
+
+
+    // Drawing functions
+    /**
+     * @brief Draw a point
+     * @param location Where to draw in screen coordinate
+     * @param size Size of the point
+     * @param color Color of the point
+     */
+    virtual void drawPoint(const math::Vector2<double>& location, double size, const graphics::Color& color) const = 0;
+    /**
+     * @brief Draw a line
+     * @param line Line's data
+     * @param width Width of the line
+     * @param color Line's color
+     */
+    virtual void drawLine(const graphics::Line2<double>& line, double width, const graphics::Color& color) const = 0;
+    /**
+     * @brief Draw a quad
+     * @param quad Quad's data
+     * @param color Quad's color
+     */
+    virtual void drawQuad(const graphics::Quad2<double>& quad,  const graphics::Color& color) const = 0;
+protected:
+    /// The settings
+    Settings settingInternal;
+    /// The status
+    Status status = Status::Uninitialized;
+    /// The last error
+    Error lastError = Error::OK;
+};
+
+
+}// namespace rc::base::renderer

@@ -147,7 +147,7 @@ TEST(Map, castRay) {
 #ifdef NDEBUG
     const double maxDuration = 0.5;
 #else
-    const double maxDuration = 2.5;
+    const double maxDuration = 3.5;
 #endif
     EXPECT_LE(micros, maxDuration);
 }

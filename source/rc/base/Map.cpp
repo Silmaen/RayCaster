@@ -41,17 +41,17 @@ void Map::setMap(DataType&& data) {
 }
 
 void Map::draw() {
-    auto& engine = Engine::get();
+    auto engine = Engine::get().getRenderer();
     double x    = 0;
     double y    = 0;
     for (LineType& line : mapArray) {
         for (uint8_t cell : line) {
-            engine.drawQuad(
+            engine->drawQuad(
                     {{x + 1, y + 1},
                      {x + 1, y - 1 + cubeSize},
                      {x - 1 + cubeSize, y - 1 + cubeSize},
                      {x - 1 + cubeSize, y + 1}},
-                     cell > 0 ? graphics::Color{255, 255, 255, 255} : graphics::Color{0, 0, 0, 255});
+                     cell > 0 ? graphics::Color{255, 255, 255} : graphics::Color{0, 0, 0});
             x += cubeSize;
         }
         x = 0;

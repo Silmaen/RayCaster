@@ -12,9 +12,9 @@
 namespace rc::base {
 
 void Player::draw() {
-    auto& engine = Engine::get();
-    engine.drawPoint(position, 8, {255, 255, 0, 255});
-    engine.drawLine({position, direction * 20.0, 1}, 4, {255, 255, 0, 255});
+    auto engine = Engine::get().getRenderer();
+    engine->drawPoint(position, 8, {255U, 255U, 0U});
+    engine->drawLine({position, direction * 20.0, 1}, 4, {255U, 255U, 0U});
 }
 
 void Player::rotate(const math::Angle& angle) {
