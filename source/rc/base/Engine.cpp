@@ -5,122 +5,122 @@
  * Copyright © 2022 All rights reserved.
  * All modification must get authorization from the author.
  */
-#define INTERNAL
+
 #include "Engine.h"
-#include <GL/glut.h>
+#include "base/renderer/NullRenderer.h"
+#include "base/renderer/OpenGlRenderer.h"
 
 namespace rc::base {
 
-/**
- * @brief Display call back
- */
-static void display_cb(){
-    Engine::get().display();
-}
-/**
- * @brief Input callback
- * @param key keyboard pressed
- * @param x First coordinate
- * @param y Second coordinate
- */
-static void button_cb(uint8_t key, int32_t x, int32_t y){
-    Engine::get().button(key, x, y);
+void Engine::setSettings(const EngineSettings& setting) {
+    settings = setting;
+    if (renderer != nullptr)
+        init();
 }
 
-void Engine::init(int argc, char* argv[]) {
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-    glutInitWindowSize(resolution[0], resolution[1]);
-    glutCreateWindow("RayCaster");
-    glClearColor(static_cast<GLclampf>(0.3), static_cast<GLclampf>(0.3), static_cast<GLclampf>(0.3), 0);
-    gluOrtho2D(0, resolution[0], resolution[1], 0);
-    glutDisplayFunc(display_cb);
-    glutKeyboardFunc(button_cb);
-    initialized = true;
+void Engine::init() {
+    switch (settings.rendererType) {
+    case renderer::RendererType::OpenGL:
+        renderer = std::make_shared<renderer::OpenGLRenderer>();
+        break;
+    case renderer::RendererType::Null:
+        renderer = std::make_shared<renderer::NullRenderer>();
+        break;
+    case renderer::RendererType::Unknown:
+        renderer = nullptr;
+        return;
+    }
+    renderer->settings() = settings.rendererSettings;
+    renderer->Init();
+    renderer->setDrawingCallback([this]{this->display();});
+    renderer->setButtonCallback([this](auto && PH1, auto && PH2, auto && PH3) { button(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2), std::forward<decltype(PH3)>(PH3)); });
 }
 
 void Engine::display() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    for(const auto& drawer: toRender)
-        drawer();
-    if (player != nullptr)
-        player->draw();
-    glutSwapBuffers();
+    if (!player || !map)
+        return;
+    map->draw();
+    drawRayCasting();
+    player->draw();
 }
 
-void Engine::button(uint8_t key, [[maybe_unused]]int32_t x, [[maybe_unused]]int32_t y) {
-    if (player==nullptr)
+void Engine::button(uint8_t key, [[maybe_unused]] int32_t x, [[maybe_unused]] int32_t y) {
+    if (player == nullptr)
         return;
-    if(key == 'q') {
-        player->rotate(math::Angle{-5, math::Angle::Unit::Degree});
+    if (key == 'q') {
+        player->rotate({-5, math::Angle::Unit::Degree});
     }
-    if(key == 'd') {
-        player->rotate(math::Angle{5, math::Angle::Unit::Degree});
+    if (key == 'd') {
+        player->rotate({5, math::Angle::Unit::Degree});
     }
-    if(key == 'z') {
+    if (key == 'z') {
         player->walk(5);
     }
-    if(key == 's') {
+    if (key == 's') {
         player->walk(-5);
     }
-    glutPostRedisplay();
+    if (renderer==nullptr)
+        return;
+    renderer->update();
 }
 
 void Engine::run() {
-    if (!initialized)
+    if (renderer==nullptr)
         return;
-    running = true;
-    glutMainLoop();
-}
-
-void Engine::registerRender(const std::function<void()>& func) {
-    if (running)
-        return;
-    toRender.push_back(func);
+    renderer->run();
 }
 
 void Engine::registerPlayer(const std::shared_ptr<Player>& player_) {
-    if (running)
+    if (renderer==nullptr)
+        return;
+    if (renderer->getStatus() == renderer::Status::Running)
         return;
     player = player_;
 }
 
-void Engine::drawPoint(const math::Vector2<double>& location, double size, const graphics::Color& color) const {
-    if (!running)
+void Engine::registerMap(const std::shared_ptr<Map>& map_){
+    if (renderer==nullptr)
         return;
-    setColor(color);
-    glPointSize(static_cast<GLfloat>(size));
-    glBegin(GL_POINTS);
-    pushVertex(location);
-    glEnd();
-}
-void Engine::drawLine(const graphics::Line2<double>& line, double width, const graphics::Color& color) const {
-    if (!running)
+    if (renderer->getStatus() == renderer::Status::Running)
         return;
-    setColor(color);
-    glLineWidth(static_cast<GLfloat>(width));
-    glBegin(GL_LINES);
-    pushVertex(line.getPoint(0));
-    pushVertex(line.getPoint(1));
-    glEnd();
-}
-void Engine::drawQuad(const graphics::Quad2<double>& quad, const graphics::Color& color) const {
-    if (!running)
-        return;
-    setColor(color);
-    glBegin(GL_QUADS);
-    pushVertex(quad.getPoint(0));
-    pushVertex(quad.getPoint(1));
-    pushVertex(quad.getPoint(2));
-    pushVertex(quad.getPoint(3));
-    glEnd();
+    map = map_;
 }
 
-void Engine::setColor(const graphics::Color& color) {
-    glColor4ub(color.red(),color.green(),color.blue(),color.alpha());
+std::shared_ptr<renderer::BaseRenderer> Engine::getRenderer() {
+    if (renderer == nullptr)
+        return std::make_shared<renderer::NullRenderer>();
+    return renderer;
 }
-void Engine::pushVertex(const math::Vector2<double>& vertex) {
-    glVertex2d(vertex[0], vertex[1]);
+
+void Engine::drawRayCasting() {
+    using Unit = rc::math::Angle::Unit;
+    auto engine = rc::base::Engine::get().getRenderer();
+    double fov = 60.0;
+    double increment = 0.1;
+    auto ray = player->getDirection().rotated(rc::math::Angle{-fov/2, Unit::Degree});
+    rc::math::Vector2<double> rayTmp;
+    engine->drawQuad({{526, 0}, {1006, 0}, {1006, 160}, {526, 160}}, {0, 255, 255});
+    engine->drawQuad({{526, 160}, {1006, 160}, {1006, 320}, {526, 320}}, {0, 0, 255});
+    for (double rays = 0; rays < fov/increment; ++rays) {
+        auto result = map->castRay(player->getPosition(),ray);
+        if (result.hitVertical) {//vertical hit first
+            engine->drawLine({player->getPosition(), ray, result.distance}, 2, {0,204,0});//draw 2D ray
+        }else{//horizontal hit first
+            engine->drawLine({player->getPosition(), ray, result.distance}, 2, {0,153,0});//draw 2D ray
+        }
+        constexpr uint32_t mapS = 64;
+        auto lineH = static_cast<int32_t>((mapS * 320) / (result.distance * player->getDirection().dot(ray)));
+        if (lineH > 320) { lineH = 320; }//line height and limit
+        double lineOff = 160 - (lineH >> 1);//line offset
+        //draw vertical wall
+        double lineX = (rays * 8 + 0.5)* increment + 526;
+        if (result.hitVertical) {
+            engine->drawLine({{lineX, lineOff}, {lineX, lineOff + lineH}}, 8.2*increment, {0,204,0});
+        }else{
+            engine->drawLine({{lineX, lineOff}, {lineX, lineOff + lineH}}, 8.2*increment, {0,153,0});
+        }
+        ray.rotate(rc::math::Angle{increment, Unit::Degree});//go to next ray
+    }
 }
 
 }// namespace rc::base
