@@ -18,8 +18,11 @@ find_package(OpenGL REQUIRED)
 # GLUT
 find_package(GLUT REQUIRED)
 message(STATUS "Found Glut in ${GLUT_INCLUDE_DIR}")
-target_link_libraries(${CMAKE_PROJECT_NAME}_lib opengl32 glu32 freeglut)
-
+if (WIN32)
+    target_link_libraries(${CMAKE_PROJECT_NAME}_lib opengl32 glu32 freeglut)
+else()
+    target_link_libraries(${CMAKE_PROJECT_NAME}_lib GL GLU glut)
+endif()
 #
 #  Main Executable
 #
