@@ -8,7 +8,7 @@
 
 #include "BaseRenderer.h"
 
-namespace rc::base::renderer {
+namespace rc::core::renderer {
 
 BaseRenderer::~BaseRenderer() = default;
 

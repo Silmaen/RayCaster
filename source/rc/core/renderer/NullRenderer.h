@@ -8,7 +8,7 @@
 
 #pragma once
 #include "BaseRenderer.h"
-namespace rc::base::renderer {
+namespace rc::core::renderer {
 
 /**
  * @brief Class NullRenderer

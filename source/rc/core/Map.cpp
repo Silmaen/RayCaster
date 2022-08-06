@@ -10,7 +10,7 @@
 #include "Engine.h"
 #include "graphics/Quad2.h"
 
-namespace rc::base {
+namespace rc::core {
 
 Map::Map(const Map::DataType& data, uint8_t cube) :
     cubeSize{cube}, mapArray{data} { updateSize(); }
@@ -38,25 +38,6 @@ void Map::setMap(const DataType& data) {
 void Map::setMap(DataType&& data) {
     mapArray = std::move(data);
     updateSize();
-}
-
-void Map::draw() {
-    auto engine = Engine::get().getRenderer();
-    double x    = 0;
-    double y    = 0;
-    for (LineType& line : mapArray) {
-        for (uint8_t cell : line) {
-            engine->drawQuad(
-                    {{x + 1, y + 1},
-                     {x + 1, y - 1 + cubeSize},
-                     {x - 1 + cubeSize, y - 1 + cubeSize},
-                     {x - 1 + cubeSize, y + 1}},
-                     cell > 0 ? graphics::Color{255, 255, 255} : graphics::Color{0, 0, 0});
-            x += cubeSize;
-        }
-        x = 0;
-        y += cubeSize;
-    }
 }
 
 bool Map::isValid() const {

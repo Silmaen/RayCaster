@@ -10,7 +10,7 @@
 
 #include "math/Vector2.h"
 
-namespace rc::base {
+namespace rc::core {
 
 /**
  * @brief Class Player
@@ -68,10 +68,6 @@ public:
      * @param dir The Direction
      */
     void setDirection(const DirectionType& dir);
-    /**
-     * @brief Draw the player
-     */
-    void draw();
 
     /**
      * @brief Rotate player

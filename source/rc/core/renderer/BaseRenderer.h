@@ -14,7 +14,7 @@
 #include "graphics/Quad2.h"
 #include "math/Vector2.h"
 
-namespace rc::base::renderer {
+namespace rc::core::renderer {
 
 /// Base type for screen resolution
 using Resolution = math::Vector2<int32_t>;

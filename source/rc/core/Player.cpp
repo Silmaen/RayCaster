@@ -7,15 +7,9 @@
  */
 
 #include "Player.h"
-#include "base/Engine.h"
+#include "core/Engine.h"
 
-namespace rc::base {
-
-void Player::draw() {
-    auto engine = Engine::get().getRenderer();
-    engine->drawPoint(position, 8, {255U, 255U, 0U});
-    engine->drawLine({position, direction * 20.0, 1}, 4, {255U, 255U, 0U});
-}
+namespace rc::core {
 
 void Player::rotate(const math::Angle& angle) {
     direction.rotate(angle);

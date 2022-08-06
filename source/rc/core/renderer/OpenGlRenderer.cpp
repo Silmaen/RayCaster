@@ -10,7 +10,7 @@
 #include <GL/glut.h>
 
 
-namespace rc::base::renderer {
+namespace rc::core::renderer {
 // hat trick
 
 static OpenGLRenderer* globalPtr = nullptr;///< Global pointer to the actual renderer...

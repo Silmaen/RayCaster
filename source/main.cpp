@@ -1,13 +1,13 @@
-#include "base/Engine.h"
-#include "base/Map.h"
+#include "core/Engine.h"
+#include "core/Map.h"
 
 int main() {
     // creation & initialization of the engine
-    auto& app = rc::base::Engine::get();
+    auto& app = rc::core::Engine::get();
     app.init();
 
     // load a map
-    auto map = std::make_shared<rc::base::Map>(rc::base::Map::DataType
+    auto map = std::make_shared<rc::core::Map>(rc::core::Map::DataType
             {{1, 1, 1, 1, 1, 1, 1, 1},
              {1, 0, 1, 0, 0, 0, 0, 1},
              {1, 0, 1, 0, 0, 0, 0, 1},
@@ -17,7 +17,7 @@ int main() {
              {1, 0, 0, 0, 0, 0, 0, 1},
              {1, 1, 1, 1, 1, 1, 1, 1}});
     // create a player
-    auto player            = std::make_shared<rc::base::Player>();
+    auto player            = std::make_shared<rc::core::Player>();
     player->setPosition({200, 300});
     player->setDirection({1.0, 0.0});
 
