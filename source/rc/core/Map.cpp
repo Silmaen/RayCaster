@@ -8,7 +8,9 @@
 
 #include "Map.h"
 #include "Engine.h"
+#include "fs/DataFile.h"
 #include "graphics/Quad2.h"
+#include <nlohmann/json.hpp>
 
 namespace rc::core {
 
@@ -57,7 +59,6 @@ Map::BaseType& Map::at(const gridCoordinate& location) {
 const Map::BaseType& Map::at(const gridCoordinate& location) const {
     return mapArray[location[1]][location[0]];
 }
-
 
 Map::rayCastResult Map::castRay(const math::Vector2<double>& from, const math::Vector2<double>& direction) const {
     gridCoordinate playerCell = whichCell(from);
@@ -146,6 +147,12 @@ bool Map::isIn(const gridCoordinate& from) const {
 void Map::updateSize() {
     maxWidth  = static_cast<double>(width() * cubeSize);
     maxHeight = static_cast<double>(height() * cubeSize);
+}
+
+void Map::loadFormFile(const std::string& mapName) {
+    fs::DataFile file;
+    file.setPath(std::filesystem::path("maps") / mapName);
+    auto data = nlohmann::json::parse(file.openRead());
 }
 
 }// namespace rc::core

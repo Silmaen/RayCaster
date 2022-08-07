@@ -12,17 +12,23 @@ add_library(${CMAKE_PROJECT_NAME}_lib
         ${SRCS} ${HDRS})
 target_include_directories(${CMAKE_PROJECT_NAME}_lib PUBLIC rc)
 
+# ----==== third party ====----
 # OpenGL
 find_package(OpenGL REQUIRED)
 
 # GLUT
 find_package(GLUT REQUIRED)
+
+# json
+find_package(nlohmann_json 3.2.0 REQUIRED)
+
 message(STATUS "Found Glut in ${GLUT_INCLUDE_DIR}")
 if (WIN32)
-    target_link_libraries(${CMAKE_PROJECT_NAME}_lib opengl32 glu32 freeglut)
-else()
-    target_link_libraries(${CMAKE_PROJECT_NAME}_lib GL GLU glut)
-endif()
+    target_link_libraries(${CMAKE_PROJECT_NAME}_lib PRIVATE opengl32 glu32 freeglut)
+else ()
+    target_link_libraries(${CMAKE_PROJECT_NAME}_lib PRIVATE GL GLU glut)
+endif ()
+target_link_libraries(${CMAKE_PROJECT_NAME}_lib PRIVATE nlohmann_json)
 #
 #  Main Executable
 #

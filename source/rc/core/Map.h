@@ -9,8 +9,9 @@
 #pragma once
 
 #include "math/Vector2.h"
-#include <vector>
+#include <string>
 #include <tuple>
+#include <vector>
 
 namespace rc::core {
 
@@ -25,7 +26,7 @@ public:
     using LineType = std::vector<BaseType>;
     /// Map data's type
     using DataType = std::vector<LineType>;
-    /// Index's type in mapa data
+    /// Index's type in map data
     using IndexType = uint8_t;
     /// Grid coordinate's type
     using gridCoordinate = math::Vector2<IndexType>;
@@ -181,28 +182,43 @@ public:
      * @brief Get the cube's size
      * @return Cube's size
      */
-    [[nodiscard]] uint8_t getCellSize()const{return cubeSize;}
+    [[nodiscard]] uint8_t getCellSize() const { return cubeSize; }
     /**
      * @brief Get the full pixel width of the map
      * @return Pixel width of the map
      */
-    [[nodiscard]] uint32_t fullWidth()const{return width()*cubeSize;}
+    [[nodiscard]] uint32_t fullWidth() const { return width() * cubeSize; }
     /**
      * @brief Get the full pixel height of the map
      * @return Pixel height of the map
      */
-    [[nodiscard]] uint32_t fullHeight()const{return height()*cubeSize;}
+    [[nodiscard]] uint32_t fullHeight() const { return height() * cubeSize; }
     /**
      * @brief Define player starts
      * @param pos Position
      * @param dir Direction
      */
-    void setPlayerStart(const math::Vectf& pos,const math::Vectf& dir){PlayerInitialPosition=pos;PlayerInitialDirection=dir;}
+    void setPlayerStart(const math::Vectf& pos, const math::Vectf& dir) {
+        PlayerInitialPosition  = pos;
+        PlayerInitialDirection = dir;
+    }
     /**
      * @brief Get player start information
      * @return Player start state
      */
-    [[nodiscard]] std::tuple<const math::Vectf&, const math::Vectf&> getPlayerStart()const{return {PlayerInitialPosition,PlayerInitialDirection};}
+    [[nodiscard]] std::tuple<const math::Vectf&, const math::Vectf&> getPlayerStart() const { return {PlayerInitialPosition, PlayerInitialDirection}; }
+
+    /**
+     * @brief load a map
+     * @param mapName Map's name
+     */
+    void loadFormFile(const std::string& mapName);
+    /**
+     * @brief save a map
+     * @param mapName Map's name
+     */
+    void saveToFile(const std::string& mapName);
+
 private:
     /**
      * @brief Reset the map to the given size
