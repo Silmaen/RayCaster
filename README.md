@@ -15,12 +15,14 @@ Find out more technical documentation in
     * [ ] first step : change color
     * [ ] second step : action on wall (doors)
   * [ ] Adding load/save maps
+  * [ ] Add collision checks
 * [ ] Refactor engine
   * [ ] Make player & map creation managed by the engine
   * [ ] Adding player UI
   * [ ] Map rendering
     * [ ] render only the walls
     * [ ] render only the seen walls
+  * [ ] Movement uses collision
 * [ ] Refactor input system
   * [ ] Not manager by the renderer (even if same system)
   * [ ] adding external key mapping (for switching keyboard)

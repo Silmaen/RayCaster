@@ -34,6 +34,9 @@ void Engine::init() {
     renderer->Init();
     renderer->setDrawingCallback([this] { this->display(); });
     renderer->setButtonCallback([this](auto&& PH1, auto&& PH2, auto&& PH3) { button(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2), std::forward<decltype(PH3)>(PH3)); });
+    map    = std::make_shared<Map>();
+    player = std::make_shared<Player>();
+    status = Status::Ready;
 }
 
 void Engine::display() {
@@ -76,9 +79,10 @@ void Engine::button(uint8_t key, [[maybe_unused]] int32_t x, [[maybe_unused]] in
 }
 
 void Engine::run() {
-    if (renderer == nullptr)
-        return;
-    renderer->run();
+    checkState();
+    if (status == Status::Ready) {
+        renderer->run();
+    }
 }
 
 void Engine::registerPlayer(const std::shared_ptr<Player>& player_) {
@@ -170,6 +174,47 @@ std::tuple<double, math::Vector2<double>> Engine::getMapLayoutInfo() const {
     return {scaleFactor,
             {settings.layoutMap.center()[0] - map->fullWidth() * scaleFactor / 2.0,
              settings.layoutMap.center()[1] - map->fullHeight() * scaleFactor / 2.0}};
+}
+
+void Engine::checkState() {
+    if (status == Status::Uninitialized)
+        return;
+    if (renderer == nullptr) {
+        status = Status::Error;
+        return;
+    }
+    if (player == nullptr) {
+        status = Status::Error;
+        return;
+    }
+    if (map == nullptr) {
+        status = Status::Error;
+        return;
+    }
+    if (!map->isValid()) {
+        status = Status::Error;
+        return;
+    }
+    if (!map->isIn(player->getPosition())) {
+        status = Status::Error;
+        return;
+    }
+    status = Status::Ready;
+}
+
+void Engine::mapLoad() {
+    map->setMap({{1, 1, 1, 1, 1, 1, 1, 1},
+                 {1, 0, 1, 0, 0, 0, 0, 1},
+                 {1, 0, 1, 0, 0, 0, 0, 1},
+                 {1, 0, 1, 0, 0, 1, 0, 1},
+                 {1, 0, 0, 0, 0, 0, 0, 1},
+                 {1, 0, 0, 0, 0, 1, 0, 1},
+                 {1, 0, 0, 0, 0, 0, 0, 1},
+                 {1, 1, 1, 1, 1, 1, 1, 1}});
+    map->setPlayerStart({200, 300}, {1.0, 0.0});
+    auto [pos, dir] = map->getPlayerStart();
+    player->setPosition(pos);
+    player->setDirection(dir);
 }
 
 }// namespace rc::core
