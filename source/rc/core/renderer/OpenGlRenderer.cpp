@@ -96,10 +96,10 @@ void OpenGLRenderer::drawQuad(const graphics::Quad2<double>& quad, const graphic
         return;
     setColor(color);
     glBegin(GL_QUADS);
-    pushVertex(quad.getPoint(0));
-    pushVertex(quad.getPoint(1));
-    pushVertex(quad.getPoint(2));
-    pushVertex(quad.getPoint(3));
+    pushVertex(quad[0]);
+    pushVertex(quad[1]);
+    pushVertex(quad[2]);
+    pushVertex(quad[3]);
     glEnd();
 }
 
@@ -114,4 +114,4 @@ void OpenGLRenderer::button_cb(uint8_t key, int32_t x, int32_t y) {
         btn(key, x, y);
 }
 
-}// namespace rc::base::renderer
+}// namespace rc::core::renderer

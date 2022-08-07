@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include <cmath>
 #include <cstdint>
+#include <cmath>
 #include "Angle.h"
 
 namespace rc::math {
@@ -23,7 +23,14 @@ public:
     /**
      * @brief Default copy constructor
      */
-    Vector2(const Vector2&)= default;
+    Vector2(const Vector2&) = default;
+    /**
+     * @brief Copy constructor with type change
+     * @tparam DatatypeOther The other's type
+     * @param other The vector to copy
+     */
+    template<class DatatypeOther>
+    Vector2(const Vector2<DatatypeOther>& other):X{static_cast<DataType>(other[0])},Y{static_cast<DataType>(other[1])}{}
     /**
      * @brief Default move constructor
      */
@@ -32,7 +39,19 @@ public:
      * @brief Default copy assignation
      * @return this
      */
-    Vector2& operator=(const Vector2&)= default;
+    Vector2& operator=(const Vector2& ) = default;
+    /**
+     * @brief Copy assignation with type change
+     * @tparam DatatypeOther The other's type
+     * @param other The vector to copy
+     * @return this
+     */
+    template<class DatatypeOther>
+    Vector2& operator=(const Vector2<DatatypeOther>& other){
+            X = static_cast<DataType>(other[0]);
+            Y = static_cast<DataType>(other[1]);
+            return *this;
+    }
     /**
      * @brief Default move assignation
      * @return this
@@ -155,11 +174,11 @@ public:
      * @return This actualized vector
      */
     Vector2& rotate(const Angle& angle){
-        double ca = std::cos(angle.get());
-        double sa = std::sin(angle.get());
-        auto Tx = static_cast<DataType>(ca * X - sa * Y);
-        Y = static_cast<DataType>(sa * X + ca * Y);
-        std::swap(X, Tx);
+        double cca = std::cos(angle.get());
+        double csa = std::sin(angle.get());
+        auto Tcx = static_cast<DataType>(cca * X - csa * Y);
+        Y = static_cast<DataType>(csa * X + cca * Y);
+        std::swap(X, Tcx);
         return *this;
     }
     /**
@@ -187,5 +206,12 @@ private:
     /// Second coordinate
     DataType Y{};
 };
+
+/// Shortcut for a vector of float
+using Vectf=Vector2<double>;
+/// Shortcut for a vector of int
+using Vecti=Vector2<int32_t>;
+/// Shortcut for a vector of unsigned char
+using Vectuis=Vector2<uint8_t>;
 
 }// namespace rc::math

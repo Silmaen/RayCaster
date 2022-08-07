@@ -13,10 +13,7 @@
 #include "graphics/Line2.h"
 #include "graphics/Quad2.h"
 #include "renderer/BaseRenderer.h"
-#include <cstdint>
-#include <functional>
 #include <memory>
-#include <vector>
 /**
  * @namespace rc
  * @brief Base namespace of the project library
@@ -31,16 +28,18 @@ namespace rc::core {
  * @brief Engine setings
  */
 struct EngineSettings {
-    /// Type of renderer to use
-    renderer::RendererType rendererType;
+    /// Renderer's type to use
+    renderer::RendererType rendererType = renderer::RendererType::Null;
     /// Renderer Settings
-    renderer::Settings rendererSettings;
+    renderer::Settings rendererSettings{{1280,720}};
     /// Screen zone where to draw the 3D scene
-    graphics::Box2 layout3D;
+    graphics::Box2 layout3D{{0, 0}, {860, 550}};
     /// Screen zone where to draw the map
-    graphics::Box2 layoutMap;
+    graphics::Box2 layoutMap{{880, 150}, {1280, 550}};
     /// If daw the rays in the map
-    bool drawRays;
+    bool drawMap = false;
+    /// If daw the rays in the map
+    bool drawRays = false;
 };
 
 /**
@@ -136,7 +135,7 @@ private:
 
      /**
       * @brief Compute map layout infos
-      * @return Scalefactor and offset point
+      * @return Scale factor and offset point
       */
      [[nodiscard]] std::tuple<double,math::Vector2<double>> getMapLayoutInfo()const;
     /**
@@ -145,11 +144,7 @@ private:
     Engine() = default;
     /// Engine's settings
     EngineSettings settings{
-            renderer::RendererType::OpenGL,
-            {{1280, 720}},
-            {{0, 0}, {860, 550}},
-            {{880, 150}, {1280, 550}},
-            true};
+            renderer::RendererType::OpenGL};
     /// Link to the renderer
     std::shared_ptr<renderer::BaseRenderer> renderer = nullptr;
     /// Link to the map
