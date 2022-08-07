@@ -75,7 +75,7 @@ public:
      * @param idx Vertex's id
      * @return Reference to the vertex
      */
-    VertexType& getPoint(uint8_t idx) { return idx == 0 ? P1 : idx == 1 ? P2 :
+    VertexType& operator[](uint8_t idx) { return idx == 0 ? P1 : idx == 1 ? P2 :
                                                        idx == 2         ? P3 :
                                                                           P4; }
     /**
@@ -83,7 +83,7 @@ public:
      * @param idx Vertex's id
      * @return Reference to the vertex
      */
-    const VertexType& getPoint(uint8_t idx)const { return idx == 0 ? P1 : idx == 1 ? P2 :
+    const VertexType& operator[](uint8_t idx)const { return idx == 0 ? P1 : idx == 1 ? P2 :
                                                        idx == 2         ? P3 :
                                                                           P4; }
     /**

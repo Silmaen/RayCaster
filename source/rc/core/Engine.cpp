@@ -39,9 +39,11 @@ void Engine::init() {
 void Engine::display() {
     if (!player || !map)
         return;
-    drawMap();
+    if (settings.drawMap)
+        drawMap();
     drawRayCasting();
-    drawPlayerOnMap();
+    if (settings.drawMap)
+        drawPlayerOnMap();
 }
 
 void Engine::button(uint8_t key, [[maybe_unused]] int32_t x, [[maybe_unused]] int32_t y) {
@@ -58,6 +60,15 @@ void Engine::button(uint8_t key, [[maybe_unused]] int32_t x, [[maybe_unused]] in
     }
     if (key == 's') {
         player->walk(-5);
+    }
+    if (key == 'e') {
+        // use action
+    }
+    if (key == 'm') {
+        settings.drawMap = !settings.drawMap;
+    }
+    if (key == 'r') {
+        settings.drawRays = !settings.drawRays;
     }
     if (renderer == nullptr)
         return;
@@ -115,7 +126,7 @@ void Engine::drawRayCasting() {
         graphics::Color color{0, 153, 0};
         if (result.hitVertical)
             color = {0, 204, 0};
-        if (settings.drawRays) {
+        if (settings.drawRays && settings.drawMap) {
             renderer->drawLine({player->getPosition() * scaleFactor + offsetPoint, ray, result.distance * scaleFactor}, 2, color);//draw 2D ray
         }
         auto lineH = static_cast<int32_t>((map->getCellSize() * settings.layout3D.height()) /
@@ -156,9 +167,9 @@ void Engine::drawPlayerOnMap() {
 std::tuple<double, math::Vector2<double>> Engine::getMapLayoutInfo() const {
     double scaleFactor = std::min(settings.layoutMap.width() / static_cast<double>(map->fullWidth()),
                                   settings.layoutMap.height() / static_cast<double>(map->fullHeight()));
-    return std::tuple<double, math::Vector2<double>>(scaleFactor,
-                                                     {settings.layoutMap.center()[0] - map->fullWidth() * scaleFactor / 2.0,
-                                                      settings.layoutMap.center()[1] - map->fullHeight() * scaleFactor / 2.0});
+    return {scaleFactor,
+            {settings.layoutMap.center()[0] - map->fullWidth() * scaleFactor / 2.0,
+             settings.layoutMap.center()[1] - map->fullHeight() * scaleFactor / 2.0}};
 }
 
 }// namespace rc::core
