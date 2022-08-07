@@ -31,7 +31,7 @@ struct EngineSettings {
     /// Renderer's type to use
     renderer::RendererType rendererType = renderer::RendererType::Null;
     /// Renderer Settings
-    renderer::Settings rendererSettings{{1280,720}};
+    renderer::Settings rendererSettings{{1280, 720}};
     /// Screen zone where to draw the 3D scene
     graphics::Box2 layout3D{{0, 0}, {860, 550}};
     /// Screen zone where to draw the map
@@ -73,12 +73,26 @@ public:
      */
     [[nodiscard]] const EngineSettings& getSettings() const { return settings; }
 
-
     /**
      * @brief Define the settings
      * @param setting The Settings
      */
     void setSettings(const EngineSettings& setting);
+
+    /**
+     * @brief Engine statuses
+     */
+    enum struct Status {
+        Uninitialized,///< Uninitialized, just created
+        Ready,        ///< Ready to run
+        Error,        ///< In error state
+    };
+
+    /**
+     * @brief Get the engine's status
+     * @return The engine status
+     */
+    [[nodiscard]] const Status& getStatus()const{return status;}
 
     /**
      * @brief Initialize game engine
@@ -118,6 +132,10 @@ public:
      */
     void display();
 
+    /**
+     * @brief Load the map
+     */
+    void mapLoad();
 private:
     /**
      * @brief Function that draw the 3D environment
@@ -127,17 +145,21 @@ private:
     /**
      * @brief Function that draw the map
      */
-     void drawMap();
-     /**
+    void drawMap();
+    /**
       * @brief Function that draw player's position in the map
       */
-     void drawPlayerOnMap();
+    void drawPlayerOnMap();
 
-     /**
+    /**
+     * @brief Check the engine state and update status
+     */
+    void checkState();
+    /**
       * @brief Compute map layout infos
       * @return Scale factor and offset point
       */
-     [[nodiscard]] std::tuple<double,math::Vector2<double>> getMapLayoutInfo()const;
+    [[nodiscard]] std::tuple<double, math::Vector2<double>> getMapLayoutInfo() const;
     /**
      * @brief Default constructor.
      */
@@ -145,6 +167,8 @@ private:
     /// Engine's settings
     EngineSettings settings{
             renderer::RendererType::OpenGL};
+    /// Current status of the engine
+    Status status = Status::Uninitialized;
     /// Link to the renderer
     std::shared_ptr<renderer::BaseRenderer> renderer = nullptr;
     /// Link to the map

@@ -76,7 +76,7 @@ Map::rayCastResult Map::castRay(const math::Vector2<double>& from, const math::V
             verticalOffset[0] = -cubeSize;
             progression       = direction[1] / direction[0];
             verticalPoint[0]  = cubeSize * playerCell[0] - 0.001;// just a little inside the left cube
-        } else {// ray is almost vertical: no projection
+        } else {                                                 // ray is almost vertical: no projection
             verticalDistance = -1;
         }
         if (verticalDistance > 0) {
@@ -105,7 +105,7 @@ Map::rayCastResult Map::castRay(const math::Vector2<double>& from, const math::V
             horizontalOffset[1] = -cubeSize;
             progression         = direction[0] / direction[1];
             horizontalPoint[1]  = cubeSize * playerCell[1] - 0.001;// just a little inside the left cube
-        } else {// ray is almost horizontal: no projection
+        } else {                                                   // ray is almost horizontal: no projection
             horizontalDistance = -1;
         }
         if (horizontalDistance > 0) {
@@ -148,4 +148,4 @@ void Map::updateSize() {
     maxHeight = static_cast<double>(height() * cubeSize);
 }
 
-}// namespace rc::base
+}// namespace rc::core

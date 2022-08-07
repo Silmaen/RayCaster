@@ -9,8 +9,8 @@
 #pragma once
 
 #include "math/Vector2.h"
-#include <cstdint>
 #include <vector>
+#include <tuple>
 
 namespace rc::core {
 
@@ -192,6 +192,17 @@ public:
      * @return Pixel height of the map
      */
     [[nodiscard]] uint32_t fullHeight()const{return height()*cubeSize;}
+    /**
+     * @brief Define player starts
+     * @param pos Position
+     * @param dir Direction
+     */
+    void setPlayerStart(const math::Vectf& pos,const math::Vectf& dir){PlayerInitialPosition=pos;PlayerInitialDirection=dir;}
+    /**
+     * @brief Get player start information
+     * @return Player start state
+     */
+    [[nodiscard]] std::tuple<const math::Vectf&, const math::Vectf&> getPlayerStart()const{return {PlayerInitialPosition,PlayerInitialDirection};}
 private:
     /**
      * @brief Reset the map to the given size
@@ -205,6 +216,10 @@ private:
     void updateSize();
     /// Size of a cube
     uint8_t cubeSize = 64;
+    /// Player stating point in the map
+    math::Vectf PlayerInitialPosition{};
+    /// Player Starting direction in the map
+    math::Vectf PlayerInitialDirection{};
     /// The map data
     DataType mapArray;
     double maxWidth  = 0;

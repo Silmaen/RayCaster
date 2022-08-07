@@ -38,10 +38,18 @@ TEST(Engine, base) {
     EXPECT_EQ(renderer->getStatus(), rc::core::renderer::Status::Ready);
     renderer = engine.getRenderer();
     engine.run();
-    EXPECT_EQ(renderer->getStatus(), rc::core::renderer::Status::Running);
-    engine.registerPlayer(player);
-    engine.registerMap(map);
+}
+
+TEST(Engine, base2) {
+    auto& engine = Engine::get();
+    auto sets    = engine.getSettings();
+    sets.rendererType = rc::core::renderer::RendererType::Null;
     engine.setSettings(sets);
+    engine.init();
+    engine.mapLoad();
+    engine.run();
+    auto renderer = engine.getRenderer();
+    EXPECT_EQ(renderer->getStatus(), rc::core::renderer::Status::Running);
     renderer->update();
     renderer->drawPoint({0,0},1,{0,0,0});
     renderer->drawLine({{0,0},{1,1}},1,{0,0,0});
