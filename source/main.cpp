@@ -6,7 +6,7 @@ int main() {
     app.init();
 
     // load the map
-    app.mapLoad();
+    app.mapLoad("E1L1");
 
     // run main App
     app.run();

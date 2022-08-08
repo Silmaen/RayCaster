@@ -1,5 +1,6 @@
 
 #include "core/Map.h"
+#include "core/fs/DataFile.h"
 #include "testHelper.h"
 #include <chrono>
 using testClock = std::chrono::steady_clock;
@@ -150,4 +151,26 @@ TEST(Map, castRay) {
     const double maxDuration = 3.5;
 #endif
     EXPECT_LE(micros, maxDuration);
+}
+
+TEST(Map, saveMap){
+    Map map{{{1, 1, 1, 1, 1, 1, 1, 1},
+             {1, 0, 1, 0, 0, 0, 0, 1},
+             {1, 0, 1, 0, 0, 0, 0, 1},
+             {1, 0, 0, 0, 0, 0, 0, 1},
+             {1, 0, 0, 0, 0, 0, 0, 1},
+             {1, 0, 0, 0, 0, 1, 0, 1},
+             {1, 0, 0, 0, 0, 0, 0, 1},
+             {1, 1, 1, 1, 1, 1, 1, 1}}};
+    map.setPlayerStart({245,125},{0,-1});
+    map.saveToFile("test");
+    rc::core::fs::DataFile testMap("maps/test.map");
+    ASSERT_TRUE(testMap.exists());
+    Map map2;
+    map2.loadFromFile("test");
+    EXPECT_EQ(map2.getCellSize(),map.getCellSize());
+    testMap.remove();
+    EXPECT_FALSE(testMap.exists());
+    testMap.remove();
+    EXPECT_FALSE(testMap.exists());
 }

@@ -50,7 +50,7 @@ void Engine::display() {
 }
 
 void Engine::button(uint8_t key, [[maybe_unused]] int32_t x, [[maybe_unused]] int32_t y) {
-    if (player == nullptr)
+    if (status == Status::Uninitialized)
         return;
     if (key == 'q') {
         player->rotate({-5, math::Angle::Unit::Degree});
@@ -73,8 +73,6 @@ void Engine::button(uint8_t key, [[maybe_unused]] int32_t x, [[maybe_unused]] in
     if (key == 'r') {
         settings.drawRays = !settings.drawRays;
     }
-    if (renderer == nullptr)
-        return;
     renderer->update();
 }
 
@@ -83,22 +81,6 @@ void Engine::run() {
     if (status == Status::Ready) {
         renderer->run();
     }
-}
-
-void Engine::registerPlayer(const std::shared_ptr<Player>& player_) {
-    if (renderer == nullptr)
-        return;
-    if (renderer->getStatus() == renderer::Status::Running)
-        return;
-    player = player_;
-}
-
-void Engine::registerMap(const std::shared_ptr<Map>& map_) {
-    if (renderer == nullptr)
-        return;
-    if (renderer->getStatus() == renderer::Status::Running)
-        return;
-    map = map_;
 }
 
 std::shared_ptr<renderer::BaseRenderer> Engine::getRenderer() {
@@ -202,16 +184,8 @@ void Engine::checkState() {
     status = Status::Ready;
 }
 
-void Engine::mapLoad() {
-    map->setMap({{1, 1, 1, 1, 1, 1, 1, 1},
-                 {1, 0, 1, 0, 0, 0, 0, 1},
-                 {1, 0, 1, 0, 0, 0, 0, 1},
-                 {1, 0, 1, 0, 0, 1, 0, 1},
-                 {1, 0, 0, 0, 0, 0, 0, 1},
-                 {1, 0, 0, 0, 0, 1, 0, 1},
-                 {1, 0, 0, 0, 0, 0, 0, 1},
-                 {1, 1, 1, 1, 1, 1, 1, 1}});
-    map->setPlayerStart({200, 300}, {1.0, 0.0});
+void Engine::mapLoad(const std::string& mapName) {
+    map->loadFromFile(mapName);
     auto [pos, dir] = map->getPlayerStart();
     player->setPosition(pos);
     player->setDirection(dir);

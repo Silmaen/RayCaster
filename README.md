@@ -17,7 +17,7 @@ Find out more technical documentation in
   * [ ] Adding load/save maps
   * [ ] Add collision checks
 * [ ] Refactor engine
-  * [ ] Make player & map creation managed by the engine
+  * [X] Make player & map creation managed by the engine
   * [ ] Adding player UI
   * [ ] Map rendering
     * [ ] render only the walls
