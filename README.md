@@ -12,16 +12,16 @@ Find out more technical documentation in
 
 * [ ] refactor Maps
   * [ ] Larger variety of wall type
-    * [ ] first step : change color
+    * [X] first step : change color
     * [ ] second step : action on wall (doors)
   * [X] Adding load/save maps
   * [X] Add collision checks
 * [ ] Refactor engine
   * [X] Make player & map creation managed by the engine
   * [ ] Adding player UI
-  * [ ] Map rendering
-    * [ ] render only the walls
-    * [ ] render only the seen walls
+  * [X] Map rendering
+    * [X] render only the walls
+    * [X] render only the seen walls
   * [X] Movement uses collision
 * [ ] Refactor input system
   * [ ] Not manager by the renderer (even if same system)
@@ -37,4 +37,11 @@ Find out more technical documentation in
   * [ ] Allow wall texture
   * [ ] Sky dome
   * [ ] Ground texture
+* [ ] Level design
+  * [ ] remake Wolfenstein 3D
+    * [ ] Episode 1
+      * [ ] Map 1
+      * [ ] Map 2
+  * [ ] Side project: level editor
+    * [ ] QT based
 

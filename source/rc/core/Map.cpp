@@ -7,11 +7,31 @@
  */
 
 #include "Map.h"
-#include "Engine.h"
 #include "fs/DataFile.h"
-#include "graphics/Quad2.h"
 
 namespace rc::core {
+
+/// Map Color list
+static const std::vector<graphics::Color> mapColors{
+        graphics::Color{0, 0, 0},
+        graphics::Color{0, 0, 128},
+        graphics::Color{0, 128, 0},
+        graphics::Color{0, 128, 128},
+};
+/// Ray color list
+static const std::vector<graphics::Color> rayColors{
+        graphics::Color{0, 0, 0},
+        graphics::Color{0, 0, 228},
+        graphics::Color{0, 228, 0},
+        graphics::Color{0, 228, 228},
+};
+
+const graphics::Color& mapCell::getMapColor()const{
+    return mapColors[textureId];
+}
+const graphics::Color& mapCell::getRayColor()const{
+    return rayColors[textureId];
+}
 
 Map::Map(const Map::DataType& data, uint8_t cube) :
     cubeSize{cube}, mapArray{data} { updateSize(); }
@@ -26,7 +46,7 @@ void Map::reset(uint8_t w, uint8_t h) {
     mapArray.resize(h);
     for (LineType& line : mapArray) {
         line.resize(w);
-        std::fill(line.begin(), line.end(), 0);
+        std::fill(line.begin(), line.end(), mapCell{false,false,0});
     }
     updateSize();
 }
@@ -144,17 +164,17 @@ bool Map::isIn(const gridCoordinate& from) const {
 }
 
 bool Map::isInPassable(const math::Vector2<double>& from) const {
-    return isIn(from) && at(whichCell(from)) == 0;
+    return isIn(from) && at(whichCell(from)).passable;
 }
 bool Map::isInPassable(const Map::gridCoordinate& from) const {
-    return isIn(from) && at(from) == 0;
+    return isIn(from) && at(from).passable;
 }
 
 bool Map::isInVisible(const math::Vector2<double>& from) const {
-    return isIn(from) && at(whichCell(from)) == 0;
+    return isIn(from) && at(whichCell(from)).visibility;
 }
 bool Map::isInVisible(const Map::gridCoordinate& from) const {
-    return isIn(from) && at(from) == 0;
+    return isIn(from) && at(from).visibility;
 }
 
 void Map::updateSize() {
@@ -165,22 +185,41 @@ void Map::updateSize() {
 void Map::loadFromFile(const std::string& mapName) {
     fs::DataFile file;
     file.setPath(std::filesystem::path("maps") / (mapName + ".map"));
-    auto data = file.readJson();
-    cubeSize = data["cubeSize"];
-    mapArray = data["cells"];
-    PlayerInitialPosition = data["playerStart"];
+    auto data       = file.readJson();
+    uint8_t version = data["version"];
+    cubeSize        = data["cubeSize"];
+    if (version == 1) {
+        std::vector<std::vector<uint8_t>> dataTmp = data["cells"];
+        reset(dataTmp[0].size(), dataTmp.size());
+        for (uint32_t i = 0; i < dataTmp.size(); ++i) {
+            for (uint32_t j = 0; j < dataTmp[0].size(); ++j) {
+                if (dataTmp[i][j] == 0) {
+                    mapArray[i][j].visibility = true;
+                    mapArray[i][j].passable   = true;
+                    mapArray[i][j].textureId = 0;
+                }else{
+                    mapArray[i][j].visibility = false;
+                    mapArray[i][j].passable   = false;
+                    mapArray[i][j].textureId = dataTmp[i][j];
+                }
+            }
+        }
+    } else {
+        mapArray = data["cells"];
+    }
+    PlayerInitialPosition  = data["playerStart"];
     PlayerInitialDirection = data["playerStartDir"];
     updateSize();
 }
 
 void Map::saveToFile(const std::string& mapName) {
     nlohmann::json data;
-    data["version"] = 1;
-    data["width"] = width();
-    data["height"] = height();
-    data["cubeSize"] = cubeSize;
-    data["cells"] = mapArray;
-    data["playerStart"] = PlayerInitialPosition;
+    data["version"]        = 2;
+    data["width"]          = width();
+    data["height"]         = height();
+    data["cubeSize"]       = cubeSize;
+    data["cells"]          = mapArray;
+    data["playerStart"]    = PlayerInitialPosition;
     data["playerStartDir"] = PlayerInitialDirection;
     fs::DataFile file;
     file.setPath(std::filesystem::path("maps") / (mapName + ".map"));
