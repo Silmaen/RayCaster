@@ -82,7 +82,7 @@ Map::rayCastResult Map::castRay(const math::Vector2<double>& from, const math::V
         if (verticalDistance > 0) {
             verticalOffset[1] = verticalOffset[0] * progression;
             verticalPoint[1]  = from[1] + progression * (verticalPoint[0] - from[0]);
-            while (isIn(verticalPoint) && at(whichCell(verticalPoint)) == 0) {
+            while (isInVisible(verticalPoint)) {
                 verticalPoint += verticalOffset;
             }
             if (isIn(verticalPoint)) {
@@ -111,7 +111,7 @@ Map::rayCastResult Map::castRay(const math::Vector2<double>& from, const math::V
         if (horizontalDistance > 0) {
             horizontalOffset[0] = horizontalOffset[1] * progression;
             horizontalPoint[0]  = from[0] + progression * (horizontalPoint[1] - from[1]);
-            while (isIn(horizontalPoint) && at(whichCell(horizontalPoint)) == 0) {
+            while (isInVisible(horizontalPoint)) {
                 horizontalPoint += horizontalOffset;
             }
             if (isIn(horizontalPoint)) {
@@ -141,6 +141,20 @@ bool Map::isIn(const math::Vector2<double>& from) const {
 
 bool Map::isIn(const gridCoordinate& from) const {
     return from[0] < width() && from[1] < height();
+}
+
+bool Map::isInPassable(const math::Vector2<double>& from) const {
+    return isIn(from) && at(whichCell(from)) == 0;
+}
+bool Map::isInPassable(const Map::gridCoordinate& from) const {
+    return isIn(from) && at(from) == 0;
+}
+
+bool Map::isInVisible(const math::Vector2<double>& from) const {
+    return isIn(from) && at(whichCell(from)) == 0;
+}
+bool Map::isInVisible(const Map::gridCoordinate& from) const {
+    return isIn(from) && at(from) == 0;
 }
 
 void Map::updateSize() {

@@ -22,13 +22,13 @@ TEST(Player, base){
 TEST(Player, Movement){
     Player player;
     player.setDirection({1,0});
-    player.walk(50);
+    player.move(player.getDirection() * 50);
     EXPECT_EQ(player.getPosition()[0],50);
     EXPECT_EQ(player.getPosition()[1],0);
     player.rotate({-90.0, Unit::Degree});
-    player.walk(50);
+    player.move(player.getDirection() * 50);
     player.rotate({-90.0, Unit::Degree});
-    player.walk(50);
+    player.move(player.getDirection() * 50);
 
     EXPECT_NEAR(player.getPosition()[0],0,0.00001);
     EXPECT_NEAR(player.getPosition()[1],-50,0.00001);

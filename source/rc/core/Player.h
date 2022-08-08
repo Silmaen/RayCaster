@@ -79,7 +79,7 @@ public:
      * @brief Move player in the look at direction
      * @param step Amount of movement
      */
-    void walk(double step);
+    void move(const DirectionType& step);
 private:
     /// Player's position
     PositionType position{};
