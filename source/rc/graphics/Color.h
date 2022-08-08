@@ -52,7 +52,7 @@ public:
      * @param blue Blue channel
      * @param alpha Alpha channel
      */
-    Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255) :
+    constexpr Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255) :
         R{red}, G{green}, B{blue}, A{alpha} {}
 
     /**
@@ -63,7 +63,7 @@ public:
      * @param alpha Alpha channel
      * @return A color
      */
-    static Color fromDouble(double red, double green, double blue, double alpha = 1.0) {
+    static constexpr Color fromDouble(double red, double green, double blue, double alpha = 1.0) {
         return {static_cast<uint8_t>(math::clamp(red, 0.0, 1.0) * 255),
                 static_cast<uint8_t>(math::clamp(green, 0.0, 1.0) * 255),
                 static_cast<uint8_t>(math::clamp(blue, 0.0, 1.0) * 255),
@@ -149,6 +149,46 @@ public:
      * @return True if not equal
      */
     [[nodiscard]] bool operator!=(const Color& other)const { return code() != other.code(); }
+
+    /**
+     * @brief Make this color a bit darker
+     * @return This
+     */
+    Color& darken(){
+        R*=0.9;
+        G*=0.9;
+        B*=0.9;
+        return *this;
+    }
+
+    /**
+     * @brief Make this color a bit lighter
+     * @return This
+     */
+    Color& lighten(){
+        R*=0.9;
+        G*=0.9;
+        B*=0.9;
+        return *this;
+    }
+
+    /**
+     * @brief Get a darker version of this color
+     * @return Darker color
+     */
+    [[nodiscard]] Color darker()const{
+        Color temp{*this};
+        return temp.darken();
+    }
+
+    /**
+     * @brief Get a lighter version of this color
+     * @return Lighter color
+     */
+    [[nodiscard]] Color lighter()const{
+        Color temp{*this};
+        return temp.lighten();
+    }
 
 private:
     uint8_t R = 0, G = 0, B = 0, A = 255;

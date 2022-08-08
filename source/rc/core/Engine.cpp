@@ -135,9 +135,12 @@ void Engine::drawRayCasting() {
     // ray casting
     for (int32_t rays = 0; rays <= settings.layout3D.width(); ++rays) {
         auto result = map->castRay(player->getPosition(), ray);
-        graphics::Color color{0, 153, 0};
+
+        Map::BaseType& cell = map->at(map->whichCell(result.wallPoint));
+        graphics::Color color{cell.getRayColor()};
+        cell.isViewed = true;
         if (result.hitVertical)
-            color = {0, 204, 0};
+            color.darken();
         if (settings.drawRays && settings.drawMap) {
             renderer->drawLine({player->getPosition() * scaleFactor + offsetPoint, ray, result.distance * scaleFactor}, 2, color);//draw 2D ray
         }
@@ -156,14 +159,15 @@ void Engine::drawMap() {
     auto [scaleFactor, offsetPoint] = getMapLayoutInfo();
     double offset                   = map->getCellSize() * scaleFactor;
     graphics::Quad2 quad{math::Vector2<double>{0, 0},
-                         math::Vector2<double>{0, offset - 1},
-                         math::Vector2<double>{offset - 1, offset - 1},
-                         math::Vector2<double>{offset - 1, 0}};
+                         math::Vector2<double>{0, offset},
+                         math::Vector2<double>{offset, offset},
+                         math::Vector2<double>{offset, 0}};
     quad.move(offsetPoint);
     for (Map::LineType& line : map->getMapData()) {
-        for (uint8_t cell : line) {
-            renderer->drawQuad(quad,
-                               cell > 0 ? graphics::Color{255, 255, 255} : graphics::Color{0, 0, 0});
+        for (Map::BaseType cell : line) {
+            if (cell.isViewed)
+                renderer->drawQuad(quad,
+                               cell.passable ? graphics::Color{0, 0, 0} : cell.visibility ? graphics::Color{40, 40, 40} : cell.getMapColor());
             quad.move({offset, 0});
         }
         offsetPoint += {0, offset};

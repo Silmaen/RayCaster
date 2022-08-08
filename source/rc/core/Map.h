@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "graphics/Color.h"
 #include "math/Vector2.h"
 #include <string>
 #include <tuple>
@@ -15,13 +16,66 @@
 
 namespace rc::core {
 
+
+/**
+ * @brief Structure Holding cell data
+ */
+struct mapCell {
+    bool passable;    ///< if player can pass through
+    bool visibility;  ///< if player can see through
+    uint8_t textureId;///< wall texture ID (color)
+    /**
+     * @brief Get the associated color for map and 3D view
+     * @return the color
+     */
+    const graphics::Color& getMapColor()const;
+    /**
+     * @brief Get the associated color for ray on map
+     * @return the color
+     */
+    const graphics::Color& getRayColor()const;
+    /**
+     * @brief Comparison operator
+     * @return True if equal
+     */
+    [[nodiscard]] bool operator==(const mapCell& )const =default;
+    /**
+     * @brief Comparison operator
+     * @return True if not equal
+     */
+    [[nodiscard]] bool operator!=(const mapCell& )const =default;
+    /// if the player has seen this wall
+    bool isViewed = false;
+};
+
+/**
+ * @brief Serialize this objet to json
+ * @param jso The json output
+ * @param mCell The mapCell to serialize
+ */
+inline void to_json(nlohmann::json& jso, const mapCell& mCell){
+    uint8_t result = (mCell.passable * 0b10000000) | (mCell.visibility * 0b01000000) | (mCell.textureId & 0b00111111);
+    jso = nlohmann::json{result};
+}
+/**
+ * @brief Deserialize this object from json
+ * @param jso Json source
+ * @param mCell Destination mapCell
+ */
+inline void from_json(const nlohmann::json& jso, mapCell& mCell){
+    uint8_t result =  jso.at(0);
+    mCell.textureId = result & 0b00111111;
+    mCell.visibility = (result & 0b01000000) == 0b01000000;
+    mCell.passable = (result & 0b10000000) == 0b10000000;
+}
+
 /**
  * @brief Class Map
  */
 class Map {
 public:
     /// Base type map tile data
-    using BaseType = uint8_t;
+    using BaseType = mapCell;
     /// Map line's type
     using LineType = std::vector<BaseType>;
     /// Map data's type

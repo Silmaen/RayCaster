@@ -18,23 +18,23 @@ TEST(Map, base) {
     EXPECT_FALSE(map.isValid());
     EXPECT_EQ(map.height(), 0);
     EXPECT_EQ(map.width(), 2);
-    map.setMap({{1, 1}, {1}});
+    map.setMap({{{false,false,1}, {false,false,1}}, {{false,false,1}}});
     EXPECT_FALSE(map.isValid());
-    Map::DataType data = {{1, 0}, {0, 1}};
+    Map::DataType data = {{{false,false,1}, {true,true,0}}, {{true,true,0}, {false,false,1}}};
     map.setMap(data);
     EXPECT_TRUE(map.isValid());
     EXPECT_EQ(map.getMapData(), data);
-    EXPECT_EQ(map({0, 1}), 0);
+    EXPECT_EQ(map({0, 1}), (Map::BaseType{true,true,0}));
 }
 
 TEST(Map, init) {
     {
-        const Map map({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
-        EXPECT_EQ(map({0, 1}), 4);
-        EXPECT_EQ(map({1, 2}), 8);
+        const Map map({{{false,false,1}, {false,false,2}, {false,false,3}}, {{false,false,4}, {false,false,5}, {false,false,6}}, {{false,false,7}, {false,false,8}, {false,false,9}}});
+        EXPECT_EQ(map({0, 1}), (Map::BaseType{false,false,4}));
+        EXPECT_EQ(map({1, 2}), (Map::BaseType{false,false,8}));
     }
     {
-        Map::DataType data = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+        Map::DataType data = {{{false,false,1}, {false,false,2}, {false,false,3}}, {{false,false,4}, {false,false,5}, {false,false,6}}, {{false,false,7}, {false,false,8}, {false,false,9}}};
         Map map(data);
         EXPECT_EQ(map.getMapData(), data);
     }
@@ -76,14 +76,16 @@ TEST(Map, whichCell) {
 TEST(Map, castRay) {
     using vecf = rc::math::Vector2<double>;
     using Unit = rc::math::Angle::Unit;
-    Map map{{{1, 1, 1, 1, 1, 1, 1, 1},
-             {1, 0, 0, 0, 0, 0, 0, 1},
-             {1, 0, 0, 0, 0, 0, 0, 1},
-             {1, 0, 0, 0, 0, 0, 0, 1},
-             {1, 0, 0, 0, 0, 0, 0, 1},
-             {1, 0, 0, 0, 0, 0, 0, 1},
-             {1, 0, 0, 0, 0, 0, 0, 1},
-             {1, 1, 1, 1, 1, 1, 1, 1}}};
+    rc::core::mapCell walls{false, false, 1};
+    rc::core::mapCell voids{true, true, 0};
+    Map map{{{walls, walls, walls, walls, walls, walls, walls, walls},
+             {walls, voids, voids, voids, voids, voids, voids, walls},
+             {walls, voids, voids, voids, voids, voids, voids, walls},
+             {walls, voids, voids, voids, voids, voids, voids, walls},
+             {walls, voids, voids, voids, voids, voids, voids, walls},
+             {walls, voids, voids, voids, voids, voids, voids, walls},
+             {walls, voids, voids, voids, voids, voids, voids, walls},
+             {walls, walls, walls, walls, walls, walls, walls, walls}}};
     std::vector<Map::rayCastResult> expecteds = {
             {198.00100000000000, {448.00100000000000, 320.00000000000000}, true}, //  0
             {203.92674045587697, {448.00100000000000, 368.80286335819466}, true}, //  1
@@ -127,7 +129,7 @@ TEST(Map, castRay) {
         ray.rotate({360.0 / expecteds.size(), Unit::Degree});
     }
     {
-        ray       = {0, 1};
+        ray  = {0, 1};
         cast = map.castRay(position, ray);
         EXPECT_NEAR(cast.distance, 128.001, 0.0001);
         EXPECT_NEAR(cast.wallPoint[0], 250, 0.0001);
@@ -135,7 +137,7 @@ TEST(Map, castRay) {
         EXPECT_EQ(cast.hitVertical, false);
     }
     {
-        ray       = {0, -1};
+        ray  = {0, -1};
         cast = map.castRay(position, ray);
         EXPECT_NEAR(cast.distance, 256.001, 0.0001);
         EXPECT_NEAR(cast.wallPoint[0], 250, 0.0001);
@@ -143,7 +145,7 @@ TEST(Map, castRay) {
         EXPECT_EQ(cast.hitVertical, false);
     }
     auto duration = testClock::now() - starting;
-    auto micros   = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(duration).count()) / (expecteds.size()+2.0);
+    auto micros   = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(duration).count()) / (expecteds.size() + 2.0);
 
 #ifdef NDEBUG
     const double maxDuration = 0.5;
@@ -153,22 +155,24 @@ TEST(Map, castRay) {
     EXPECT_LE(micros, maxDuration);
 }
 
-TEST(Map, saveMap){
-    Map map{{{1, 1, 1, 1, 1, 1, 1, 1},
-             {1, 0, 1, 0, 0, 0, 0, 1},
-             {1, 0, 1, 0, 0, 0, 0, 1},
-             {1, 0, 0, 0, 0, 0, 0, 1},
-             {1, 0, 0, 0, 0, 0, 0, 1},
-             {1, 0, 0, 0, 0, 1, 0, 1},
-             {1, 0, 0, 0, 0, 0, 0, 1},
-             {1, 1, 1, 1, 1, 1, 1, 1}}};
-    map.setPlayerStart({245,125},{0,-1});
+TEST(Map, saveMap) {
+    rc::core::mapCell walls{false, false, 1};
+    rc::core::mapCell voids{true, true, 0};
+    Map map{{{walls, walls, walls, walls, walls, walls, walls, walls},
+             {walls, voids, walls, voids, voids, voids, voids, walls},
+             {walls, voids, walls, voids, voids, voids, voids, walls},
+             {walls, voids, voids, voids, voids, voids, voids, walls},
+             {walls, voids, voids, voids, voids, voids, voids, walls},
+             {walls, voids, voids, voids, voids, walls, voids, walls},
+             {walls, voids, voids, voids, voids, voids, voids, walls},
+             {walls, walls, walls, walls, walls, walls, walls, walls}}};
+    map.setPlayerStart({245, 125}, {0, -1});
     map.saveToFile("test");
     rc::core::fs::DataFile testMap("maps/test.map");
     ASSERT_TRUE(testMap.exists());
     Map map2;
     map2.loadFromFile("test");
-    EXPECT_EQ(map2.getCellSize(),map.getCellSize());
+    EXPECT_EQ(map2.getCellSize(), map.getCellSize());
     testMap.remove();
     EXPECT_FALSE(testMap.exists());
     testMap.remove();
