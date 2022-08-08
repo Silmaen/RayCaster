@@ -212,7 +212,7 @@ public:
      * @brief load a map
      * @param mapName Map's name
      */
-    void loadFormFile(const std::string& mapName);
+    void loadFromFile(const std::string& mapName);
     /**
      * @brief save a map
      * @param mapName Map's name

@@ -8,7 +8,7 @@
 
 #pragma once
 #include <filesystem>
-#include <fstream>
+#include <nlohmann/json.hpp>
 
 /**
  * @brief Namespace for filesystem management
@@ -41,6 +41,12 @@ public:
     DataFile(DataFile&&) = default;
 
     /**
+     * @brief Construct with a file
+     * @param file The file to construct
+     */
+    DataFile(const path& file){setPath(file);}
+
+    /**
      * @brief Default copy assignation
      * @return this
      */
@@ -53,9 +59,16 @@ public:
     DataFile& operator=(DataFile&&) = default;
 
     /**
+     * @brief Copy assignation from path
+     * @param file Path to copy
+     * @return this
+     */
+    DataFile& operator=(const path& file){ setPath(file);return *this;}
+
+    /**
      * @brief Destructor.
      */
-    virtual ~DataFile() = default;
+    ~DataFile() = default;
 
     /**
      * @brief Search for data path and actualize the path.
@@ -66,13 +79,13 @@ public:
      * @brief Define the path to the file
      * @param file Direct use if absolute or relative to data directory
      */
-    virtual void setPath(const path& file);
+    void setPath(const path& file);
 
     /**
      * @brief Get the full path of the file
      * @return Full path of the file
      */
-    [[nodiscard]] virtual path getFullPath() const;
+    [[nodiscard]] path getFullPath() const;
 
     /**
      * @brief Access to the relative path
@@ -81,16 +94,34 @@ public:
     [[nodiscard]] const path& getPath() const { return filePath; }
 
     /**
-     * @brief Open data file for reading
-     * @return Input file stream
+     * @brief Check file existence
+     * @return True file exists
      */
-    [[nodiscard]] std::ifstream openRead() const;
+    [[nodiscard]] bool exists()const{return std::filesystem::exists(getFullPath());}
 
+    /**
+     * @brief Remove the file if exists
+     */
+    void remove();
+
+    /**
+     * @brief Touch the file
+     */
+    void touch() const;
+
+    /**
+     * @brief Open data file for reading
+     * @return Json read in file
+     */
+    [[nodiscard]] nlohmann::json readJson() const;
+
+    /**
+     * @brief Open data file for writing
+     * @param data Json to write in file
+     */
+    void writeJson(const nlohmann::json& data)const;
 private:
-    /// Base path to the data
-    static std::filesystem::path DataPath;
-
     /// Path to the file relative to DataPath
-    std::filesystem::path filePath;
+    path filePath;
 };
 }// namespace rc::core::fs

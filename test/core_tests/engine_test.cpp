@@ -14,23 +14,9 @@ TEST(Engine, base) {
     engine.setSettings(sets);
     auto sets2 = engine.getSettings();
     EXPECT_EQ(sets2.rendererType, rc::core::renderer::RendererType::Null);
-    auto player            = std::make_shared<rc::core::Player>();
-    auto map = std::make_shared<rc::core::Map>(rc::core::Map::DataType
-                                               {{1, 1, 1, 1, 1, 1, 1, 1},
-                                                   {1, 0, 1, 0, 0, 0, 0, 1},
-                                                   {1, 0, 1, 0, 0, 0, 0, 1},
-                                                   {1, 0, 1, 0, 0, 1, 0, 1},
-                                                   {1, 0, 0, 0, 0, 0, 0, 1},
-                                                   {1, 0, 0, 0, 0, 1, 0, 1},
-                                                   {1, 0, 0, 0, 0, 0, 0, 1},
-                                                   {1, 1, 1, 1, 1, 1, 1, 1}});
-    engine.registerPlayer(player);
-    engine.registerMap(map);
     engine.run();
     auto renderer = engine.getRenderer();
     engine.init();
-    engine.registerPlayer(player);
-    engine.registerMap(map);
     renderer = engine.getRenderer();
     EXPECT_EQ(renderer->getType(),rc::core::renderer::RendererType::Null);
     EXPECT_EQ(renderer->getStatus(), rc::core::renderer::Status::Ready);
@@ -46,7 +32,7 @@ TEST(Engine, base2) {
     sets.rendererType = rc::core::renderer::RendererType::Null;
     engine.setSettings(sets);
     engine.init();
-    engine.mapLoad();
+    engine.mapLoad("E1L1");
     engine.run();
     auto renderer = engine.getRenderer();
     EXPECT_EQ(renderer->getStatus(), rc::core::renderer::Status::Running);

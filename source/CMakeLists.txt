@@ -28,7 +28,7 @@ if (WIN32)
 else ()
     target_link_libraries(${CMAKE_PROJECT_NAME}_lib PRIVATE GL GLU glut)
 endif ()
-target_link_libraries(${CMAKE_PROJECT_NAME}_lib PRIVATE nlohmann_json)
+#target_link_libraries(${CMAKE_PROJECT_NAME}_lib PRIVATE nlohmann_json)
 #
 #  Main Executable
 #

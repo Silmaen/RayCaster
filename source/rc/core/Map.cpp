@@ -10,7 +10,6 @@
 #include "Engine.h"
 #include "fs/DataFile.h"
 #include "graphics/Quad2.h"
-#include <nlohmann/json.hpp>
 
 namespace rc::core {
 
@@ -149,10 +148,29 @@ void Map::updateSize() {
     maxHeight = static_cast<double>(height() * cubeSize);
 }
 
-void Map::loadFormFile(const std::string& mapName) {
+void Map::loadFromFile(const std::string& mapName) {
     fs::DataFile file;
-    file.setPath(std::filesystem::path("maps") / mapName);
-    auto data = nlohmann::json::parse(file.openRead());
+    file.setPath(std::filesystem::path("maps") / (mapName + ".map"));
+    auto data = file.readJson();
+    cubeSize = data["cubeSize"];
+    mapArray = data["cells"];
+    PlayerInitialPosition = data["playerStart"];
+    PlayerInitialDirection = data["playerStartDir"];
+    updateSize();
+}
+
+void Map::saveToFile(const std::string& mapName) {
+    nlohmann::json data;
+    data["version"] = 1;
+    data["width"] = width();
+    data["height"] = height();
+    data["cubeSize"] = cubeSize;
+    data["cells"] = mapArray;
+    data["playerStart"] = PlayerInitialPosition;
+    data["playerStartDir"] = PlayerInitialDirection;
+    fs::DataFile file;
+    file.setPath(std::filesystem::path("maps") / (mapName + ".map"));
+    file.writeJson(data);
 }
 
 }// namespace rc::core

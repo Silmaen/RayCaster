@@ -105,17 +105,6 @@ public:
     void run();
 
     /**
-     * @brief Register the player for this game
-     * @param player The player
-     */
-    void registerPlayer(const std::shared_ptr<Player>& player);
-    /**
-     * @brief Register the player for this game
-     * @param map The current Map
-     */
-    void registerMap(const std::shared_ptr<Map>& map);
-
-    /**
      * @brief Access yto the Engine renderer
      * @return The renderer
      */
@@ -134,8 +123,9 @@ public:
 
     /**
      * @brief Load the map
+     * @param mapName Name of the map to load
      */
-    void mapLoad();
+    void mapLoad(const std::string& mapName);
 private:
     /**
      * @brief Function that draw the 3D environment

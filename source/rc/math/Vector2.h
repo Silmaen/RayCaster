@@ -8,9 +8,10 @@
 
 #pragma once
 
-#include <cstdint>
-#include <cmath>
 #include "Angle.h"
+#include <cmath>
+#include <cstdint>
+#include <nlohmann/json.hpp>
 
 namespace rc::math {
 
@@ -206,6 +207,26 @@ private:
     /// Second coordinate
     DataType Y{};
 };
+
+/**
+ * @brief Serialize this objet to json
+ * @param jso The json output
+ * @param vect The vector to serialize
+ */
+template<class DataType>
+inline void to_json(nlohmann::json& jso, const Vector2<DataType>& vect){
+    jso = nlohmann::json{vect[0],vect[1]};
+}
+/**
+ * @brief Deserialize this object from json
+ * @param jso Json source
+ * @param vect Destination vector
+ */
+template<class DataType>
+inline void from_json(const nlohmann::json& jso, Vector2<DataType>& vect){
+    vect[0] = jso.at(0);
+    vect[1] = jso.at(1);
+}
 
 /// Shortcut for a vector of float
 using Vectf=Vector2<double>;
