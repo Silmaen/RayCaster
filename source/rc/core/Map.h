@@ -179,6 +179,32 @@ public:
     [[nodiscard]] bool isIn(const gridCoordinate& from) const;
 
     /**
+     * @brief Check if a point is in the map and player can pass through
+     * @param from The point to check
+     * @return True if in the map
+     */
+    [[nodiscard]] bool isInPassable(const math::Vector2<double>& from) const;
+    /**
+     * @brief Checks if grid coordinates are in the map and player can pass through
+     * @param from Grid coordinates to check
+     * @return True if in the map
+     */
+    [[nodiscard]] bool isInPassable(const gridCoordinate& from) const;
+
+    /**
+     * @brief Check if a point is in the map and player can see through
+     * @param from The point to check
+     * @return True if in the map
+     */
+    [[nodiscard]] bool isInVisible(const math::Vector2<double>& from) const;
+    /**
+     * @brief Checks if grid coordinates are in the map and player can see through
+     * @param from Grid coordinates to check
+     * @return True if in the map
+     */
+    [[nodiscard]] bool isInVisible(const gridCoordinate& from) const;
+
+    /**
      * @brief Get the cube's size
      * @return Cube's size
      */

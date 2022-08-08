@@ -59,10 +59,36 @@ void Engine::button(uint8_t key, [[maybe_unused]] int32_t x, [[maybe_unused]] in
         player->rotate({5, math::Angle::Unit::Degree});
     }
     if (key == 'z') {
-        player->walk(5);
+        Player::DirectionType expectedMove = player->getDirection() * 5;
+        Player::PositionType newPos        = player->getPosition() + expectedMove;
+        if (map->isInPassable(newPos)) {
+            player->move(expectedMove);
+        } else {
+            newPos = player->getPosition() + Player::PositionType{expectedMove[0], 0.0};
+            if (map->isInPassable(newPos)) {
+                player->move({expectedMove[0], 0.0});
+            } else {
+                newPos = player->getPosition() + Player::PositionType{0.0, expectedMove[1]};
+                if (map->isInPassable(newPos))
+                    player->move({0.0, expectedMove[1]});
+            }
+        }
     }
     if (key == 's') {
-        player->walk(-5);
+        Player::DirectionType expectedMove = player->getDirection() * -5;
+        Player::PositionType newPos        = player->getPosition() + expectedMove;
+        if (map->isInPassable(newPos)) {
+            player->move(expectedMove);
+        } else {
+            newPos = player->getPosition() + Player::PositionType{expectedMove[0], 0.0};
+            if (map->isInPassable(newPos)) {
+                player->move({expectedMove[0], 0.0});
+            } else {
+                newPos = player->getPosition() + Player::PositionType{0.0, expectedMove[1]};
+                if (map->isInPassable(newPos))
+                    player->move({0.0, expectedMove[1]});
+            }
+        }
     }
     if (key == 'e') {
         // use action
@@ -100,12 +126,12 @@ void Engine::drawRayCasting() {
                         {static_cast<double>(settings.layout3D[1][0]), static_cast<double>(settings.layout3D[0][1])},
                         {static_cast<double>(settings.layout3D[1][0]), static_cast<double>(settings.layout3D.center()[1])},
                         {static_cast<double>(settings.layout3D[0][0]), static_cast<double>(settings.layout3D.center()[1])}},
-                       {0, 255, 255});
+                       {65, 65, 65});
     renderer->drawQuad({{static_cast<double>(settings.layout3D[0][0]), static_cast<double>(settings.layout3D.center()[1])},
                         {static_cast<double>(settings.layout3D[1][0]), static_cast<double>(settings.layout3D.center()[1])},
                         {static_cast<double>(settings.layout3D[1][0]), static_cast<double>(settings.layout3D[1][1])},
                         {static_cast<double>(settings.layout3D[0][0]), static_cast<double>(settings.layout3D[1][1])}},
-                       {0, 0, 255});
+                       {105, 105, 105});
     // ray casting
     for (int32_t rays = 0; rays <= settings.layout3D.width(); ++rays) {
         auto result = map->castRay(player->getPosition(), ray);
@@ -115,7 +141,7 @@ void Engine::drawRayCasting() {
         if (settings.drawRays && settings.drawMap) {
             renderer->drawLine({player->getPosition() * scaleFactor + offsetPoint, ray, result.distance * scaleFactor}, 2, color);//draw 2D ray
         }
-        auto lineH = static_cast<int32_t>((map->getCellSize() * settings.layout3D.height()) /
+        auto lineH = static_cast<int32_t>((map->getCellSize() * 1.2 * settings.layout3D.height()) /
                                           (result.distance * player->getDirection().dot(ray)));
         if (lineH > settings.layout3D.height()) { lineH = settings.layout3D.height(); }//line height and limit
         double lineOff = settings.layout3D.center()[1] - (lineH >> 1);                 //line offset
@@ -146,8 +172,8 @@ void Engine::drawMap() {
 }
 void Engine::drawPlayerOnMap() {
     auto [scaleFactor, offsetPoint] = getMapLayoutInfo();
-    renderer->drawPoint(player->getPosition() * scaleFactor + offsetPoint, 8 * scaleFactor, {255U, 255U, 0U});
-    renderer->drawLine({player->getPosition() * scaleFactor + offsetPoint, player->getDirection() * 20.0 * scaleFactor, 1}, 4, {255U, 255U, 0U});
+    renderer->drawPoint(player->getPosition() * scaleFactor + offsetPoint, 32 * scaleFactor, {255U, 255U, 0U});
+    renderer->drawLine({player->getPosition() * scaleFactor + offsetPoint, player->getDirection() * 60.0 * scaleFactor, 1}, 8, {255U, 255U, 0U});
 }
 
 std::tuple<double, math::Vector2<double>> Engine::getMapLayoutInfo() const {

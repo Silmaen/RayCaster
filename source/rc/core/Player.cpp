@@ -15,8 +15,8 @@ void Player::rotate(const math::Angle& angle) {
     direction.rotate(angle);
 }
 
-void Player::walk(double step) {
-    position += direction * step;
+void Player::move(const DirectionType& step) {
+    position += step;
 }
 
 void Player::setDirection(const Player::DirectionType& dir) {
