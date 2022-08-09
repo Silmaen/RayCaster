@@ -22,6 +22,7 @@ add_subdirectory(external)
 # ---=== the main sources ===---
 #
 add_subdirectory(source)
+add_subdirectory(sourceWorldEditor)
 #
 # ---=== TESTING PROCEDURES ===---
 #

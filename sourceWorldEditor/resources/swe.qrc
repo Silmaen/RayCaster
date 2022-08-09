@@ -1,0 +1,25 @@
+<RCC>
+  <qresource prefix="fichier">
+    <file>icons/save.png</file>
+    <file>icons/save-as.png</file>
+    <file>icons/file.png</file>
+    <file>icons/folder_open.png</file>
+    <file>icons/shutdown.png</file>
+  </qresource>
+  <qresource prefix="Main">
+    <file>mainIcon/mainIcon.svg</file>
+  </qresource>
+  <qresource prefix="Tile">
+    <file>icons/Passable.svg</file>
+    <file>icons/WallType1.svg</file>
+    <file>icons/WallType1b.svg</file>
+    <file>icons/WallType2.svg</file>
+    <file>icons/WallType2b.svg</file>
+    <file>icons/WallType3.svg</file>
+    <file>icons/WallType3b.svg</file>
+  </qresource>
+  <qresource prefix="Mode">
+    <file>icons/Edit.svg</file>
+    <file>icons/Select.svg</file>
+  </qresource>
+</RCC>
