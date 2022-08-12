@@ -72,8 +72,9 @@ public:
 
     /**
      * @brief Search for data path and actualize the path.
+     * @return Path to the data folder
      */
-    static void searchDataPath();
+    static path getDataPath();
 
     /**
      * @brief Define the path to the file
@@ -102,7 +103,7 @@ public:
     /**
      * @brief Remove the file if exists
      */
-    void remove();
+    void remove() const;
 
     /**
      * @brief Touch the file

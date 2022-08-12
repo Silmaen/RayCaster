@@ -8,24 +8,20 @@
 
 #include "DataFile.h"
 #include <fstream>
-#include <iostream>
 
 namespace rc::core::fs {
 
 /// Base path to the data
 static DataFile::path DataPath;
 
-void DataFile::remove() {
-    if (!exists())
-        return;
-    std::filesystem::remove(getFullPath());
-}
-
-void DataFile::searchDataPath() {
+/**
+ * @brief Update the static file path
+ */
+static void searchDataPath() {
     DataPath = std::filesystem::current_path();                        // starts from current directory
     if (std::filesystem::exists((DataPath / "data" / "rcdata.conf"))) {// if folder data exists in child dir
-        DataPath = DataPath / "data";                                  // --- UNCOVER ---
-        return;                                                        // --- UNCOVER ---
+        DataPath = DataPath / "data";                                  // ---UNCOVER---
+        return;                                                        // ---UNCOVER---
     }
     while (DataPath.parent_path() != DataPath) {// if is possible to go to parent
         DataPath = DataPath.parent_path();
@@ -35,12 +31,24 @@ void DataFile::searchDataPath() {
         }
     }
     // Defaults to current pat if nothing found
-    DataPath = std::filesystem::current_path();// --- UNCOVER ---
+    DataPath = std::filesystem::current_path();// ---UNCOVER---
 }
 
-void DataFile::setPath(const DataFile::path& file) {
+std::filesystem::path DataFile::getDataPath() {
     if (DataPath.empty())
         searchDataPath();
+    return DataPath;
+}
+
+void DataFile::remove() const {
+    if (!exists())
+        return;
+    std::filesystem::remove(getFullPath());
+}
+
+
+void DataFile::setPath(const DataFile::path& file) {
+    getDataPath();
     if (file.is_absolute()) {
         filePath = relative(file, DataPath);
     } else {
@@ -49,25 +57,23 @@ void DataFile::setPath(const DataFile::path& file) {
 }
 
 DataFile::path DataFile::getFullPath() const {
-    if (DataPath.empty())
-        searchDataPath();
+    getDataPath();
     return DataPath / filePath;
 }
 
 nlohmann::json DataFile::readJson() const {
-    std::ifstream j(getFullPath());
-    if (! j.is_open()){
-        std::cout << "Problem opening file " << getFullPath().string() << "\n";
+    std::ifstream jFile(getFullPath());
+    if (! jFile.is_open()){
         return nlohmann::json{};
     }
-    auto data = nlohmann::json::parse(j);
-    j.close();
+    auto data = nlohmann::json::parse(jFile);
+    jFile.close();
     return data;
 }
 void DataFile::writeJson(const nlohmann::json& data) const {
-    std::ofstream j(getFullPath());
-    j << data.dump(4, ' ');
-    j.close();
+    std::ofstream jFile(getFullPath());
+    jFile << data.dump(4, ' ');
+    jFile.close();
 }
 
 void DataFile::touch() const {

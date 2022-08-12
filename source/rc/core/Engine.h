@@ -9,11 +9,14 @@
 
 #include "Map.h"
 #include "Player.h"
+#include "input/BaseInput.h"
 #include "graphics/Box2.h"
 #include "graphics/Line2.h"
 #include "graphics/Quad2.h"
 #include "renderer/BaseRenderer.h"
 #include <memory>
+#include <chrono>
+
 /**
  * @namespace rc
  * @brief Base namespace of the project library
@@ -25,13 +28,17 @@
 namespace rc::core {
 
 /**
- * @brief Engine setings
+ * @brief Engine settings
  */
 struct EngineSettings {
     /// Renderer's type to use
     renderer::RendererType rendererType = renderer::RendererType::Null;
     /// Renderer Settings
     renderer::Settings rendererSettings{{1280, 720}};
+    /// Input type
+    input::InputType inputType = input::InputType::GL;
+    /// Input type
+    input::Settings inputSettings{};
     /// Screen zone where to draw the 3D scene
     graphics::Box2 layout3D{{0, 0}, {860, 550}};
     /// Screen zone where to draw the map
@@ -86,6 +93,7 @@ public:
         Uninitialized,///< Uninitialized, just created
         Ready,        ///< Ready to run
         Error,        ///< In error state
+        Running,      ///< running
     };
 
     /**
@@ -111,11 +119,8 @@ public:
     std::shared_ptr<renderer::BaseRenderer> getRenderer();
     /**
      * @brief Input callback function
-     * @param key Input key
-     * @param x X placement
-     * @param y Y placement
      */
-    void button(uint8_t key, int32_t x, int32_t y);
+    void button();
     /**
      * @brief Glut display call back function
      */
@@ -161,12 +166,24 @@ private:
     Status status = Status::Uninitialized;
     /// Link to the renderer
     std::shared_ptr<renderer::BaseRenderer> renderer = nullptr;
+    /// Link to the input
+    std::shared_ptr<input::BaseInput> input = nullptr;
     /// Link to the map
     std::shared_ptr<Map> map = nullptr;
     /// Link to the player
     std::shared_ptr<Player> player = nullptr;
 
     std::vector<std::function<void()>> toRender;
+
+    /// Clock type
+    using engineClock = std::chrono::steady_clock;
+    /// Record last frame
+    engineClock::time_point frames;
+    uint32_t deltaMillis = 0;
+    /// Record last freeze call
+    engineClock::time_point freeze;
+    /// frames per second
+    double fps;
 };
 
 }// namespace rc::core

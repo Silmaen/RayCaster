@@ -3,11 +3,27 @@
 #include "core/fs/DataFile.h"
 #include "testHelper.h"
 #include <chrono>
+
 using testClock = std::chrono::steady_clock;
 using timePoint = testClock::time_point;
 using timeDelta = testClock::duration;
 
 using Map = rc::core::Map;
+
+static Map ConstructBaseMap(){
+    rc::core::mapCell walls{false, false, 10};
+    rc::core::mapCell voids{true, true, 0};
+    Map map{{{walls, walls, walls, walls, walls, walls, walls, walls},
+             {walls, voids, walls, voids, voids, voids, voids, walls},
+             {walls, voids, walls, voids, voids, voids, voids, walls},
+             {walls, voids, voids, voids, voids, voids, voids, walls},
+             {walls, voids, voids, voids, voids, voids, voids, walls},
+             {walls, voids, voids, voids, voids, walls, voids, walls},
+             {walls, voids, voids, voids, voids, voids, voids, walls},
+             {walls, walls, walls, walls, walls, walls, walls, walls}}};
+    map.setPlayerStart({245, 125}, {0, -1});
+    return map;
+}
 
 TEST(Map, base) {
     Map map;
@@ -72,9 +88,7 @@ TEST(Map, whichCell) {
     EXPECT_EQ(loc[1], 255);
 }
 
-
 TEST(Map, castRay) {
-    using vecf = rc::math::Vector2<double>;
     using Unit = rc::math::Angle::Unit;
     rc::core::mapCell walls{false, false, 1};
     rc::core::mapCell voids{true, true, 0};
@@ -115,9 +129,9 @@ TEST(Map, castRay) {
             {203.92674045587697, {448.00100000000000, 271.19713664180534}, true}, // 25
     };
     ASSERT_TRUE(map.isValid());
-    const vecf position{250, 320};
+    const rc::math::Vectf position{250, 320};
     ASSERT_TRUE(map.isIn(position));
-    vecf ray{1, 0};
+    rc::math::Vectf ray{1, 0};
     Map::rayCastResult cast;
     auto starting = testClock::now();
     for (auto expected : expecteds) {
@@ -156,17 +170,7 @@ TEST(Map, castRay) {
 }
 
 TEST(Map, saveMap) {
-    rc::core::mapCell walls{false, false, 1};
-    rc::core::mapCell voids{true, true, 0};
-    Map map{{{walls, walls, walls, walls, walls, walls, walls, walls},
-             {walls, voids, walls, voids, voids, voids, voids, walls},
-             {walls, voids, walls, voids, voids, voids, voids, walls},
-             {walls, voids, voids, voids, voids, voids, voids, walls},
-             {walls, voids, voids, voids, voids, voids, voids, walls},
-             {walls, voids, voids, voids, voids, walls, voids, walls},
-             {walls, voids, voids, voids, voids, voids, voids, walls},
-             {walls, walls, walls, walls, walls, walls, walls, walls}}};
-    map.setPlayerStart({245, 125}, {0, -1});
+    Map map = ConstructBaseMap();
     map.saveToData("test");
     rc::core::fs::DataFile testMap("maps/test.map");
     ASSERT_TRUE(testMap.exists());
@@ -177,4 +181,60 @@ TEST(Map, saveMap) {
     EXPECT_FALSE(testMap.exists());
     testMap.remove();
     EXPECT_FALSE(testMap.exists());
+}
+
+TEST(Map, saveMapFile){
+    Map map = ConstructBaseMap();
+    rc::core::fs::DataFile testMap("maps/test.map");
+    ASSERT_FALSE(testMap.exists());
+    map.loadFromFile(testMap.getFullPath().string());
+    map.saveToFile(testMap.getFullPath().string());
+    ASSERT_TRUE(testMap.exists());
+    map.loadFromFile(testMap.getFullPath().string());
+    EXPECT_TRUE(map.isValid());
+    testMap.remove();
+    EXPECT_FALSE(testMap.exists());
+}
+
+TEST(Map, PassableVisibility){
+    Map map = ConstructBaseMap();
+    EXPECT_FALSE(map.isInVisible(Map::gridCoordinate{255,255})); // outside
+    EXPECT_FALSE(map.isInVisible(Map::gridCoordinate{0,0})); // in a wall
+    EXPECT_TRUE(map.isInVisible(Map::gridCoordinate{1,1})); // in a visible zone
+    EXPECT_FALSE(map.isInVisible(rc::math::Vectf{25500,25500})); // outside
+    EXPECT_FALSE(map.isInVisible(rc::math::Vectf{1,1})); // in a wall
+    EXPECT_TRUE(map.isInVisible(rc::math::Vectf{100,100})); // in a visible zone
+    EXPECT_FALSE(map.isInPassable(Map::gridCoordinate{255,255})); // outside
+    EXPECT_FALSE(map.isInPassable(Map::gridCoordinate{0,0})); // in a wall
+    EXPECT_TRUE(map.isInPassable(Map::gridCoordinate{1,1})); // in a visible zone
+    EXPECT_FALSE(map.isInPassable(rc::math::Vectf{25500,25500})); // outside
+    EXPECT_FALSE(map.isInPassable(rc::math::Vectf{1,1})); // in a wall
+    EXPECT_TRUE(map.isInPassable(rc::math::Vectf{100,100})); // in a visible zone
+}
+
+TEST(Map, Colors){
+    rc::core::mapCell cell{true,true,0};
+    EXPECT_EQ(cell.getMapColor(), (rc::graphics::Color{255, 0, 255}));
+    EXPECT_EQ(cell.getRayColor(), (rc::graphics::Color{0, 0, 0}));
+    cell.textureId = 1;
+    EXPECT_EQ(cell.getMapColor(), (rc::graphics::Color{255, 0, 255}));
+    EXPECT_EQ(cell.getRayColor(), (rc::graphics::Color{0, 0, 0}));
+    cell.textureId = 2;
+    EXPECT_EQ(cell.getMapColor(), (rc::graphics::Color{0x60, 0x60, 0x60}));
+    EXPECT_EQ(cell.getRayColor(), (rc::graphics::Color{0x80, 0x80, 0x80}));
+    cell.textureId = 3;
+    EXPECT_EQ(cell.getMapColor(), (rc::graphics::Color{0x40, 0x40, 0x40}));
+    EXPECT_EQ(cell.getRayColor(), (rc::graphics::Color{0x70, 0x70, 0x70}));
+    cell.textureId = 4;
+    EXPECT_EQ(cell.getMapColor(), (rc::graphics::Color{0x19, 0x19, 0x8c}));
+    EXPECT_EQ(cell.getRayColor(), (rc::graphics::Color{0x39, 0x39, 0xbc}));
+    cell.textureId = 5;
+    EXPECT_EQ(cell.getMapColor(), (rc::graphics::Color{0x0a, 0x0a, 0x64}));
+    EXPECT_EQ(cell.getRayColor(), (rc::graphics::Color{0x3a, 0x3a, 0x94}));
+    cell.textureId = 6;
+    EXPECT_EQ(cell.getMapColor(), (rc::graphics::Color{0x80, 0x40, 0x10}));
+    EXPECT_EQ(cell.getRayColor(), (rc::graphics::Color{0xb0, 0x70, 0x40}));
+    cell.textureId = 7;
+    EXPECT_EQ(cell.getMapColor(), (rc::graphics::Color{0x64, 0x32, 0x08}));
+    EXPECT_EQ(cell.getRayColor(), (rc::graphics::Color{0x94, 0x62, 0x38}));
 }

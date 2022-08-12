@@ -7,6 +7,7 @@
  */
 
 #include "Engine.h"
+#include "input/GlInput.h"
 #include "renderer/NullRenderer.h"
 #include "renderer/OpenGlRenderer.h"
 
@@ -30,18 +31,35 @@ void Engine::init() {
         renderer = nullptr;
         return;
     }
+    switch (settings.inputType){
+    case input::InputType::GL:
+        input = std::make_shared<input::GLInput>();
+        break;
+    case input::InputType::Unknown:
+        input = nullptr;
+        return;
+    }
     renderer->settings() = settings.rendererSettings;
     renderer->Init();
     renderer->setDrawingCallback([this] { this->display(); });
-    renderer->setButtonCallback([this](auto&& PH1, auto&& PH2, auto&& PH3) { button(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2), std::forward<decltype(PH3)>(PH3)); });
+    input->settings() = settings.inputSettings;
+    input->Init();
+    input->setButtonCallback([this](){ renderer->update();});
     map    = std::make_shared<Map>();
     player = std::make_shared<Player>();
     status = Status::Ready;
+    frames = engineClock::now();
 }
 
 void Engine::display() {
-    if (!player || !map)
+    if (status != Status::Running)
         return;
+    engineClock::time_point temp = engineClock ::now();
+    deltaMillis = std::chrono::duration_cast<std::chrono::milliseconds>(temp-frames).count();
+    fps = 1000.0/deltaMillis;
+    frames = temp;
+    button();
+    renderer->update();
     if (settings.drawMap)
         drawMap();
     drawRayCasting();
@@ -49,16 +67,14 @@ void Engine::display() {
         drawPlayerOnMap();
 }
 
-void Engine::button(uint8_t key, [[maybe_unused]] int32_t x, [[maybe_unused]] int32_t y) {
-    if (status == Status::Uninitialized)
-        return;
-    if (key == 'q') {
-        player->rotate({-5, math::Angle::Unit::Degree});
+void Engine::button() {
+    if (input->isKeyPressed(input::FunctionKey::TurnLeft)) {
+        player->rotate({- 0.2 * deltaMillis , math::Angle::Unit::Degree});
     }
-    if (key == 'd') {
-        player->rotate({5, math::Angle::Unit::Degree});
+    if (input->isKeyPressed(input::FunctionKey::TurnRight)) {
+        player->rotate({0.2 * deltaMillis, math::Angle::Unit::Degree});
     }
-    if (key == 'z') {
+    if (input->isKeyPressed(input::FunctionKey::Forward)) {
         Player::DirectionType expectedMove = player->getDirection() * 5;
         Player::PositionType newPos        = player->getPosition() + expectedMove;
         if (map->isInPassable(newPos)) {
@@ -74,7 +90,7 @@ void Engine::button(uint8_t key, [[maybe_unused]] int32_t x, [[maybe_unused]] in
             }
         }
     }
-    if (key == 's') {
+    if (input->isKeyPressed(input::FunctionKey::Backward)) {
         Player::DirectionType expectedMove = player->getDirection() * -5;
         Player::PositionType newPos        = player->getPosition() + expectedMove;
         if (map->isInPassable(newPos)) {
@@ -90,21 +106,34 @@ void Engine::button(uint8_t key, [[maybe_unused]] int32_t x, [[maybe_unused]] in
             }
         }
     }
-    if (key == 'e') {
+
+    // toggle button: freeze time
+    auto freezeTime = std::chrono::duration_cast<std::chrono::milliseconds>(frames-freeze).count();
+    if (freezeTime < 400)
+        return;
+    if (input->isKeyPressed(input::FunctionKey::Use)) {
         // use action
+        freeze = frames;
     }
-    if (key == 'm') {
+    if (input->isKeyPressed(input::FunctionKey::DisplayMap)) {
         settings.drawMap = !settings.drawMap;
+        freeze = frames;
     }
-    if (key == 'r') {
+    if (input->isKeyPressed(input::FunctionKey::DisplayRayOnMap)) {
         settings.drawRays = !settings.drawRays;
+        freeze = frames;
     }
-    renderer->update();
+    if (input->isKeyPressed(input::FunctionKey::Exit)) {
+        // exit action
+        freeze = frames;
+        exit(0);
+    }
 }
 
 void Engine::run() {
     checkState();
     if (status == Status::Ready) {
+        status = Status::Running;
         renderer->run();
     }
 }

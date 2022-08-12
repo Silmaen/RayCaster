@@ -110,17 +110,12 @@ public:
      * @param func The drawing callback
      */
      virtual void setDrawingCallback(const std::function<void()>& func) = 0;
-     /**
-      * @brief Defines the main draw call back
-      * @param func The drawing callback
-      */
-     virtual void setButtonCallback(const std::function<void(uint8_t key,int32_t x,int32_t y)>& func) = 0;
 
     /**
      * @brief Gets the renderer Type
      * @return Renderer type
      */
-    [[nodiscard]] virtual RendererType getType() const { return RendererType::Unknown; }
+    [[nodiscard]] virtual RendererType getType() const { return RendererType::Unknown; }// ---UNCOVER---
 
 
     // Drawing functions

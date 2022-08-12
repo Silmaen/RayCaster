@@ -9,7 +9,6 @@
 #include "Map.h"
 #include "fs/DataFile.h"
 #include <fstream>
-#include <iostream>
 
 namespace rc::core {
 
@@ -36,10 +35,10 @@ static const std::vector<graphics::Color> rayColors{
         graphics::Color{0x94, 0x62, 0x38},
 };
 
-const graphics::Color& mapCell::getMapColor()const{
+const graphics::Color& mapCell::getMapColor() const {
     return mapColors[textureId];
 }
-const graphics::Color& mapCell::getRayColor()const{
+const graphics::Color& mapCell::getRayColor() const {
     return rayColors[textureId];
 }
 
@@ -56,10 +55,10 @@ void Map::reset(uint8_t w, uint8_t h) {
     mapArray.resize(h);
     for (LineType& line : mapArray) {
         line.resize(w);
-        std::fill(line.begin(), line.end(), mapCell{false,false,2});
+        std::fill(line.begin(), line.end(), mapCell{false, false, 2});
     }
-    PlayerInitialPosition  = {0,0};
-    PlayerInitialDirection = {0,1};
+    PlayerInitialPosition  = {0, 0};
+    PlayerInitialDirection = {0, 1};
     updateSize();
 }
 
@@ -194,19 +193,16 @@ void Map::updateSize() {
     maxHeight = static_cast<double>(height() * cubeSize);
 }
 
-void Map::loadFromFile(const std::string& mapName){
-    auto file=std::filesystem::path(mapName);
+void Map::loadFromFile(const std::string& mapName) {
+    auto file = std::filesystem::path(mapName);
     std::ifstream jStream(file);
-    if (! jStream.is_open()){
-        std::cout << "Problem opening file " << file.string() << "\n";
-        return;
-    }
+    if (!jStream.is_open()) return;
     auto data = nlohmann::json::parse(jStream);
     jStream.close();
     fromJson(data);
 }
 
-void Map::saveToFile(const std::string& mapName){
+void Map::saveToFile(const std::string& mapName) {
     nlohmann::json data = toJson();
     fs::DataFile file;
     file.setPath(std::filesystem::path(mapName));
@@ -216,7 +212,7 @@ void Map::saveToFile(const std::string& mapName){
 void Map::loadFromData(const std::string& mapName) {
     fs::DataFile file;
     file.setPath(std::filesystem::path("maps") / (mapName + ".map"));
-    auto data       = file.readJson();
+    auto data = file.readJson();
     fromJson(data);
 }
 
@@ -227,34 +223,16 @@ void Map::saveToData(const std::string& mapName) {
     file.writeJson(data);
 }
 
-void Map::fromJson(const nlohmann::json& data){
-    uint8_t version = data["version"];
-    cubeSize        = data["cubeSize"];
-    if (version == 1) {
-        std::vector<std::vector<uint8_t>> dataTmp = data["cells"];
-        reset(dataTmp[0].size(), dataTmp.size());
-        for (uint32_t i = 0; i < dataTmp.size(); ++i) {
-            for (uint32_t j = 0; j < dataTmp[0].size(); ++j) {
-                if (dataTmp[i][j] == 0) {
-                    mapArray[i][j].visibility = true;
-                    mapArray[i][j].passable   = true;
-                    mapArray[i][j].textureId = 0;
-                }else{
-                    mapArray[i][j].visibility = false;
-                    mapArray[i][j].passable   = false;
-                    mapArray[i][j].textureId = dataTmp[i][j];
-                }
-            }
-        }
-    } else {
-        mapArray = data["cells"];
-    }
-    PlayerInitialPosition  = data["playerStart"];
-    PlayerInitialDirection = data["playerStartDir"];
+void Map::fromJson(const nlohmann::json& data) {
+    [[maybe_unused]] uint8_t version = data["version"];  // but still to be read when map will contain more data
+    cubeSize                         = data["cubeSize"];
+    mapArray                         = data["cells"];
+    PlayerInitialPosition            = data["playerStart"];
+    PlayerInitialDirection           = data["playerStartDir"];
     updateSize();
 }
 
-nlohmann::json Map::toJson()const{
+nlohmann::json Map::toJson() const {
     nlohmann::json data;
     data["version"]        = 2;
     data["width"]          = width();
