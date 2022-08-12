@@ -7,11 +7,49 @@
  */
 
 #include "Engine.h"
+#include "core/fs/DataFile.h"
 #include "input/GlInput.h"
 #include "renderer/NullRenderer.h"
 #include "renderer/OpenGlRenderer.h"
 
 namespace rc::core {
+
+void EngineSettings::fromJson(const nlohmann::json& data) {
+    if (data.contains("rendererType"))
+        rendererType = data["rendererType"];
+    if (data.contains("rendererSettings"))
+        rendererSettings.fromJson(data["rendererSettings"]);
+    if (data.contains("inputType"))
+        inputType = data["inputType"];
+    if (data.contains("inputSettings"))
+        inputSettings.fromJson(data["inputSettings"]);
+    if (data.contains("layout3D"))
+        layout3D = data["layout3D"];
+    if (data.contains("layoutMap"))
+        layoutMap = data["layoutMap"];
+    if (data.contains("drawMap"))
+        drawMap = data["drawMap"];
+    if (data.contains("drawRays"))
+        drawRays = data["drawRays"];
+}
+
+nlohmann::json EngineSettings::toJson() const {
+    nlohmann::json data;
+    data["rendererType"]     = rendererType;
+    data["rendererSettings"] = rendererSettings.toJson();
+    data["inputType"]        = inputType;
+    data["inputSettings"]    = inputSettings.toJson();
+    data["layout3D"]         = layout3D;
+    data["layoutMap"]        = layoutMap;
+    data["drawMap"]          = drawMap;
+    data["drawRays"]         = drawRays;
+    return data;
+}
+
+Engine::Engine() {
+    // load setting at creation
+    loadSettings("settings.json");
+}
 
 void Engine::setSettings(const EngineSettings& setting) {
     settings = setting;
@@ -31,7 +69,7 @@ void Engine::init() {
         renderer = nullptr;
         return;
     }
-    switch (settings.inputType){
+    switch (settings.inputType) {
     case input::InputType::GL:
         input = std::make_shared<input::GLInput>();
         break;
@@ -44,9 +82,10 @@ void Engine::init() {
     renderer->setDrawingCallback([this] { this->display(); });
     input->settings() = settings.inputSettings;
     input->Init();
-    input->setButtonCallback([this](){ renderer->update();});
+    input->setButtonCallback([this]() { renderer->update(); });
     map    = std::make_shared<Map>();
     player = std::make_shared<Player>();
+
     status = Status::Ready;
     frames = engineClock::now();
 }
@@ -55,9 +94,9 @@ void Engine::display() {
     if (status != Status::Running)
         return;
     engineClock::time_point temp = engineClock ::now();
-    deltaMillis = std::chrono::duration_cast<std::chrono::milliseconds>(temp-frames).count();
-    fps = 1000.0/deltaMillis;
-    frames = temp;
+    deltaMillis                  = std::chrono::duration_cast<std::chrono::milliseconds>(temp - frames).count();
+    fps                          = 1000.0 / deltaMillis;
+    frames                       = temp;
     button();
     renderer->update();
     if (settings.drawMap)
@@ -69,7 +108,7 @@ void Engine::display() {
 
 void Engine::button() {
     if (input->isKeyPressed(input::FunctionKey::TurnLeft)) {
-        player->rotate({- 0.2 * deltaMillis , math::Angle::Unit::Degree});
+        player->rotate({-0.2 * deltaMillis, math::Angle::Unit::Degree});
     }
     if (input->isKeyPressed(input::FunctionKey::TurnRight)) {
         player->rotate({0.2 * deltaMillis, math::Angle::Unit::Degree});
@@ -108,7 +147,7 @@ void Engine::button() {
     }
 
     // toggle button: freeze time
-    auto freezeTime = std::chrono::duration_cast<std::chrono::milliseconds>(frames-freeze).count();
+    auto freezeTime = std::chrono::duration_cast<std::chrono::milliseconds>(frames - freeze).count();
     if (freezeTime < 400)
         return;
     if (input->isKeyPressed(input::FunctionKey::Use)) {
@@ -117,11 +156,11 @@ void Engine::button() {
     }
     if (input->isKeyPressed(input::FunctionKey::DisplayMap)) {
         settings.drawMap = !settings.drawMap;
-        freeze = frames;
+        freeze           = frames;
     }
     if (input->isKeyPressed(input::FunctionKey::DisplayRayOnMap)) {
         settings.drawRays = !settings.drawRays;
-        freeze = frames;
+        freeze            = frames;
     }
     if (input->isKeyPressed(input::FunctionKey::Exit)) {
         // exit action
@@ -196,7 +235,8 @@ void Engine::drawMap() {
         for (Map::BaseType cell : line) {
             if (cell.isViewed)
                 renderer->drawQuad(quad,
-                               cell.passable ? graphics::Color{0, 0, 0} : cell.visibility ? graphics::Color{40, 40, 40} : cell.getMapColor());
+                                   cell.passable ? graphics::Color{0, 0, 0} : cell.visibility ? graphics::Color{40, 40, 40} :
+                                                                                                cell.getMapColor());
             quad.move({offset, 0});
         }
         offsetPoint += {0, offset};
@@ -248,6 +288,20 @@ void Engine::mapLoad(const std::string& mapName) {
     auto [pos, dir] = map->getPlayerStart();
     player->setPosition(pos);
     player->setDirection(dir);
+}
+
+void Engine::loadSettings(const std::string& filename) {
+    // load setting at creation
+    fs::DataFile settingsFile(filename);
+    if (settingsFile.exists()){
+        settings.fromJson(settingsFile.readJson());
+    }
+}
+
+void Engine::saveSettings(const std::string& filename) {
+    // save current settings
+    fs::DataFile settingsFile(filename);
+    settingsFile.writeJson(settings.toJson());
 }
 
 }// namespace rc::core

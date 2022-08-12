@@ -43,7 +43,8 @@ Find out more technical documentation in
     * [X] render only the walls
     * [X] render only the seen walls
   * [X] Movement uses collision
-  * [ ] Settings in external file
+    * [ ] move collision code into Map
+  * [X] Settings in external file
 * [ ] Refactor input system
   * [X] Not manager by the renderer (even if same system)
   * [X] adding external key mapping (for switching keyboard)
@@ -66,4 +67,5 @@ Find out more technical documentation in
       * [ ] Map 2
   * [X] Side project: level editor
     * [X] QT based
+    * [ ] Add visualization of selected cell data
 

@@ -44,6 +44,16 @@ struct Settings {
     Resolution ScreenResolution{1024, 512};
     /// Background color
     graphics::Color Background = graphics::Color::fromDouble(0.3, 0.3, 0.3);
+    /**
+     * @brief Set from json
+     * @param data The input json
+     */
+    void fromJson(const nlohmann::json& data);
+    /**
+     * @brief Write to json
+     * @return The resulting json
+     */
+    [[nodiscard]] nlohmann::json toJson() const;
 };
 
 /**

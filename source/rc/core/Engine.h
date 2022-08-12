@@ -47,6 +47,16 @@ struct EngineSettings {
     bool drawMap = false;
     /// If daw the rays in the map
     bool drawRays = false;
+    /**
+     * @brief Set from json
+     * @param data The input json
+     */
+    void fromJson(const nlohmann::json& data);
+    /**
+     * @brief Write to json
+     * @return The resulting json
+     */
+    [[nodiscard]] nlohmann::json toJson() const;
 };
 
 /**
@@ -131,6 +141,17 @@ public:
      * @param mapName Name of the map to load
      */
     void mapLoad(const std::string& mapName);
+
+    /**
+     * @brief Load setings from file
+     * @param filename The file to load
+     */
+    void loadSettings(const std::string& filename);
+    /**
+     * @brief Save setting to file
+     * @param filename The file to save
+     */
+    void saveSettings(const std::string& filename);
 private:
     /**
      * @brief Function that draw the 3D environment
@@ -158,7 +179,7 @@ private:
     /**
      * @brief Default constructor.
      */
-    Engine() = default;
+    Engine();
     /// Engine's settings
     EngineSettings settings{
             renderer::RendererType::OpenGL};
@@ -183,7 +204,7 @@ private:
     /// Record last freeze call
     engineClock::time_point freeze;
     /// frames per second
-    double fps;
+    double fps = 0;
 };
 
 }// namespace rc::core

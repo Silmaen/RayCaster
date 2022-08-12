@@ -1,0 +1,24 @@
+{
+    "drawMap": false,
+    "drawRays": false,
+    "inputSettings": {
+        "BackwardKey": 115,
+        "DisplayMapKey": 109,
+        "DisplayRayOnMapKey": 108,
+        "ExitKey": 33,
+        "ForwardKey": 122,
+        "StrafeLeftKey": 97,
+        "StrafeRightKey": 101,
+        "TurnLeftKey": 113,
+        "TurnRightKey": 100,
+        "UseKey": 32
+    },
+    "inputType": 1,
+    "layout3D": [[0, 0 ], [860, 550 ]],
+    "layoutMap": [[880, 150], [1280, 550]],
+    "rendererSettings": {
+        "Background": [76, 76, 76, 255],
+        "ScreenResolution": [1280, 720]
+    },
+    "rendererType": 1
+}
