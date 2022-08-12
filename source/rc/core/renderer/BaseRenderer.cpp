@@ -10,6 +10,22 @@
 
 namespace rc::core::renderer {
 
+void Settings::fromJson(const nlohmann::json& data) {
+    if (data.contains("ScreenResolution")) {
+        ScreenResolution = data["ScreenResolution"];
+    }
+    if (data.contains("Background")) {
+        Background = data["Background"];
+    }
+}
+
+nlohmann::json Settings::toJson() const {
+    nlohmann::json data;
+    data["ScreenResolution"] = ScreenResolution;
+    data["Background"]       = Background;
+    return data;
+}
+
 BaseRenderer::~BaseRenderer() = default;
 
-} // namespace rc::base::renderer
+}// namespace rc::core::renderer

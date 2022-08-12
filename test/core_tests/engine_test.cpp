@@ -1,6 +1,7 @@
 
 #include "core/Engine.h"
 #include "testHelper.h"
+#include "core/fs/DataFile.h"
 
 using Engine = rc::core::Engine;
 
@@ -33,6 +34,7 @@ TEST(Engine, base2) {
     engine.setSettings(sets);
     engine.init();
     engine.mapLoad("E1L1");
+    engine.saveSettings("settings_temp.json");
     engine.run();
     auto renderer = engine.getRenderer();
     EXPECT_EQ(renderer->getStatus(), rc::core::renderer::Status::Running);
@@ -41,4 +43,6 @@ TEST(Engine, base2) {
     renderer->drawLine({{0,0},{1,1}},1,{0,0,0});
     renderer->drawQuad({{0,0},{1,0},{1,1},{0,1}},{0,0,0});
     engine.display();
+    rc::core::fs::DataFile fSets("settings_temp.json");
+    fSets.remove();
 }

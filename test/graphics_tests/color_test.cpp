@@ -44,3 +44,11 @@ TEST(Color, compare){
     EXPECT_EQ(color1, color1);
     EXPECT_NE(color1, color2);
 }
+
+TEST(Color, darkLight){
+    Color color1{100,100,100,255};
+    Color color2 = color1.darker();
+    Color color3 = color1.lighter();
+    EXPECT_EQ(color2, (Color(90,90,90,255)));
+    EXPECT_EQ(color3, (Color(110,110,110,255)));
+}

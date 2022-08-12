@@ -8,6 +8,7 @@
 
 #pragma once
 #include "math/functions.h"
+#include <nlohmann/json.hpp>
 
 /**
  * @brief Namespace for graphical object
@@ -166,9 +167,9 @@ public:
      * @return This
      */
     Color& lighten(){
-        R*=0.9;
-        G*=0.9;
-        B*=0.9;
+        R*=1.1;
+        G*=1.1;
+        B*=1.1;
         return *this;
     }
 
@@ -193,5 +194,25 @@ public:
 private:
     uint8_t R = 0, G = 0, B = 0, A = 255;
 };
+
+/**
+ * @brief Serialize this objet to json
+ * @param jso The json output
+ * @param color The vector to serialize
+ */
+inline void to_json(nlohmann::json& jso, const Color& color){
+    jso = nlohmann::json{color.red(), color.green(), color.blue(), color.alpha()};
+}
+/**
+ * @brief Deserialize this object from json
+ * @param jso Json source
+ * @param color Destination vector
+ */
+inline void from_json(const nlohmann::json& jso, Color& color){
+    color.red() = jso.at(0);
+    color.green() = jso.at(1);
+    color.blue() = jso.at(2);
+    color.alpha() = jso.at(3);
+}
 
 }// namespace rc::graphics
