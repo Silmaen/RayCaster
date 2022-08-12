@@ -215,7 +215,7 @@ void Engine::checkState() {
 }
 
 void Engine::mapLoad(const std::string& mapName) {
-    map->loadFromFile(mapName);
+    map->loadFromData(mapName);
     auto [pos, dir] = map->getPlayerStart();
     player->setPosition(pos);
     player->setDirection(dir);

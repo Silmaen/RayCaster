@@ -167,11 +167,11 @@ TEST(Map, saveMap) {
              {walls, voids, voids, voids, voids, voids, voids, walls},
              {walls, walls, walls, walls, walls, walls, walls, walls}}};
     map.setPlayerStart({245, 125}, {0, -1});
-    map.saveToFile("test");
+    map.saveToData("test");
     rc::core::fs::DataFile testMap("maps/test.map");
     ASSERT_TRUE(testMap.exists());
     Map map2;
-    map2.loadFromFile("test");
+    map2.loadFromData("test");
     EXPECT_EQ(map2.getCellSize(), map.getCellSize());
     testMap.remove();
     EXPECT_FALSE(testMap.exists());

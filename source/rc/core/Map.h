@@ -292,13 +292,22 @@ public:
      * @brief load a map
      * @param mapName Map's name
      */
+    void loadFromData(const std::string& mapName);
+    /**
+     * @brief save a map
+     * @param mapName Map's name
+     */
+    void saveToData(const std::string& mapName);
+    /**
+     * @brief load a map
+     * @param mapName Map's name
+     */
     void loadFromFile(const std::string& mapName);
     /**
      * @brief save a map
      * @param mapName Map's name
      */
     void saveToFile(const std::string& mapName);
-
 private:
     /**
      * @brief Reset the map to the given size
@@ -320,6 +329,9 @@ private:
     DataType mapArray;
     double maxWidth  = 0;
     double maxHeight = 0;
+
+    void fromJson(const nlohmann::json& data);
+    nlohmann::json toJson()const;
 };
 
 }// namespace rc::core

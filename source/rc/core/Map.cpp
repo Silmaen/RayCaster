@@ -8,22 +8,32 @@
 
 #include "Map.h"
 #include "fs/DataFile.h"
+#include <fstream>
+#include <iostream>
 
 namespace rc::core {
 
 /// Map Color list
 static const std::vector<graphics::Color> mapColors{
-        graphics::Color{0, 0, 0},
-        graphics::Color{0, 0, 128},
-        graphics::Color{0, 128, 0},
-        graphics::Color{0, 128, 128},
+        graphics::Color{255, 0, 255},
+        graphics::Color{255, 0, 255},
+        graphics::Color{0x60, 0x60, 0x60},
+        graphics::Color{0x40, 0x40, 0x40},
+        graphics::Color{0x19, 0x19, 0x8c},
+        graphics::Color{0x0a, 0x0a, 0x64},
+        graphics::Color{0x80, 0x40, 0x10},
+        graphics::Color{0x64, 0x32, 0x08},
 };
 /// Ray color list
 static const std::vector<graphics::Color> rayColors{
         graphics::Color{0, 0, 0},
-        graphics::Color{0, 0, 228},
-        graphics::Color{0, 228, 0},
-        graphics::Color{0, 228, 228},
+        graphics::Color{0, 0, 0},
+        graphics::Color{0x80, 0x80, 0x80},
+        graphics::Color{0x70, 0x70, 0x70},
+        graphics::Color{0x39, 0x39, 0xbc},
+        graphics::Color{0x3a, 0x3a, 0x94},
+        graphics::Color{0xb0, 0x70, 0x40},
+        graphics::Color{0x94, 0x62, 0x38},
 };
 
 const graphics::Color& mapCell::getMapColor()const{
@@ -46,8 +56,10 @@ void Map::reset(uint8_t w, uint8_t h) {
     mapArray.resize(h);
     for (LineType& line : mapArray) {
         line.resize(w);
-        std::fill(line.begin(), line.end(), mapCell{false,false,0});
+        std::fill(line.begin(), line.end(), mapCell{false,false,2});
     }
+    PlayerInitialPosition  = {0,0};
+    PlayerInitialDirection = {0,1};
     updateSize();
 }
 
@@ -182,10 +194,40 @@ void Map::updateSize() {
     maxHeight = static_cast<double>(height() * cubeSize);
 }
 
-void Map::loadFromFile(const std::string& mapName) {
+void Map::loadFromFile(const std::string& mapName){
+    auto file=std::filesystem::path(mapName);
+    std::ifstream jStream(file);
+    if (! jStream.is_open()){
+        std::cout << "Problem opening file " << file.string() << "\n";
+        return;
+    }
+    auto data = nlohmann::json::parse(jStream);
+    jStream.close();
+    fromJson(data);
+}
+
+void Map::saveToFile(const std::string& mapName){
+    nlohmann::json data = toJson();
+    fs::DataFile file;
+    file.setPath(std::filesystem::path(mapName));
+    file.writeJson(data);
+}
+
+void Map::loadFromData(const std::string& mapName) {
     fs::DataFile file;
     file.setPath(std::filesystem::path("maps") / (mapName + ".map"));
     auto data       = file.readJson();
+    fromJson(data);
+}
+
+void Map::saveToData(const std::string& mapName) {
+    nlohmann::json data = toJson();
+    fs::DataFile file;
+    file.setPath(std::filesystem::path("maps") / (mapName + ".map"));
+    file.writeJson(data);
+}
+
+void Map::fromJson(const nlohmann::json& data){
     uint8_t version = data["version"];
     cubeSize        = data["cubeSize"];
     if (version == 1) {
@@ -212,7 +254,7 @@ void Map::loadFromFile(const std::string& mapName) {
     updateSize();
 }
 
-void Map::saveToFile(const std::string& mapName) {
+nlohmann::json Map::toJson()const{
     nlohmann::json data;
     data["version"]        = 2;
     data["width"]          = width();
@@ -221,9 +263,7 @@ void Map::saveToFile(const std::string& mapName) {
     data["cells"]          = mapArray;
     data["playerStart"]    = PlayerInitialPosition;
     data["playerStartDir"] = PlayerInitialDirection;
-    fs::DataFile file;
-    file.setPath(std::filesystem::path("maps") / (mapName + ".map"));
-    file.writeJson(data);
+    return data;
 }
 
 }// namespace rc::core

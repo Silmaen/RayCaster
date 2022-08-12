@@ -56,6 +56,10 @@ DataFile::path DataFile::getFullPath() const {
 
 nlohmann::json DataFile::readJson() const {
     std::ifstream j(getFullPath());
+    if (! j.is_open()){
+        std::cout << "Problem opening file " << getFullPath().string() << "\n";
+        return nlohmann::json{};
+    }
     auto data = nlohmann::json::parse(j);
     j.close();
     return data;
