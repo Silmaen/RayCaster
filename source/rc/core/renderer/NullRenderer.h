@@ -46,11 +46,6 @@ public:
      */
     void setDrawingCallback([[maybe_unused]] const std::function<void()>& func) override{}
     /**
-     * @brief Defines the main draw call back
-     * @param func The drawing callback
-     */
-    void setButtonCallback([[maybe_unused]] const std::function<void(uint8_t key,int32_t x,int32_t y)>& func) override{}
-    /**
       * @brief Gets the renderer Type
       * @return Renderer type
       */

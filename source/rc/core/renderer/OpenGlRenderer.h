@@ -12,6 +12,16 @@
 namespace rc::core::renderer {
 
 /**
+ * @brief OpenGL utilities
+ */
+namespace gl {
+/**
+ * @brief Initialize Glut
+ */
+void init();
+}// namespace gl
+
+/**
  * @brief Class OpenGLRenderer
  */
 class OpenGLRenderer : public BaseRenderer {
@@ -27,7 +37,7 @@ public:
     /**
      * @brief Destructor.
      */
-    ~OpenGLRenderer() override = default;//---UNCOVER---
+    ~OpenGLRenderer() override;
     /**
      * @brief Initialize the renderer
      */
@@ -39,17 +49,12 @@ public:
     /**
      * @brief Force display update
      */
-    void update()override;
+    void update() override;
     /**
      * @brief Defines the main draw call back
      * @param func The drawing callback
      */
     void setDrawingCallback(const std::function<void()>& func) override;
-    /**
-     * @brief Defines the main draw call back
-     * @param func The drawing callback
-     */
-    void setButtonCallback(const std::function<void(uint8_t key,int32_t x,int32_t y)>& func) override;
 
     /**
     * @brief Gets the renderer Type
@@ -77,26 +82,19 @@ public:
      * @param quad Quad's data
      * @param color Quad's color
      */
-    void drawQuad(const graphics::Quad2<double>& quad,  const graphics::Color& color) const override;
+    void drawQuad(const graphics::Quad2<double>& quad, const graphics::Color& color) const override;
 
     /**
      * @brief Display call back
      */
     void display_cb();
-    /**
-     * @brief Glut input callback function
-     * @param key Input key
-     * @param x X placement
-     * @param y Y placement
-     */
-    void button_cb(uint8_t key, int32_t x, int32_t y);
+
 private:
     std::function<void()> mainDraw;
 
-    std::function<void(uint8_t key,int32_t x,int32_t y)> btn;
     static void setColor(const graphics::Color& color);
 
     static void pushVertex(const math::Vector2<double>& vertex);
 };
 
-}// namespace rc::base::renderer
+}// namespace rc::core::renderer

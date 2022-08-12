@@ -11,8 +11,22 @@
 
 
 namespace rc::core::renderer {
-// hat trick
 
+
+namespace gl {
+    static bool initialized = false; ///< If glut already initialized
+    void init(){
+        if (initialized) return;
+        int param    = 1;
+        char toto1[] = "Raycaster";
+        char* toto[] = {&toto1[0]};
+        glutInit(&param, toto);
+        initialized = true;
+    }
+}
+
+
+// hat trick
 static OpenGLRenderer* globalPtr = nullptr;///< Global pointer to the actual renderer...
 /**
  * @brief Display function used to callback in GLUT
@@ -20,21 +34,13 @@ static OpenGLRenderer* globalPtr = nullptr;///< Global pointer to the actual ren
 static void displayFunction() {
     globalPtr->display_cb();
 }
-/**
- * @brief Keyboard input function for glut callback
- * @param key The key pressed
- * @param x Location X
- * @param y Location Y
- */
-static void buttonFunction(uint8_t key, int32_t x, int32_t y) {
-    globalPtr->button_cb(key, x, y);
+
+OpenGLRenderer::~OpenGLRenderer() {
+    globalPtr = nullptr;
 }
 
 void OpenGLRenderer::Init() {
-    int param    = 1;
-    char toto1[] = "Raycaster";
-    char* toto[] = {&toto1[0]};
-    glutInit(&param, toto);
+    gl::init();
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(settingInternal.ScreenResolution[0], settingInternal.ScreenResolution[1]);
     glutCreateWindow("RayCaster");
@@ -45,7 +51,6 @@ void OpenGLRenderer::Init() {
     gluOrtho2D(0, settingInternal.ScreenResolution[0], settingInternal.ScreenResolution[1], 0);
     globalPtr = this;
     glutDisplayFunc(displayFunction);
-    glutKeyboardFunc(buttonFunction);
     status = Status::Ready;
 }
 
@@ -60,9 +65,6 @@ void OpenGLRenderer::update() {
 
 void OpenGLRenderer::setDrawingCallback(const std::function<void()>& func) {
     mainDraw = func;
-}
-void OpenGLRenderer::setButtonCallback(const std::function<void(uint8_t key, int32_t x, int32_t y)>& func) {
-    btn = func;
 }
 
 void OpenGLRenderer::setColor(const graphics::Color& color) {
@@ -109,9 +111,6 @@ void OpenGLRenderer::display_cb() {
         mainDraw();
     glutSwapBuffers();
 }
-void OpenGLRenderer::button_cb(uint8_t key, int32_t x, int32_t y) {
-    if (btn)
-        btn(key, x, y);
-}
+
 
 }// namespace rc::core::renderer
