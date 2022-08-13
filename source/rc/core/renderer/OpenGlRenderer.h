@@ -85,6 +85,14 @@ public:
     void drawQuad(const graphics::Quad2<double>& quad, const graphics::Color& color) const override;
 
     /**
+     * @brief Draw text on the screen
+     * @param text Text to draw
+     * @param location Localisation on the screen
+     * @param color Color of the text
+     */
+    void drawText(const std::string& text, const math::Vectf& location, const graphics::Color& color) const override;
+
+    /**
      * @brief Display call back
      */
     void display_cb();

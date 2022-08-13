@@ -38,13 +38,13 @@ public:
     /**
      * @brief Force display update
      */
-    void update() override{}
+    void update() override {}
 
     /**
      * @brief Defines the main draw call back
      * @param func The drawing callback
      */
-    void setDrawingCallback([[maybe_unused]] const std::function<void()>& func) override{}
+    void setDrawingCallback([[maybe_unused]] const std::function<void()>& func) override {}
     /**
       * @brief Gets the renderer Type
       * @return Renderer type
@@ -57,22 +57,30 @@ public:
      * @param size Size of the point
      * @param color Color of the point
      */
-    void drawPoint([[maybe_unused]] const math::Vectf& location, [[maybe_unused]] double size, [[maybe_unused]] const graphics::Color& color) const override{}
+    void drawPoint([[maybe_unused]] const math::Vectf& location, [[maybe_unused]] double size, [[maybe_unused]] const graphics::Color& color) const override {}
     /**
      * @brief Draw a line
      * @param line Line's data
      * @param width Width of the line
      * @param color Line's color
      */
-    void drawLine([[maybe_unused]] const graphics::Line2<double>& line, [[maybe_unused]] double width, [[maybe_unused]] const graphics::Color& color) const override{}
+    void drawLine([[maybe_unused]] const graphics::Line2<double>& line, [[maybe_unused]] double width, [[maybe_unused]] const graphics::Color& color) const override {}
     /**
      * @brief Draw a quad
      * @param quad Quad's data
      * @param color Quad's color
      */
-    void drawQuad([[maybe_unused]] const graphics::Quad2<double>& quad, [[maybe_unused]] const graphics::Color& color) const override{}
+    void drawQuad([[maybe_unused]] const graphics::Quad2<double>& quad, [[maybe_unused]] const graphics::Color& color) const override {}
+
+    /**
+     * @brief Draw text on the screen
+     * @param text Text to draw
+     * @param location Localisation on the screen
+     * @param color Color of the text
+     */
+    void drawText([[maybe_unused]] const std::string& text, [[maybe_unused]] const math::Vectf& location, [[maybe_unused]] const graphics::Color& color) const override {}
 
 private:
 };
 
-}// namespace rc::base::renderer
+}// namespace rc::core::renderer

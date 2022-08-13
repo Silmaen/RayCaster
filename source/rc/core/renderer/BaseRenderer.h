@@ -119,7 +119,7 @@ public:
      * @brief Defines the main draw call back
      * @param func The drawing callback
      */
-     virtual void setDrawingCallback(const std::function<void()>& func) = 0;
+    virtual void setDrawingCallback(const std::function<void()>& func) = 0;
 
     /**
      * @brief Gets the renderer Type
@@ -148,7 +148,16 @@ public:
      * @param quad Quad's data
      * @param color Quad's color
      */
-    virtual void drawQuad(const graphics::Quad2<double>& quad,  const graphics::Color& color) const = 0;
+    virtual void drawQuad(const graphics::Quad2<double>& quad, const graphics::Color& color) const = 0;
+
+    /**
+     * @brief Draw text on the screen
+     * @param text Text to draw
+     * @param location Localisation on the screen
+     * @param color Color of the text
+     */
+    virtual void drawText(const std::string& text, const math::Vectf& location, const graphics::Color& color) const = 0;
+
 protected:
     /// The settings
     Settings settingInternal;
@@ -159,4 +168,4 @@ protected:
 };
 
 
-}// namespace rc::base::renderer
+}// namespace rc::core::renderer
