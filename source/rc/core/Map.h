@@ -202,7 +202,7 @@ public:
      */
     struct rayCastResult {
         double distance;                ///< Distance of the hit
-        math::Vector2<double> wallPoint;///< Point on the wall
+        math::Vectf wallPoint;///< Point on the wall
         bool hitVertical;               ///< If we hit a vertical wall
     };
     /**
@@ -211,20 +211,20 @@ public:
      * @param direction Ray's direction
      * @return Hit data
      */
-    [[nodiscard]] rayCastResult castRay(const math::Vector2<double>& from, const math::Vector2<double>& direction) const;
+    [[nodiscard]] rayCastResult castRay(const math::Vectf& from, const math::Vectf& direction) const;
 
     /**
      * @brief Determine the cell where the point lies.
      * @param from The point to check
      * @return The cell
      */
-    [[nodiscard]] gridCoordinate whichCell(const math::Vector2<double>& from) const;
+    [[nodiscard]] gridCoordinate whichCell(const math::Vectf& from) const;
     /**
      * @brief Check if a point is in the map
      * @param from The point to check
      * @return True if in the map
      */
-    [[nodiscard]] bool isIn(const math::Vector2<double>& from) const;
+    [[nodiscard]] bool isIn(const math::Vectf& from) const;
     /**
      * @brief Checks if grid coordinates are in the map
      * @param from Grid coordinates to check
@@ -237,7 +237,7 @@ public:
      * @param from The point to check
      * @return True if in the map
      */
-    [[nodiscard]] bool isInPassable(const math::Vector2<double>& from) const;
+    [[nodiscard]] bool isInPassable(const math::Vectf& from) const;
     /**
      * @brief Checks if grid coordinates are in the map and player can pass through
      * @param from Grid coordinates to check
@@ -250,7 +250,7 @@ public:
      * @param from The point to check
      * @return True if in the map
      */
-    [[nodiscard]] bool isInVisible(const math::Vector2<double>& from) const;
+    [[nodiscard]] bool isInVisible(const math::Vectf& from) const;
     /**
      * @brief Checks if grid coordinates are in the map and player can see through
      * @param from Grid coordinates to check
@@ -267,12 +267,21 @@ public:
      * @brief Get the full pixel width of the map
      * @return Pixel width of the map
      */
-    [[nodiscard]] uint32_t fullWidth() const { return width() * cubeSize; }
+    [[nodiscard]] uint32_t fullWidth() const { return static_cast<uint32_t>(width()) * cubeSize; }
     /**
      * @brief Get the full pixel height of the map
      * @return Pixel height of the map
      */
-    [[nodiscard]] uint32_t fullHeight() const { return height() * cubeSize; }
+    [[nodiscard]] uint32_t fullHeight() const { return static_cast<uint32_t>(height()) * cubeSize; }
+
+    /**
+     * @brief Check and modify the expected move according to map constrains
+     * @param Start Actual Position
+     * @param Expected Expected move
+     * @return Effective move
+     */
+    [[nodiscard]] math::Vectf possibleMove(const math::Vectf& Start, const math::Vectf& Expected)const;
+
     /**
      * @brief Define player starts
      * @param pos Position
@@ -287,6 +296,7 @@ public:
      * @return Player start state
      */
     [[nodiscard]] std::tuple<const math::Vectf&, const math::Vectf&> getPlayerStart() const { return {PlayerInitialPosition, PlayerInitialDirection}; }
+
 
     /**
      * @brief load a map
@@ -311,10 +321,10 @@ public:
 private:
     /**
      * @brief Reset the map to the given size
-     * @param w width
-     * @param h height
+     * @param width width
+     * @param height height
      */
-    void reset(uint8_t w, uint8_t h);
+    void reset(uint8_t width, uint8_t height);
     /**
      * @brief Update the size
      */

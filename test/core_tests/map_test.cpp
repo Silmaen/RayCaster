@@ -68,11 +68,11 @@ TEST(Map, init) {
 TEST(Map, CheckInside) {
     Map map(10, 10);
     ASSERT_TRUE(map.isValid());
-    EXPECT_TRUE(map.isIn(rc::math::Vector2<double>{50.0, 50.0}));
-    EXPECT_FALSE(map.isIn(rc::math::Vector2<double>{-50.0, 50.0}));
-    EXPECT_FALSE(map.isIn(rc::math::Vector2<double>{50.0, -50.0}));
-    EXPECT_FALSE(map.isIn(rc::math::Vector2<double>{5000000.0, 50.0}));
-    EXPECT_FALSE(map.isIn(rc::math::Vector2<double>{50.0, 50000000.0}));
+    EXPECT_TRUE(map.isIn(rc::math::Vectf{50.0, 50.0}));
+    EXPECT_FALSE(map.isIn(rc::math::Vectf{-50.0, 50.0}));
+    EXPECT_FALSE(map.isIn(rc::math::Vectf{50.0, -50.0}));
+    EXPECT_FALSE(map.isIn(rc::math::Vectf{5000000.0, 50.0}));
+    EXPECT_FALSE(map.isIn(rc::math::Vectf{50.0, 50000000.0}));
     EXPECT_TRUE(map.isIn(Map::gridCoordinate{5, 5}));
     EXPECT_FALSE(map.isIn(Map::gridCoordinate{11, 5}));
     EXPECT_FALSE(map.isIn(Map::gridCoordinate{5, 11}));
@@ -140,7 +140,7 @@ TEST(Map, castRay) {
         EXPECT_NEAR(cast.wallPoint[0], expected.wallPoint[0], 0.0001);
         EXPECT_NEAR(cast.wallPoint[1], expected.wallPoint[1], 0.0001);
         EXPECT_EQ(cast.hitVertical, expected.hitVertical);
-        ray.rotate({360.0 / expecteds.size(), Unit::Degree});
+        ray.rotate({360.0 / static_cast<double>(expecteds.size()), Unit::Degree});
     }
     {
         ray  = {0, 1};
@@ -159,7 +159,7 @@ TEST(Map, castRay) {
         EXPECT_EQ(cast.hitVertical, false);
     }
     auto duration = testClock::now() - starting;
-    auto micros   = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(duration).count()) / (expecteds.size() + 2.0);
+    auto micros   = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(duration).count()) / (static_cast<double>(expecteds.size()) + 2.0);
 
 #ifdef NDEBUG
     const double maxDuration = 0.5;
@@ -237,4 +237,31 @@ TEST(Map, Colors){
     cell.textureId = 7;
     EXPECT_EQ(cell.getMapColor(), (rc::graphics::Color{0x64, 0x32, 0x08}));
     EXPECT_EQ(cell.getRayColor(), (rc::graphics::Color{0x94, 0x62, 0x38}));
+}
+
+TEST(Map, possibleMove){
+    Map map = ConstructBaseMap();
+    {
+        rc::math::Vectf expected{5, 0};
+        auto result = map.possibleMove(rc::math::Vectf{100, 100}, expected);
+        EXPECT_NEAR((expected - result).length(), 0, 0.001);
+    }
+    { // X movement possible, not Y
+        rc::math::Vectf expected{5, -50};
+        auto result = map.possibleMove(rc::math::Vectf{100, 100}, expected);
+        rc::math::Vectf expectedResult{5,0};
+        EXPECT_NEAR((expectedResult - result).length(), 0, 0.001);
+    }
+    { // Y movement possible, not X
+        rc::math::Vectf expected{-50, 5};
+        auto result = map.possibleMove(rc::math::Vectf{100, 100}, expected);
+        rc::math::Vectf expectedResult{0,5};
+        EXPECT_NEAR((expectedResult - result).length(), 0, 0.001);
+    }
+    { // movement impossible
+        rc::math::Vectf expected{-50, -50};
+        auto result = map.possibleMove(rc::math::Vectf{100, 100}, expected);
+        rc::math::Vectf expectedResult{0,0};
+        EXPECT_NEAR((expectedResult - result).length(), 0, 0.001);
+    }
 }

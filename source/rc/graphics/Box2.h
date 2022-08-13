@@ -44,7 +44,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~Box2() = default;
+    ~Box2() = default;
 
     /**
      * @brief Construct by value
@@ -154,9 +154,9 @@ inline void to_json(nlohmann::json& jso, const Box2& box){
  * @param jso Json source
  * @param box Destination vector
  */
-inline void from_json(const nlohmann::json& jso, Box2 box){
+inline void from_json(const nlohmann::json& jso, Box2& box){
     box[0] = jso.at(0);
-    box [1] = jso.at(1);
+    box[1] = jso.at(1);
 }
 
 

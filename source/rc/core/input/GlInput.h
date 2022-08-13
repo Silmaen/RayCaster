@@ -42,7 +42,7 @@ public:
      * @param key Input key
      * @param state If the button is pressed (true) or released (false)
      */
-    void button_cb(uint8_t key, bool state);
+    void button_cb(char key, bool state);
 
 private:
     /// Call back after button update

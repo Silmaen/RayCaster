@@ -156,9 +156,9 @@ public:
      * @return This
      */
     Color& darken(){
-        R*=0.9;
-        G*=0.9;
-        B*=0.9;
+        R=static_cast<uint8_t>(0.9 * R);
+        G=static_cast<uint8_t>(0.9 * G);
+        B=static_cast<uint8_t>(0.9 * B);
         return *this;
     }
 
@@ -167,9 +167,9 @@ public:
      * @return This
      */
     Color& lighten(){
-        R*=1.1;
-        G*=1.1;
-        B*=1.1;
+        R=static_cast<uint8_t>(1.1 * R);
+        G=static_cast<uint8_t>(1.1 * G);
+        B=static_cast<uint8_t>(1.1 * B);
         return *this;
     }
 

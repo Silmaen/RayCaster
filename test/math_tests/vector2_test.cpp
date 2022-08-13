@@ -60,3 +60,13 @@ TEST(Vectors, typeChanges){
     vect = vectf;
     EXPECT_EQ(vect,Vecti(56,-45));
 }
+
+TEST(VectorFloat, rotation90) {
+    {
+        Vectf dummyVect{4,2};
+        Vectf rot = dummyVect.rotated90();
+        EXPECT_NEAR(rot.dot(dummyVect), 0, 0.001);
+        EXPECT_NEAR(rot[0], 2, 0.001);
+        EXPECT_NEAR(rot[1], -4, 0.001);
+    }
+}

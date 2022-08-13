@@ -3,7 +3,9 @@
 This project aims to learn how the ray caster game engine works. We try to get a 
 modular and optimized game engine. 
 
-## Project dependencies
+## Build the project
+
+### Project dependencies
 
 This Project rely on several tools to build:
 
@@ -15,7 +17,7 @@ This Project rely on several tools to build:
 | doxygen | 1.9.3           | `pacman -S doxygen graphviz`         |
 | gcovr   | 5.1             | `pacman -S gcovr`                    |
 
-In addition, some external libraries:
+Also, some external libraries:
 
 | name          | minimum version | Install command (mingw & arch linux) |
 |---------------|-----------------|--------------------------------------|
@@ -23,13 +25,51 @@ In addition, some external libraries:
 | nlohmann/json | 3.11            | `pacman -S nlohmann-json`            |
 | qt            | 6               | `pacman -S qt6`                      |
 
-## Graphical engine basis
+
+### CMake command
+
+#### Configuration phase
+
+The base CMake command:
+
+`cmake -S <path to source> -B <path to build directory>`
+
+We recommend to use Ninja as build generator (install it with `pacman -S ninja`):
+
+`cmake -S <path to source> -B <path to build directory> -G Ninja`
+if the Ninja executable is not in your path just tell its location to Cmake: `-DCMAKE_MAKE_PROGRAM=<path to ninja executable>`
+
+It is possible to set de the compiler as always with CMake: `-DCMAKE_CXX_COMPILER=<path to compiler>`
+
+Only 2 build Type is available: `Debug` and `Release`. Optionaly, in `Debug` only, it
+is possible to enable the code coverage monitoring by adding `-DRAYCAST_COVERAGE=on` to the cmake command line
+
+#### Building phase
+
+The build command :
+
+`cmake -B <path to build directory> --target <desired target> -j <nb thread>`
+
+Once configured, some targets ers now available:
+
+| target                 | Comment                                                             |
+|------------------------|---------------------------------------------------------------------|
+| RayCaster              | build the game                                                      |
+| RayCaster_world_editor | build the world editor utility                                      |
+| documentation          | build the code documentation using doxygen                          |
+| All_Tests              | run all tests in sequence (optionally generate the coverage report) |
+
+## Theory
+
+### Ray caster basis
 
 Find out more technical documentation in
 [Graphical basis](document/BasicRaycaster.md)
 
 ## Stuff to do
 
+* [ ] Build system
+  * [ ] Add Packaging mechanism
 * [ ] refactor Maps
   * [ ] Larger variety of wall type
     * [X] first step : change color
@@ -43,14 +83,14 @@ Find out more technical documentation in
     * [X] render only the walls
     * [X] render only the seen walls
   * [X] Movement uses collision
-    * [ ] move collision code into Map
+    * [X] move collision code into Map
   * [X] Settings in external file
 * [ ] Refactor input system
   * [X] Not manager by the renderer (even if same system)
   * [X] adding external key mapping (for switching keyboard)
   * [ ] key addition
     * [ ] adding a 'use' key (standard key 'e')
-    * [ ] adding strafe movement
+    * [X] adding strafe movement
     * [X] Make the draw of the map switchable (standard key 'm')
     * [X] Make the draw of rays in the map switchable (standard key 'r')
     * [ ] Go to menu (standard key 'esc')

@@ -18,9 +18,9 @@ namespace rc::core {
 class Player {
 public:
     /// Player position's type
-    using PositionType = math::Vector2<double>;
+    using PositionType = math::Vectf;
     /// Player direction's type
-    using DirectionType = math::Vector2<double>;
+    using DirectionType = math::Vectf;
     /**
      * @brief Default copy constructor
      */

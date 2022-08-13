@@ -42,6 +42,7 @@ elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
             -Wno-padded
             -Wno-used-but-marked-unused
             -Wno-exit-time-destructors
+            -Wno-global-constructors
     )
 else()
     message(FATAL_ERROR "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}")

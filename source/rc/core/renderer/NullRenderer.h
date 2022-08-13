@@ -57,7 +57,7 @@ public:
      * @param size Size of the point
      * @param color Color of the point
      */
-    void drawPoint([[maybe_unused]] const math::Vector2<double>& location, [[maybe_unused]] double size, [[maybe_unused]] const graphics::Color& color) const override{}
+    void drawPoint([[maybe_unused]] const math::Vectf& location, [[maybe_unused]] double size, [[maybe_unused]] const graphics::Color& color) const override{}
     /**
      * @brief Draw a line
      * @param line Line's data

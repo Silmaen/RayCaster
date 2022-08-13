@@ -94,7 +94,7 @@ void Engine::display() {
     if (status != Status::Running)
         return;
     engineClock::time_point temp = engineClock ::now();
-    deltaMillis                  = std::chrono::duration_cast<std::chrono::milliseconds>(temp - frames).count();
+    deltaMillis                  = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(temp - frames).count());
     fps                          = 1000.0 / deltaMillis;
     frames                       = temp;
     button();
@@ -114,36 +114,16 @@ void Engine::button() {
         player->rotate({0.2 * deltaMillis, math::Angle::Unit::Degree});
     }
     if (input->isKeyPressed(input::FunctionKey::Forward)) {
-        Player::DirectionType expectedMove = player->getDirection() * 5;
-        Player::PositionType newPos        = player->getPosition() + expectedMove;
-        if (map->isInPassable(newPos)) {
-            player->move(expectedMove);
-        } else {
-            newPos = player->getPosition() + Player::PositionType{expectedMove[0], 0.0};
-            if (map->isInPassable(newPos)) {
-                player->move({expectedMove[0], 0.0});
-            } else {
-                newPos = player->getPosition() + Player::PositionType{0.0, expectedMove[1]};
-                if (map->isInPassable(newPos))
-                    player->move({0.0, expectedMove[1]});
-            }
-        }
+        player->move(map->possibleMove(player->getPosition(), player->getDirection() * 5));
     }
     if (input->isKeyPressed(input::FunctionKey::Backward)) {
-        Player::DirectionType expectedMove = player->getDirection() * -5;
-        Player::PositionType newPos        = player->getPosition() + expectedMove;
-        if (map->isInPassable(newPos)) {
-            player->move(expectedMove);
-        } else {
-            newPos = player->getPosition() + Player::PositionType{expectedMove[0], 0.0};
-            if (map->isInPassable(newPos)) {
-                player->move({expectedMove[0], 0.0});
-            } else {
-                newPos = player->getPosition() + Player::PositionType{0.0, expectedMove[1]};
-                if (map->isInPassable(newPos))
-                    player->move({0.0, expectedMove[1]});
-            }
-        }
+        player->move(map->possibleMove(player->getPosition(), player->getDirection() * -5));
+    }
+    if (input->isKeyPressed(input::FunctionKey::StrafeLeft)) {
+        player->move(map->possibleMove(player->getPosition(), player->getDirection().rotated90() * 5));
+    }
+    if (input->isKeyPressed(input::FunctionKey::StrafeRight)) {
+        player->move(map->possibleMove(player->getPosition(), player->getDirection().rotated90() * -5));
     }
 
     // toggle button: freeze time
@@ -226,10 +206,10 @@ void Engine::drawRayCasting() {
 void Engine::drawMap() {
     auto [scaleFactor, offsetPoint] = getMapLayoutInfo();
     double offset                   = map->getCellSize() * scaleFactor;
-    graphics::Quad2 quad{math::Vector2<double>{0, 0},
-                         math::Vector2<double>{0, offset},
-                         math::Vector2<double>{offset, offset},
-                         math::Vector2<double>{offset, 0}};
+    graphics::Quad2<double> quad{math::Vectf{0, 0},
+                         math::Vectf{0, offset},
+                         math::Vectf{offset, offset},
+                         math::Vectf{offset, 0}};
     quad.move(offsetPoint);
     for (Map::LineType& line : map->getMapData()) {
         for (Map::BaseType cell : line) {
@@ -249,7 +229,7 @@ void Engine::drawPlayerOnMap() {
     renderer->drawLine({player->getPosition() * scaleFactor + offsetPoint, player->getDirection() * 60.0 * scaleFactor, 1}, 8, {255U, 255U, 0U});
 }
 
-std::tuple<double, math::Vector2<double>> Engine::getMapLayoutInfo() const {
+std::tuple<double, math::Vectf> Engine::getMapLayoutInfo() const {
     double scaleFactor = std::min(settings.layoutMap.width() / static_cast<double>(map->fullWidth()),
                                   settings.layoutMap.height() / static_cast<double>(map->fullHeight()));
     return {scaleFactor,
