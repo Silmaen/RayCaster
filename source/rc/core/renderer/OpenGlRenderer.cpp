@@ -7,7 +7,7 @@
  */
 
 #include "OpenGlRenderer.h"
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 
 
 namespace rc::core::renderer {
@@ -105,12 +105,17 @@ void OpenGLRenderer::drawQuad(const graphics::Quad2<double>& quad, const graphic
     glEnd();
 }
 
+void OpenGLRenderer::drawText(const std::string& text, const math::Vectf& location, const graphics::Color& color) const {
+    setColor(color);
+    glRasterPos2d(location[0], location[1]);
+    glutBitmapString(GLUT_BITMAP_HELVETICA_18, reinterpret_cast<const unsigned char*>(text.c_str()));
+}
+
 void OpenGLRenderer::display_cb() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (mainDraw)
         mainDraw();
     glutSwapBuffers();
 }
-
 
 }// namespace rc::core::renderer

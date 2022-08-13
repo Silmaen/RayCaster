@@ -104,6 +104,11 @@ void Engine::display() {
     drawRayCasting();
     if (settings.drawMap)
         drawPlayerOnMap();
+    // draw fps.
+    std::stringstream text;
+    text << "fps " << fps;
+    //renderer->drawPoint({-1,-1}, 1, {200U,20U,0U});
+    renderer->drawText(text.str(),{875,50},{200U,20U,0U});
 }
 
 void Engine::button() {
@@ -223,6 +228,7 @@ void Engine::drawMap() {
         quad.moveTo(offsetPoint);
     }
 }
+
 void Engine::drawPlayerOnMap() {
     auto [scaleFactor, offsetPoint] = getMapLayoutInfo();
     renderer->drawPoint(player->getPosition() * scaleFactor + offsetPoint, 32 * scaleFactor, {255U, 255U, 0U});
