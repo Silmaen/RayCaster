@@ -175,7 +175,7 @@ private:
       * @brief Compute map layout infos
       * @return Scale factor and offset point
       */
-    [[nodiscard]] std::tuple<double, math::Vector2<double>> getMapLayoutInfo() const;
+    [[nodiscard]] std::tuple<double, math::Vectf> getMapLayoutInfo() const;
     /**
      * @brief Default constructor.
      */

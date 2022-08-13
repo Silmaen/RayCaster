@@ -19,7 +19,7 @@ static GLInput* globalPtr = nullptr;///< Global pointer to the actual input...
  * @param key The key pressed
  */
 static void buttonDown(uint8_t key, int32_t /*x*/, int32_t /*y*/) {
-    globalPtr->button_cb(key, true);
+    globalPtr->button_cb(static_cast<char>(key), true);
 }
 
 /**
@@ -27,7 +27,7 @@ static void buttonDown(uint8_t key, int32_t /*x*/, int32_t /*y*/) {
  * @param key The key pressed
  */
 static void buttonUp(uint8_t key, int32_t /*x*/, int32_t /*y*/) {
-    globalPtr->button_cb(key, false);
+    globalPtr->button_cb(static_cast<char>(key), false);
 }
 
 GLInput::~GLInput() {
@@ -41,7 +41,7 @@ void GLInput::Init() {
     glutKeyboardUpFunc(buttonUp);
 }
 
-void GLInput::button_cb(uint8_t key, bool state) {
+void GLInput::button_cb(char key, bool state) {
     getState(settings().keyByChar(key)) = state;
     if (btn)
         btn();

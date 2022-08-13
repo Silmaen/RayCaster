@@ -114,7 +114,7 @@ public:
      */
     virtual bool isKeyPressed(const FunctionKey& key) const {
         return state[key];
-    };
+    }
     /**
      * @brief Defines the main draw call back
      * @param func The drawing callback

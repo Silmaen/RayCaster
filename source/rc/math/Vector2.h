@@ -167,7 +167,7 @@ public:
      * @brief Get the length
      * @return Length
      */
-    DataType length()const{return std::sqrt(lengthSQ());}
+    DataType length()const{return static_cast<DataType>(std::sqrt(lengthSQ()));}
 
     /**
      * @brief Rotate the vector by the given angle
@@ -191,6 +191,25 @@ public:
         Vector2 tmp{*this};
         tmp.rotate(angle);
         return tmp;
+    }
+
+    /**
+     * @brief Rotate the vector by 90 degree (turn left)
+     * @return This actualized vector
+     */
+    Vector2& rotate90(){
+       std::swap(X, Y);
+       Y = -Y;
+       return *this;
+    }
+    /**
+     * @brief Rotate the vector by 90 degree (turn left)
+     * @return Rotated vector
+     */
+    Vector2 rotated90()const{
+       Vector2 tmp{*this};
+       tmp.rotate90();
+       return tmp;
     }
     /**
      * @brief Get the vector angle with X axis

@@ -70,11 +70,11 @@ void OpenGLRenderer::setDrawingCallback(const std::function<void()>& func) {
 void OpenGLRenderer::setColor(const graphics::Color& color) {
     glColor4ub(color.red(), color.green(), color.blue(), color.alpha());
 }
-void OpenGLRenderer::pushVertex(const math::Vector2<double>& vertex) {
+void OpenGLRenderer::pushVertex(const math::Vectf& vertex) {
     glVertex2d(vertex[0], vertex[1]);
 }
 
-void OpenGLRenderer::drawPoint(const math::Vector2<double>& location, double size, const graphics::Color& color) const {
+void OpenGLRenderer::drawPoint(const math::Vectf& location, double size, const graphics::Color& color) const {
     if (status != Status::Running)
         return;
     setColor(color);

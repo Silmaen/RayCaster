@@ -14,37 +14,26 @@ char& Settings::operator[](const FunctionKey& key) {
     switch (key) {
     case FunctionKey::Exit:
         return mExitKey;
-        break;
     case FunctionKey::Forward:
         return mForwardKey;
-        break;
     case FunctionKey::Backward:
         return mBackwardKey;
-        break;
     case FunctionKey::TurnLeft:
         return mTurnLeftKey;
-        break;
     case FunctionKey::TurnRight:
         return mTurnRightKey;
-        break;
     case FunctionKey::StrafeLeft:
         return mStrafeLeftKey;
-        break;
     case FunctionKey::StrafeRight:
         return mStrafeRightKey;
-        break;
     case FunctionKey::Use:
         return mUseKey;
-        break;
     case FunctionKey::DisplayMap:
         return mDisplayMapKey;
-        break;
     case FunctionKey::DisplayRayOnMap:
         return mDisplayRayOnMapKey;
-        break;
     case FunctionKey::lastKey:
         return mVoidChar;
-        break;
     }
     return mVoidChar;// Void char by default!
 }
@@ -52,43 +41,43 @@ char& Settings::operator[](const FunctionKey& key) {
 void Settings::fromJson(const nlohmann::json& data) {
     if (data.contains("ExitKey")){
         uint8_t val = data["ExitKey"];
-        mExitKey = val;
+        mExitKey = static_cast<char>(val);
     }
     if (data.contains("ForwardKey")){
         uint8_t val = data["ForwardKey"];
-        mForwardKey = val;
+        mForwardKey = static_cast<char>(val);
     }
     if (data.contains("BackwardKey")){
         uint8_t val = data["BackwardKey"];
-        mBackwardKey = val;
+        mBackwardKey = static_cast<char>(val);
     }
     if (data.contains("TurnLeftKey")){
         uint8_t val = data["TurnLeftKey"];
-        mTurnLeftKey = val;
+        mTurnLeftKey = static_cast<char>(val);
     }
     if (data.contains("TurnRightKey")){
         uint8_t val = data["TurnRightKey"];
-        mTurnRightKey = val;
+        mTurnRightKey = static_cast<char>(val);
     }
     if (data.contains("StrafeLeftKey")){
         uint8_t val = data["StrafeLeftKey"];
-        mStrafeLeftKey = val;
+        mStrafeLeftKey = static_cast<char>(val);
     }
     if (data.contains("StrafeRightKey")){
         uint8_t val = data["StrafeRightKey"];
-        mStrafeRightKey = val;
+        mStrafeRightKey = static_cast<char>(val);
     }
     if (data.contains("UseKey")){
         uint8_t val = data["UseKey"];
-        mUseKey = val;
+        mUseKey = static_cast<char>(val);
     }
     if (data.contains("DisplayMapKey")){
         uint8_t val = data["DisplayMapKey"];
-        mDisplayMapKey = val;
+        mDisplayMapKey = static_cast<char>(val);
     }
     if (data.contains("DisplayRayOnMapKey")){
         uint8_t val = data["DisplayRayOnMapKey"];
-        mDisplayRayOnMapKey = val;
+        mDisplayRayOnMapKey = static_cast<char>(val);
     }
 }
 
@@ -137,37 +126,26 @@ bool& BaseInput::KeyState::operator[](const FunctionKey& key) {
     switch (key) {
     case FunctionKey::Exit:
         return mExitKey;
-        break;
     case FunctionKey::Forward:
         return mForwardKey;
-        break;
     case FunctionKey::Backward:
         return mBackwardKey;
-        break;
     case FunctionKey::TurnLeft:
         return mTurnLeftKey;
-        break;
     case FunctionKey::TurnRight:
         return mTurnRightKey;
-        break;
     case FunctionKey::StrafeLeft:
         return mStrafeLeftKey;
-        break;
     case FunctionKey::StrafeRight:
         return mStrafeRightKey;
-        break;
     case FunctionKey::Use:
         return mUseKey;
-        break;
     case FunctionKey::DisplayMap:
         return mDisplayMapKey;
-        break;
     case FunctionKey::DisplayRayOnMap:
         return mDisplayRayOnMapKey;
-        break;
     case FunctionKey::lastKey:
         return mVoidChar;
-        break;
     }
     return mVoidChar;// Void char by default!
 }
@@ -176,37 +154,26 @@ const bool& BaseInput::KeyState::operator[](const FunctionKey& key) const {
     switch (key) {
     case FunctionKey::Exit:
         return mExitKey;
-        break;
     case FunctionKey::Forward:
         return mForwardKey;
-        break;
     case FunctionKey::Backward:
         return mBackwardKey;
-        break;
     case FunctionKey::TurnLeft:
         return mTurnLeftKey;
-        break;
     case FunctionKey::TurnRight:
         return mTurnRightKey;
-        break;
     case FunctionKey::StrafeLeft:
         return mStrafeLeftKey;
-        break;
     case FunctionKey::StrafeRight:
         return mStrafeRightKey;
-        break;
     case FunctionKey::Use:
         return mUseKey;
-        break;
     case FunctionKey::DisplayMap:
         return mDisplayMapKey;
-        break;
     case FunctionKey::DisplayRayOnMap:
         return mDisplayRayOnMapKey;
-        break;
     case FunctionKey::lastKey:
         return mVoidChar;
-        break;
     }
     return mVoidChar;// Void char by default!
 }

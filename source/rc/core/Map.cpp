@@ -49,12 +49,12 @@ Map::Map(Map::DataType&& data, uint8_t cube) :
     cubeSize{cube},
     mapArray{std::move(data)} { updateSize(); }
 
-void Map::reset(uint8_t w, uint8_t h) {
+void Map::reset(uint8_t width, uint8_t height) {
     // bad size
-    if (w * h == 0) return;
-    mapArray.resize(h);
+    if (width * height == 0) return;
+    mapArray.resize(height);
     for (LineType& line : mapArray) {
-        line.resize(w);
+        line.resize(width);
         std::fill(line.begin(), line.end(), mapCell{false, false, 2});
     }
     PlayerInitialPosition  = {0, 0};
@@ -90,14 +90,14 @@ const Map::BaseType& Map::at(const gridCoordinate& location) const {
     return mapArray[location[1]][location[0]];
 }
 
-Map::rayCastResult Map::castRay(const math::Vector2<double>& from, const math::Vector2<double>& direction) const {
+Map::rayCastResult Map::castRay(const math::Vectf& from, const math::Vectf& direction) const {
     gridCoordinate playerCell = whichCell(from);
     // check for vertical line
     double verticalDistance = 100000000;
-    math::Vector2<double> verticalPoint{from};
+    math::Vectf verticalPoint{from};
     {
         // Intersection with verticalsq
-        math::Vector2<double> verticalOffset{};
+        math::Vectf verticalOffset{};
         double progression = 0;
         if (direction[0] > 0.001) {// look to the right
             verticalOffset[0] = cubeSize;
@@ -123,10 +123,10 @@ Map::rayCastResult Map::castRay(const math::Vector2<double>& from, const math::V
     }
     // check for horizontal line
     double horizontalDistance = 100000000;
-    math::Vector2<double> horizontalPoint{from};
+    math::Vectf horizontalPoint{from};
     {
         // Intersection with verticals
-        math::Vector2<double> horizontalOffset{};
+        math::Vectf horizontalOffset{};
         double progression = 0;
         if (direction[1] > 0.001) {// look to the bottom
             horizontalOffset[1] = cubeSize;
@@ -159,14 +159,14 @@ Map::rayCastResult Map::castRay(const math::Vector2<double>& from, const math::V
     return {std::sqrt(verticalDistance), verticalPoint, true};
 }
 
-Map::gridCoordinate Map::whichCell(const math::Vector2<double>& from) const {
+Map::gridCoordinate Map::whichCell(const math::Vectf& from) const {
     gridCoordinate result;
     result[0] = static_cast<unsigned char>(static_cast<uint64_t>(from[0]) / cubeSize);
     result[1] = static_cast<unsigned char>(static_cast<uint64_t>(from[1]) / cubeSize);
     return result;
 }
 
-bool Map::isIn(const math::Vector2<double>& from) const {
+bool Map::isIn(const math::Vectf& from) const {
     return from[0] >= 0 && from[0] <= maxWidth && from[1] >= 0 && from[1] <= maxHeight;
 }
 
@@ -174,18 +174,27 @@ bool Map::isIn(const gridCoordinate& from) const {
     return from[0] < width() && from[1] < height();
 }
 
-bool Map::isInPassable(const math::Vector2<double>& from) const {
+bool Map::isInPassable(const math::Vectf& from) const {
     return isIn(from) && at(whichCell(from)).passable;
 }
 bool Map::isInPassable(const Map::gridCoordinate& from) const {
     return isIn(from) && at(from).passable;
 }
 
-bool Map::isInVisible(const math::Vector2<double>& from) const {
+bool Map::isInVisible(const math::Vectf& from) const {
     return isIn(from) && at(whichCell(from)).visibility;
 }
 bool Map::isInVisible(const Map::gridCoordinate& from) const {
     return isIn(from) && at(from).visibility;
+}
+math::Vectf Map::possibleMove(const math::Vectf& Start, const math::Vectf& Expected) const {
+    if (isInPassable(Start + Expected))
+        return Expected;
+    if (isInPassable(Start + math::Vectf{Expected[0],0.0}))
+        return {Expected[0],0.0};
+    if (isInPassable(Start + math::Vectf{0.0, Expected[1]}))
+        return {0.0, Expected[1]};
+    return rc::math::Vectf();
 }
 
 void Map::updateSize() {
@@ -224,7 +233,7 @@ void Map::saveToData(const std::string& mapName) {
 }
 
 void Map::fromJson(const nlohmann::json& data) {
-    [[maybe_unused]] uint8_t version = data["version"];  // but still to be read when map will contain more data
+    [[maybe_unused]] uint8_t version = data["version"];// but still to be read when map will contain more data
     cubeSize                         = data["cubeSize"];
     mapArray                         = data["cells"];
     PlayerInitialPosition            = data["playerStart"];

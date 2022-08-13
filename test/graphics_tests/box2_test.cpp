@@ -36,3 +36,10 @@ TEST(Box2, operations){
     EXPECT_FALSE(box1.isIn(box2));
     EXPECT_TRUE(box1.intersect(box2));
 }
+
+TEST(Box2, saveLoad){
+    Box2 box1{{0,1},{2,3}};
+    nlohmann::json data = box1;
+    Box2 box2 = data;
+    EXPECT_EQ(box1, box2);
+}

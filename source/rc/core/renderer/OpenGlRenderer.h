@@ -69,7 +69,7 @@ public:
      * @param size Size of the point
      * @param color Color of the point
      */
-    void drawPoint(const math::Vector2<double>& location, double size, const graphics::Color& color) const override;
+    void drawPoint(const math::Vectf& location, double size, const graphics::Color& color) const override;
     /**
      * @brief Draw a line
      * @param line Line's data
@@ -94,7 +94,7 @@ private:
 
     static void setColor(const graphics::Color& color);
 
-    static void pushVertex(const math::Vector2<double>& vertex);
+    static void pushVertex(const math::Vectf& vertex);
 };
 
 }// namespace rc::core::renderer

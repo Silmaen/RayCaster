@@ -135,7 +135,7 @@ public:
      * @param size Size of the point
      * @param color Color of the point
      */
-    virtual void drawPoint(const math::Vector2<double>& location, double size, const graphics::Color& color) const = 0;
+    virtual void drawPoint(const math::Vectf& location, double size, const graphics::Color& color) const = 0;
     /**
      * @brief Draw a line
      * @param line Line's data
