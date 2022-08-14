@@ -1,8 +1,8 @@
 
+#include "math/geometry/Angle.h"
 #include "testHelper.h"
-#include "math/Angle.h"
 
-using namespace rc::math;
+using namespace rc::math::geometry;
 
 TEST(Angle, base){
     EXPECT_DOUBLE_EQ(Angle::getPi(), 3.1415926535897931);

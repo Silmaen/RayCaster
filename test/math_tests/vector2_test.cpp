@@ -1,7 +1,7 @@
 
-#include "math/Vector2.h"
+#include "math/geometry/Vector2.h"
 #include "testHelper.h"
-using namespace rc::math;
+using namespace rc::math::geometry;
 
 TEST(VectorInt, base) {
     {

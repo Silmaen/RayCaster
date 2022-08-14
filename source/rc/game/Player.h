@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include "math/Vector2.h"
+#include "math/geometry/Vector2.h"
 
-namespace rc::core {
+namespace rc::game {
 
 /**
  * @brief Class Player
@@ -18,9 +18,9 @@ namespace rc::core {
 class Player {
 public:
     /// Player position's type
-    using PositionType = math::Vectf;
+    using PositionType = math::geometry::Vectf;
     /// Player direction's type
-    using DirectionType = math::Vectf;
+    using DirectionType = math::geometry::Vectf;
     /**
      * @brief Default copy constructor
      */
@@ -73,7 +73,7 @@ public:
      * @brief Rotate player
      * @param angle Amount of rotation
      */
-    void rotate(const math::Angle& angle);
+    void rotate(const math::geometry::Angle& angle);
 
     /**
      * @brief Move player in the look at direction

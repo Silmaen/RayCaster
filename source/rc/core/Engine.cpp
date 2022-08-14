@@ -9,8 +9,8 @@
 #include "Engine.h"
 #include "core/fs/DataFile.h"
 #include "input/GlInput.h"
-#include "renderer/NullRenderer.h"
-#include "renderer/OpenGlRenderer.h"
+#include "graphics/renderer/NullRenderer.h"
+#include "graphics/renderer/OpenGlRenderer.h"
 
 namespace rc::core {
 
@@ -59,13 +59,13 @@ void Engine::setSettings(const EngineSettings& setting) {
 
 void Engine::init() {
     switch (settings.rendererType) {
-    case renderer::RendererType::OpenGL:
-        renderer = std::make_shared<renderer::OpenGLRenderer>();
+    case graphics::renderer::RendererType::OpenGL:
+        renderer = std::make_shared<graphics::renderer::OpenGLRenderer>();
         break;
-    case renderer::RendererType::Null:
-        renderer = std::make_shared<renderer::NullRenderer>();
+    case graphics::renderer::RendererType::Null:
+        renderer = std::make_shared<graphics::renderer::NullRenderer>();
         break;
-    case renderer::RendererType::Unknown:
+    case graphics::renderer::RendererType::Unknown:
         renderer = nullptr;
         return;
     }
@@ -83,8 +83,8 @@ void Engine::init() {
     input->settings() = settings.inputSettings;
     input->Init();
     input->setButtonCallback([this]() { renderer->update(); });
-    map    = std::make_shared<Map>();
-    player = std::make_shared<Player>();
+    map    = std::make_shared<game::Map>();
+    player = std::make_shared<game::Player>();
 
     status = Status::Ready;
     frames = engineClock::now();
@@ -113,10 +113,10 @@ void Engine::display() {
 
 void Engine::button() {
     if (input->isKeyPressed(input::FunctionKey::TurnLeft)) {
-        player->rotate({-0.2 * deltaMillis, math::Angle::Unit::Degree});
+        player->rotate({-0.2 * deltaMillis, math::geometry::Angle::Unit::Degree});
     }
     if (input->isKeyPressed(input::FunctionKey::TurnRight)) {
-        player->rotate({0.2 * deltaMillis, math::Angle::Unit::Degree});
+        player->rotate({0.2 * deltaMillis, math::geometry::Angle::Unit::Degree});
     }
     if (input->isKeyPressed(input::FunctionKey::Forward)) {
         player->move(map->possibleMove(player->getPosition(), player->getDirection() * 5));
@@ -162,17 +162,17 @@ void Engine::run() {
     }
 }
 
-std::shared_ptr<renderer::BaseRenderer> Engine::getRenderer() {
+std::shared_ptr<graphics::renderer::BaseRenderer> Engine::getRenderer() {
     if (renderer == nullptr)
-        return std::make_shared<renderer::NullRenderer>();
+        return std::make_shared<graphics::renderer::NullRenderer>();
     return renderer;
 }
 
 void Engine::drawRayCasting() {
-    using Unit                      = rc::math::Angle::Unit;
+    using Unit                      = rc::math::geometry::Angle::Unit;
     double fov                      = 60.0;
     const double increment          = fov / settings.layout3D.width();
-    auto ray                        = player->getDirection().rotated(rc::math::Angle{-fov / 2, Unit::Degree});
+    auto ray                        = player->getDirection().rotated(rc::math::geometry::Angle{-fov / 2, Unit::Degree});
     auto [scaleFactor, offsetPoint] = getMapLayoutInfo();
     // Sky and floor
     renderer->drawQuad({{static_cast<double>(settings.layout3D[0][0]), static_cast<double>(settings.layout3D[0][1])},
@@ -189,7 +189,7 @@ void Engine::drawRayCasting() {
     for (int32_t rays = 0; rays <= settings.layout3D.width(); ++rays) {
         auto result = map->castRay(player->getPosition(), ray);
 
-        Map::BaseType& cell = map->at(map->whichCell(result.wallPoint));
+        game::Map::BaseType& cell = map->at(map->whichCell(result.wallPoint));
         graphics::Color color{cell.getRayColor()};
         cell.isViewed = true;
         if (result.hitVertical)
@@ -204,20 +204,20 @@ void Engine::drawRayCasting() {
         //draw vertical wall
         double lineX = rays + settings.layout3D[0][0];
         renderer->drawLine({{lineX, lineOff}, {lineX, lineOff + lineH}}, 1, color);
-        ray.rotate(rc::math::Angle{increment, Unit::Degree});//go to next ray
+        ray.rotate(rc::math::geometry::Angle{increment, Unit::Degree});//go to next ray
     }
 }
 
 void Engine::drawMap() {
     auto [scaleFactor, offsetPoint] = getMapLayoutInfo();
     double offset                   = map->getCellSize() * scaleFactor;
-    graphics::Quad2<double> quad{math::Vectf{0, 0},
-                         math::Vectf{0, offset},
-                         math::Vectf{offset, offset},
-                         math::Vectf{offset, 0}};
+    math::geometry::Quad2<double> quad{math::geometry::Vectf{0, 0},
+                         math::geometry::Vectf{0, offset},
+                         math::geometry::Vectf{offset, offset},
+                         math::geometry::Vectf{offset, 0}};
     quad.move(offsetPoint);
-    for (Map::LineType& line : map->getMapData()) {
-        for (Map::BaseType cell : line) {
+    for (game::Map::LineType& line : map->getMapData()) {
+        for (game::Map::BaseType cell : line) {
             if (cell.isViewed)
                 renderer->drawQuad(quad,
                                    cell.passable ? graphics::Color{0, 0, 0} : cell.visibility ? graphics::Color{40, 40, 40} :
@@ -235,7 +235,7 @@ void Engine::drawPlayerOnMap() {
     renderer->drawLine({player->getPosition() * scaleFactor + offsetPoint, player->getDirection() * 60.0 * scaleFactor, 1}, 8, {255U, 255U, 0U});
 }
 
-std::tuple<double, math::Vectf> Engine::getMapLayoutInfo() const {
+std::tuple<double, math::geometry::Vectf> Engine::getMapLayoutInfo() const {
     double scaleFactor = std::min(settings.layoutMap.width() / static_cast<double>(map->fullWidth()),
                                   settings.layoutMap.height() / static_cast<double>(map->fullHeight()));
     return {scaleFactor,

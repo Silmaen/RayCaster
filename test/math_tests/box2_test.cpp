@@ -1,7 +1,7 @@
-#include "graphics/Box2.h"
+#include "math/geometry/Box2.h"
 #include "testHelper.h"
 
-using Box2=rc::graphics::Box2;
+using Box2=rc::math::geometry::Box2;
 
 TEST(Box2, base){
     Box2 box;

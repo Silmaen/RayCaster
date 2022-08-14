@@ -1,7 +1,7 @@
-#include "graphics/Quad2.h"
+#include "math/geometry/Quad2.h"
 #include "testHelper.h"
 
-using Quad2=rc::graphics::Quad2<double>;
+using Quad2=rc::math::geometry::Quad2<double>;
 
 TEST(Quad2, base){
     Quad2 quad;
@@ -39,7 +39,7 @@ TEST(Quad2, copy){
 }
 
 TEST(Quad2, moves){
-    using Vectf = rc::math::Vectf;
+    using Vectf = rc::math::geometry::Vectf;
     Vectf vect{45,78};
     Quad2 quad{vect,vect + Vectf{0,10},vect + Vectf{10,10},vect + Vectf{10,0}};
     quad.move({15,12});

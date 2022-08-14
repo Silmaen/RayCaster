@@ -8,12 +8,12 @@
 
 #pragma once
 
-#include "Angle.h"
+#include "math/geometry/Angle.h"
 #include <cmath>
 #include <cstdint>
 #include <nlohmann/json.hpp>
 
-namespace rc::math {
+namespace rc::math::geometry {
 
 /**
  * @brief Class Vector2

@@ -13,7 +13,7 @@ constexpr double Pi2 = Pi * 2.0; ///< 2 pi
 constexpr double r2d = 180 / Pi; ///< constant to convert radian to degree
 constexpr double d2r = Pi / 180.0; ///< constant to convert degree to radian
 
-namespace rc::math {
+namespace rc::math::geometry {
 
 Angle::Angle(double ang, const Angle::Unit& unit) {
     set(ang, unit);

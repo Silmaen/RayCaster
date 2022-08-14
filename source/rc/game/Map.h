@@ -9,12 +9,15 @@
 #pragma once
 
 #include "graphics/Color.h"
-#include "math/Vector2.h"
+#include "math/geometry/Vector2.h"
 #include <string>
 #include <tuple>
 #include <vector>
 
-namespace rc::core {
+/**
+ * @brief Namespace for game items
+ */
+namespace rc::game {
 
 
 /**
@@ -83,7 +86,9 @@ public:
     /// Index's type in map data
     using IndexType = uint8_t;
     /// Grid coordinate's type
-    using gridCoordinate = math::Vector2<IndexType>;
+    using gridCoordinate = math::geometry::Vector2<IndexType>;
+    /// World coordinate's type
+    using worldCoordinates = math::geometry::Vectf;
 
     /**
      * @brief Default constructor.
@@ -202,7 +207,7 @@ public:
      */
     struct rayCastResult {
         double distance;                ///< Distance of the hit
-        math::Vectf wallPoint;///< Point on the wall
+        worldCoordinates wallPoint;///< Point on the wall
         bool hitVertical;               ///< If we hit a vertical wall
     };
     /**
@@ -211,20 +216,20 @@ public:
      * @param direction Ray's direction
      * @return Hit data
      */
-    [[nodiscard]] rayCastResult castRay(const math::Vectf& from, const math::Vectf& direction) const;
+    [[nodiscard]] rayCastResult castRay(const worldCoordinates& from, const worldCoordinates& direction) const;
 
     /**
      * @brief Determine the cell where the point lies.
      * @param from The point to check
      * @return The cell
      */
-    [[nodiscard]] gridCoordinate whichCell(const math::Vectf& from) const;
+    [[nodiscard]] gridCoordinate whichCell(const worldCoordinates& from) const;
     /**
      * @brief Check if a point is in the map
      * @param from The point to check
      * @return True if in the map
      */
-    [[nodiscard]] bool isIn(const math::Vectf& from) const;
+    [[nodiscard]] bool isIn(const worldCoordinates& from) const;
     /**
      * @brief Checks if grid coordinates are in the map
      * @param from Grid coordinates to check
@@ -237,7 +242,7 @@ public:
      * @param from The point to check
      * @return True if in the map
      */
-    [[nodiscard]] bool isInPassable(const math::Vectf& from) const;
+    [[nodiscard]] bool isInPassable(const worldCoordinates& from) const;
     /**
      * @brief Checks if grid coordinates are in the map and player can pass through
      * @param from Grid coordinates to check
@@ -250,7 +255,7 @@ public:
      * @param from The point to check
      * @return True if in the map
      */
-    [[nodiscard]] bool isInVisible(const math::Vectf& from) const;
+    [[nodiscard]] bool isInVisible(const worldCoordinates& from) const;
     /**
      * @brief Checks if grid coordinates are in the map and player can see through
      * @param from Grid coordinates to check
@@ -280,14 +285,14 @@ public:
      * @param Expected Expected move
      * @return Effective move
      */
-    [[nodiscard]] math::Vectf possibleMove(const math::Vectf& Start, const math::Vectf& Expected)const;
+    [[nodiscard]] Map::worldCoordinates possibleMove(const worldCoordinates& Start, const worldCoordinates& Expected)const;
 
     /**
      * @brief Define player starts
      * @param pos Position
      * @param dir Direction
      */
-    void setPlayerStart(const math::Vectf& pos, const math::Vectf& dir) {
+    void setPlayerStart(const worldCoordinates& pos, const worldCoordinates& dir) {
         PlayerInitialPosition  = pos;
         PlayerInitialDirection = dir;
     }
@@ -295,7 +300,7 @@ public:
      * @brief Get player start information
      * @return Player start state
      */
-    [[nodiscard]] std::tuple<const math::Vectf&, const math::Vectf&> getPlayerStart() const { return {PlayerInitialPosition, PlayerInitialDirection}; }
+    [[nodiscard]] std::tuple<const worldCoordinates&, const worldCoordinates&> getPlayerStart() const { return {PlayerInitialPosition, PlayerInitialDirection}; }
 
 
     /**
@@ -332,9 +337,9 @@ private:
     /// Size of a cube
     uint8_t cubeSize = 64;
     /// Player stating point in the map
-    math::Vectf PlayerInitialPosition{};
+    worldCoordinates PlayerInitialPosition{};
     /// Player Starting direction in the map
-    math::Vectf PlayerInitialDirection{};
+    worldCoordinates PlayerInitialDirection{};
     /// The map data
     DataType mapArray;
     double maxWidth  = 0;

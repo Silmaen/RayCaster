@@ -9,16 +9,16 @@
 #pragma once
 #include <utility>
 
-#include "graphics/Quad2.h"
+#include "Quad2.h"
 
-namespace rc::graphics {
+namespace rc::math::geometry {
 /**
  * @brief Class Box2
  */
 class Box2 {
 public:
     /// Line vertex's type
-    using VertexType = math::Vector2<int32_t>;
+    using VertexType = math::geometry::Vector2<int32_t>;
     /**
      * @brief Default constructor.
      */

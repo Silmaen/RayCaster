@@ -9,9 +9,9 @@
 #include "Player.h"
 #include "core/Engine.h"
 
-namespace rc::core {
+namespace rc::game {
 
-void Player::rotate(const math::Angle& angle) {
+void Player::rotate(const math::geometry::Angle& angle) {
     direction.rotate(angle);
 }
 

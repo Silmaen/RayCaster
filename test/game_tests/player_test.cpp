@@ -1,9 +1,9 @@
 
-#include "core/Player.h"
+#include "game/Player.h"
 #include "testHelper.h"
 
-using Player=rc::core::Player;
-using Unit=rc::math::Angle::Unit;
+using Player=rc::game::Player;
+using Unit=rc::math::geometry::Angle::Unit;
 
 TEST(Player, base){
     Player player;

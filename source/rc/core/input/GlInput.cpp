@@ -7,7 +7,7 @@
  */
 
 #include "GlInput.h"
-#include "core/renderer/OpenGlRenderer.h"
+#include "graphics/renderer/OpenGlRenderer.h"
 #include <GL/glut.h>
 
 namespace rc::core::input {
@@ -36,7 +36,7 @@ GLInput::~GLInput() {
 
 void GLInput::Init() {
     globalPtr = this;
-    renderer::gl::init();
+    graphics::renderer::gl::init();
     glutKeyboardFunc(buttonDown);
     glutKeyboardUpFunc(buttonUp);
 }

@@ -11,7 +11,7 @@
 /**
  * @brief Namespace for mathematical objects
  */
-namespace rc::math {
+namespace rc::math::geometry {
 
 /**
  * @brief Class Angle

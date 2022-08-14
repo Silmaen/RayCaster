@@ -7,15 +7,15 @@
  */
 #pragma once
 
-#include "Map.h"
-#include "Player.h"
+#include "game/Map.h"
+#include "game/Player.h"
 #include "input/BaseInput.h"
-#include "graphics/Box2.h"
-#include "graphics/Line2.h"
-#include "graphics/Quad2.h"
-#include "renderer/BaseRenderer.h"
-#include <memory>
+#include "math/geometry/Box2.h"
+#include "math/geometry/Line2.h"
+#include "math/geometry/Quad2.h"
+#include "graphics/renderer/BaseRenderer.h"
 #include <chrono>
+#include <memory>
 
 /**
  * @namespace rc
@@ -32,17 +32,17 @@ namespace rc::core {
  */
 struct EngineSettings {
     /// Renderer's type to use
-    renderer::RendererType rendererType = renderer::RendererType::Null;
+    graphics::renderer::RendererType rendererType = graphics::renderer::RendererType::Null;
     /// Renderer Settings
-    renderer::Settings rendererSettings{{1280, 720}};
+    graphics::renderer::Settings rendererSettings{{1280, 720}};
     /// Input type
     input::InputType inputType = input::InputType::GL;
     /// Input type
     input::Settings inputSettings{};
     /// Screen zone where to draw the 3D scene
-    graphics::Box2 layout3D{{0, 0}, {860, 550}};
+    math::geometry::Box2 layout3D{{0, 0}, {860, 550}};
     /// Screen zone where to draw the map
-    graphics::Box2 layoutMap{{880, 150}, {1280, 550}};
+    math::geometry::Box2 layoutMap{{880, 150}, {1280, 550}};
     /// If daw the rays in the map
     bool drawMap = false;
     /// If daw the rays in the map
@@ -64,9 +64,6 @@ struct EngineSettings {
  */
 class Engine {
 public:
-    /// Type for screen resolution
-    using ResolutionType = math::Vector2<int32_t>;
-
     Engine(const Engine&)            = delete;
     Engine(Engine&&)                 = delete;
     Engine& operator=(const Engine&) = delete;
@@ -126,7 +123,7 @@ public:
      * @brief Access yto the Engine renderer
      * @return The renderer
      */
-    std::shared_ptr<renderer::BaseRenderer> getRenderer();
+    std::shared_ptr<graphics::renderer::BaseRenderer> getRenderer();
     /**
      * @brief Input callback function
      */
@@ -175,24 +172,24 @@ private:
       * @brief Compute map layout infos
       * @return Scale factor and offset point
       */
-    [[nodiscard]] std::tuple<double, math::Vectf> getMapLayoutInfo() const;
+    [[nodiscard]] std::tuple<double, math::geometry::Vectf> getMapLayoutInfo() const;
     /**
      * @brief Default constructor.
      */
     Engine();
     /// Engine's settings
     EngineSettings settings{
-            renderer::RendererType::OpenGL};
+            graphics::renderer::RendererType::OpenGL};
     /// Current status of the engine
     Status status = Status::Uninitialized;
     /// Link to the renderer
-    std::shared_ptr<renderer::BaseRenderer> renderer = nullptr;
+    std::shared_ptr<graphics::renderer::BaseRenderer> renderer = nullptr;
     /// Link to the input
     std::shared_ptr<input::BaseInput> input = nullptr;
     /// Link to the map
-    std::shared_ptr<Map> map = nullptr;
+    std::shared_ptr<game::Map> map = nullptr;
     /// Link to the player
-    std::shared_ptr<Player> player = nullptr;
+    std::shared_ptr<game::Player> player = nullptr;
 
     std::vector<std::function<void()>> toRender;
 

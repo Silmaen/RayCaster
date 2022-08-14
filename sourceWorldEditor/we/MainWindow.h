@@ -7,7 +7,7 @@
  */
 
 #pragma once
-#include "core/Map.h"
+#include "game/Map.h"
 #include <QMainWindow>
 
 /**
@@ -87,7 +87,7 @@ private:
     bool mapModified = false;
 
     /// map objet to manipulate
-    std::shared_ptr<rc::core::Map> theMap;
+    std::shared_ptr<rc::graphics::Map> theMap;
 
     QTimer* timer;
 
@@ -113,7 +113,7 @@ private:
      * @brief Define the map pointer everywhere it is needed
      * @param map the map to set
      */
-    void setMap(const std::shared_ptr<rc::core::Map>& map);
+    void setMap(const std::shared_ptr<rc::graphics::Map>& map);
 };
 
 }// namespace we
