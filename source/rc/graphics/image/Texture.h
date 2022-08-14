@@ -85,7 +85,7 @@ public:
      * @param radius Radius on the average
      * @return Color value
      */
-    Color getPixel(uint16_t u, uint16_t v, uint16_t radius) const;
+    [[nodiscard]] Color getPixel(uint16_t u, uint16_t v, uint16_t radius) const;
 
 private:
     using DataFile = core::fs::DataFile;
