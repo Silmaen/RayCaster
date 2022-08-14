@@ -1,7 +1,7 @@
-#include "graphics/Line2.h"
+#include "math/geometry/Line2.h"
 #include "testHelper.h"
 
-using Line2=rc::graphics::Line2<double>;
+using Line2=rc::math::geometry::Line2<double>;
 
 TEST(Line2, base){
     Line2 line;

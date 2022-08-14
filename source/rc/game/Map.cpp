@@ -7,10 +7,10 @@
  */
 
 #include "Map.h"
-#include "fs/DataFile.h"
+#include "core/fs/DataFile.h"
 #include <fstream>
 
-namespace rc::core {
+namespace rc::game {
 
 /// Map Color list
 static const std::vector<graphics::Color> mapColors{
@@ -90,14 +90,14 @@ const Map::BaseType& Map::at(const gridCoordinate& location) const {
     return mapArray[location[1]][location[0]];
 }
 
-Map::rayCastResult Map::castRay(const math::Vectf& from, const math::Vectf& direction) const {
+Map::rayCastResult Map::castRay(const worldCoordinates& from, const worldCoordinates& direction) const {
     gridCoordinate playerCell = whichCell(from);
     // check for vertical line
     double verticalDistance = 100000000;
-    math::Vectf verticalPoint{from};
+    worldCoordinates verticalPoint{from};
     {
         // Intersection with verticalsq
-        math::Vectf verticalOffset{};
+        worldCoordinates verticalOffset{};
         double progression = 0;
         if (direction[0] > 0.001) {// look to the right
             verticalOffset[0] = cubeSize;
@@ -123,10 +123,10 @@ Map::rayCastResult Map::castRay(const math::Vectf& from, const math::Vectf& dire
     }
     // check for horizontal line
     double horizontalDistance = 100000000;
-    math::Vectf horizontalPoint{from};
+    worldCoordinates horizontalPoint{from};
     {
         // Intersection with verticals
-        math::Vectf horizontalOffset{};
+        worldCoordinates horizontalOffset{};
         double progression = 0;
         if (direction[1] > 0.001) {// look to the bottom
             horizontalOffset[1] = cubeSize;
@@ -159,14 +159,14 @@ Map::rayCastResult Map::castRay(const math::Vectf& from, const math::Vectf& dire
     return {std::sqrt(verticalDistance), verticalPoint, true};
 }
 
-Map::gridCoordinate Map::whichCell(const math::Vectf& from) const {
+Map::gridCoordinate Map::whichCell(const worldCoordinates& from) const {
     gridCoordinate result;
     result[0] = static_cast<unsigned char>(static_cast<uint64_t>(from[0]) / cubeSize);
     result[1] = static_cast<unsigned char>(static_cast<uint64_t>(from[1]) / cubeSize);
     return result;
 }
 
-bool Map::isIn(const math::Vectf& from) const {
+bool Map::isIn(const worldCoordinates& from) const {
     return from[0] >= 0 && from[0] <= maxWidth && from[1] >= 0 && from[1] <= maxHeight;
 }
 
@@ -174,27 +174,28 @@ bool Map::isIn(const gridCoordinate& from) const {
     return from[0] < width() && from[1] < height();
 }
 
-bool Map::isInPassable(const math::Vectf& from) const {
+bool Map::isInPassable(const worldCoordinates& from) const {
     return isIn(from) && at(whichCell(from)).passable;
 }
 bool Map::isInPassable(const Map::gridCoordinate& from) const {
     return isIn(from) && at(from).passable;
 }
 
-bool Map::isInVisible(const math::Vectf& from) const {
+bool Map::isInVisible(const worldCoordinates& from) const {
     return isIn(from) && at(whichCell(from)).visibility;
 }
 bool Map::isInVisible(const Map::gridCoordinate& from) const {
     return isIn(from) && at(from).visibility;
 }
-math::Vectf Map::possibleMove(const math::Vectf& Start, const math::Vectf& Expected) const {
+
+Map::worldCoordinates Map::possibleMove(const worldCoordinates& Start, const worldCoordinates& Expected) const {
     if (isInPassable(Start + Expected))
         return Expected;
-    if (isInPassable(Start + math::Vectf{Expected[0],0.0}))
+    if (isInPassable(Start + worldCoordinates{Expected[0],0.0}))
         return {Expected[0],0.0};
-    if (isInPassable(Start + math::Vectf{0.0, Expected[1]}))
+    if (isInPassable(Start + worldCoordinates{0.0, Expected[1]}))
         return {0.0, Expected[1]};
-    return rc::math::Vectf();
+    return worldCoordinates();
 }
 
 void Map::updateSize() {
@@ -213,13 +214,13 @@ void Map::loadFromFile(const std::string& mapName) {
 
 void Map::saveToFile(const std::string& mapName) {
     nlohmann::json data = toJson();
-    fs::DataFile file;
+    core::fs::DataFile file;
     file.setPath(std::filesystem::path(mapName));
     file.writeJson(data);
 }
 
 void Map::loadFromData(const std::string& mapName) {
-    fs::DataFile file;
+    core::fs::DataFile file;
     file.setPath(std::filesystem::path("maps") / (mapName + ".map"));
     auto data = file.readJson();
     fromJson(data);
@@ -227,7 +228,7 @@ void Map::loadFromData(const std::string& mapName) {
 
 void Map::saveToData(const std::string& mapName) {
     nlohmann::json data = toJson();
-    fs::DataFile file;
+    core::fs::DataFile file;
     file.setPath(std::filesystem::path("maps") / (mapName + ".map"));
     file.writeJson(data);
 }

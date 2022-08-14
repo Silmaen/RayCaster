@@ -10,7 +10,7 @@
 #include <GL/freeglut.h>
 
 
-namespace rc::core::renderer {
+namespace rc::graphics::renderer {
 
 
 namespace gl {
@@ -70,11 +70,11 @@ void OpenGLRenderer::setDrawingCallback(const std::function<void()>& func) {
 void OpenGLRenderer::setColor(const graphics::Color& color) {
     glColor4ub(color.red(), color.green(), color.blue(), color.alpha());
 }
-void OpenGLRenderer::pushVertex(const math::Vectf& vertex) {
+void OpenGLRenderer::pushVertex(const math::geometry::Vectf& vertex) {
     glVertex2d(vertex[0], vertex[1]);
 }
 
-void OpenGLRenderer::drawPoint(const math::Vectf& location, double size, const graphics::Color& color) const {
+void OpenGLRenderer::drawPoint(const math::geometry::Vectf& location, double size, const graphics::Color& color) const {
     if (status != Status::Running)
         return;
     setColor(color);
@@ -83,7 +83,7 @@ void OpenGLRenderer::drawPoint(const math::Vectf& location, double size, const g
     pushVertex(location);
     glEnd();
 }
-void OpenGLRenderer::drawLine(const graphics::Line2<double>& line, double width, const graphics::Color& color) const {
+void OpenGLRenderer::drawLine(const math::geometry::Line2<double>& line, double width, const graphics::Color& color) const {
     if (status != Status::Running)
         return;
     setColor(color);
@@ -93,7 +93,7 @@ void OpenGLRenderer::drawLine(const graphics::Line2<double>& line, double width,
     pushVertex(line.getPoint(1));
     glEnd();
 }
-void OpenGLRenderer::drawQuad(const graphics::Quad2<double>& quad, const graphics::Color& color) const {
+void OpenGLRenderer::drawQuad(const math::geometry::Quad2<double>& quad, const graphics::Color& color) const {
     if (status != Status::Running)
         return;
     setColor(color);
@@ -105,7 +105,7 @@ void OpenGLRenderer::drawQuad(const graphics::Quad2<double>& quad, const graphic
     glEnd();
 }
 
-void OpenGLRenderer::drawText(const std::string& text, const math::Vectf& location, const graphics::Color& color) const {
+void OpenGLRenderer::drawText(const std::string& text, const math::geometry::Vectf& location, const graphics::Color& color) const {
     setColor(color);
     glRasterPos2d(location[0], location[1]);
     glutBitmapString(GLUT_BITMAP_HELVETICA_18, reinterpret_cast<const unsigned char*>(text.c_str()));

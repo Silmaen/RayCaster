@@ -8,7 +8,7 @@
 
 #include "BaseRenderer.h"
 
-namespace rc::core::renderer {
+namespace rc::graphics::renderer {
 
 void Settings::fromJson(const nlohmann::json& data) {
     if (data.contains("ScreenResolution")) {

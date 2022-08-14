@@ -1,6 +1,6 @@
 
-#include "core/Map.h"
 #include "core/fs/DataFile.h"
+#include "game/Map.h"
 #include "testHelper.h"
 #include <chrono>
 
@@ -8,11 +8,11 @@ using testClock = std::chrono::steady_clock;
 using timePoint = testClock::time_point;
 using timeDelta = testClock::duration;
 
-using Map = rc::core::Map;
+using Map = rc::game::Map;
 
 static Map ConstructBaseMap(){
-    rc::core::mapCell walls{false, false, 10};
-    rc::core::mapCell voids{true, true, 0};
+    rc::game::mapCell walls{false, false, 10};
+    rc::game::mapCell voids{true, true, 0};
     Map map{{{walls, walls, walls, walls, walls, walls, walls, walls},
              {walls, voids, walls, voids, voids, voids, voids, walls},
              {walls, voids, walls, voids, voids, voids, voids, walls},
@@ -68,11 +68,11 @@ TEST(Map, init) {
 TEST(Map, CheckInside) {
     Map map(10, 10);
     ASSERT_TRUE(map.isValid());
-    EXPECT_TRUE(map.isIn(rc::math::Vectf{50.0, 50.0}));
-    EXPECT_FALSE(map.isIn(rc::math::Vectf{-50.0, 50.0}));
-    EXPECT_FALSE(map.isIn(rc::math::Vectf{50.0, -50.0}));
-    EXPECT_FALSE(map.isIn(rc::math::Vectf{5000000.0, 50.0}));
-    EXPECT_FALSE(map.isIn(rc::math::Vectf{50.0, 50000000.0}));
+    EXPECT_TRUE(map.isIn(Map::worldCoordinates{50.0, 50.0}));
+    EXPECT_FALSE(map.isIn(Map::worldCoordinates{-50.0, 50.0}));
+    EXPECT_FALSE(map.isIn(Map::worldCoordinates{50.0, -50.0}));
+    EXPECT_FALSE(map.isIn(Map::worldCoordinates{5000000.0, 50.0}));
+    EXPECT_FALSE(map.isIn(Map::worldCoordinates{50.0, 50000000.0}));
     EXPECT_TRUE(map.isIn(Map::gridCoordinate{5, 5}));
     EXPECT_FALSE(map.isIn(Map::gridCoordinate{11, 5}));
     EXPECT_FALSE(map.isIn(Map::gridCoordinate{5, 11}));
@@ -89,9 +89,9 @@ TEST(Map, whichCell) {
 }
 
 TEST(Map, castRay) {
-    using Unit = rc::math::Angle::Unit;
-    rc::core::mapCell walls{false, false, 1};
-    rc::core::mapCell voids{true, true, 0};
+    using Unit = rc::math::geometry::Angle::Unit;
+    rc::game::mapCell walls{false, false, 1};
+    rc::game::mapCell voids{true, true, 0};
     Map map{{{walls, walls, walls, walls, walls, walls, walls, walls},
              {walls, voids, voids, voids, voids, voids, voids, walls},
              {walls, voids, voids, voids, voids, voids, voids, walls},
@@ -129,9 +129,9 @@ TEST(Map, castRay) {
             {203.92674045587697, {448.00100000000000, 271.19713664180534}, true}, // 25
     };
     ASSERT_TRUE(map.isValid());
-    const rc::math::Vectf position{250, 320};
+    const Map::worldCoordinates position{250, 320};
     ASSERT_TRUE(map.isIn(position));
-    rc::math::Vectf ray{1, 0};
+    Map::worldCoordinates ray{1, 0};
     Map::rayCastResult cast;
     auto starting = testClock::now();
     for (auto expected : expecteds) {
@@ -201,19 +201,19 @@ TEST(Map, PassableVisibility){
     EXPECT_FALSE(map.isInVisible(Map::gridCoordinate{255,255})); // outside
     EXPECT_FALSE(map.isInVisible(Map::gridCoordinate{0,0})); // in a wall
     EXPECT_TRUE(map.isInVisible(Map::gridCoordinate{1,1})); // in a visible zone
-    EXPECT_FALSE(map.isInVisible(rc::math::Vectf{25500,25500})); // outside
-    EXPECT_FALSE(map.isInVisible(rc::math::Vectf{1,1})); // in a wall
-    EXPECT_TRUE(map.isInVisible(rc::math::Vectf{100,100})); // in a visible zone
+    EXPECT_FALSE(map.isInVisible(Map::worldCoordinates{25500,25500})); // outside
+    EXPECT_FALSE(map.isInVisible(Map::worldCoordinates{1,1})); // in a wall
+    EXPECT_TRUE(map.isInVisible(Map::worldCoordinates{100,100})); // in a visible zone
     EXPECT_FALSE(map.isInPassable(Map::gridCoordinate{255,255})); // outside
     EXPECT_FALSE(map.isInPassable(Map::gridCoordinate{0,0})); // in a wall
     EXPECT_TRUE(map.isInPassable(Map::gridCoordinate{1,1})); // in a visible zone
-    EXPECT_FALSE(map.isInPassable(rc::math::Vectf{25500,25500})); // outside
-    EXPECT_FALSE(map.isInPassable(rc::math::Vectf{1,1})); // in a wall
-    EXPECT_TRUE(map.isInPassable(rc::math::Vectf{100,100})); // in a visible zone
+    EXPECT_FALSE(map.isInPassable(Map::worldCoordinates{25500,25500})); // outside
+    EXPECT_FALSE(map.isInPassable(Map::worldCoordinates{1,1})); // in a wall
+    EXPECT_TRUE(map.isInPassable(Map::worldCoordinates{100,100})); // in a visible zone
 }
 
 TEST(Map, Colors){
-    rc::core::mapCell cell{true,true,0};
+    rc::game::mapCell cell{true,true,0};
     EXPECT_EQ(cell.getMapColor(), (rc::graphics::Color{255, 0, 255}));
     EXPECT_EQ(cell.getRayColor(), (rc::graphics::Color{0, 0, 0}));
     cell.textureId = 1;
@@ -242,26 +242,26 @@ TEST(Map, Colors){
 TEST(Map, possibleMove){
     Map map = ConstructBaseMap();
     {
-        rc::math::Vectf expected{5, 0};
-        auto result = map.possibleMove(rc::math::Vectf{100, 100}, expected);
+        Map::worldCoordinates expected{5, 0};
+        auto result = map.possibleMove(Map::worldCoordinates{100, 100}, expected);
         EXPECT_NEAR((expected - result).length(), 0, 0.001);
     }
     { // X movement possible, not Y
-        rc::math::Vectf expected{5, -50};
-        auto result = map.possibleMove(rc::math::Vectf{100, 100}, expected);
-        rc::math::Vectf expectedResult{5,0};
+        Map::worldCoordinates expected{5, -50};
+        auto result = map.possibleMove(Map::worldCoordinates{100, 100}, expected);
+        Map::worldCoordinates expectedResult{5,0};
         EXPECT_NEAR((expectedResult - result).length(), 0, 0.001);
     }
     { // Y movement possible, not X
-        rc::math::Vectf expected{-50, 5};
-        auto result = map.possibleMove(rc::math::Vectf{100, 100}, expected);
-        rc::math::Vectf expectedResult{0,5};
+        Map::worldCoordinates expected{-50, 5};
+        auto result = map.possibleMove(Map::worldCoordinates{100, 100}, expected);
+        Map::worldCoordinates expectedResult{0,5};
         EXPECT_NEAR((expectedResult - result).length(), 0, 0.001);
     }
     { // movement impossible
-        rc::math::Vectf expected{-50, -50};
-        auto result = map.possibleMove(rc::math::Vectf{100, 100}, expected);
-        rc::math::Vectf expectedResult{0,0};
+        Map::worldCoordinates expected{-50, -50};
+        auto result = map.possibleMove(Map::worldCoordinates{100, 100}, expected);
+        Map::worldCoordinates expectedResult{0,0};
         EXPECT_NEAR((expectedResult - result).length(), 0, 0.001);
     }
 }

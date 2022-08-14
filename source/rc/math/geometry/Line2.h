@@ -7,11 +7,11 @@
  */
 
 #pragma once
-#include "math/Vector2.h"
+#include "Vector2.h"
 #include <algorithm>
 #include <cstdint>
 
-namespace rc::graphics {
+namespace rc::math::geometry {
 
 /**
  * @brief Class Line
@@ -20,7 +20,7 @@ template<class DataType>
 class Line2 {
 public:
     /// Line vertex's type
-    using VertexType = math::Vector2<DataType>;
+    using VertexType = math::geometry::Vector2<DataType>;
     /**
      * @brief Default copy constructor
      */
@@ -70,7 +70,7 @@ public:
      * @param direction Line direction
      * @param length Line's length
      */
-    Line2(const VertexType& point, const math::Vector2<DataType>& direction, const DataType& length) :
+    Line2(const VertexType& point, const math::geometry::Vector2<DataType>& direction, const DataType& length) :
         P1{point}, P2{point + direction * length} {}
     /**
      * @brief Get the vertex

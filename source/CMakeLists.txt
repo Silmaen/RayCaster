@@ -15,20 +15,26 @@ target_include_directories(${CMAKE_PROJECT_NAME}_lib PUBLIC rc)
 # ----==== third party ====----
 # OpenGL
 find_package(OpenGL REQUIRED)
+message(STATUS "Found OpenGL in ${OPENGL_INCLUDE_DIR}")
+target_link_libraries(${CMAKE_PROJECT_NAME}_lib PRIVATE ${OPENGL_LIBRARIES})
+message(STATUS "OpenGL Libraries: ${OPENGL_LIBRARIES}")
 
 # GLUT
 find_package(GLUT REQUIRED)
+message(STATUS "Found Glut version ${GLUT_VERSION_STRING} in ${GLUT_INCLUDE_DIR}")
+target_link_libraries(${CMAKE_PROJECT_NAME}_lib PRIVATE ${GLUT_LIBRARIES})
+message(STATUS "freeglut Libraries: ${GLUT_LIBRARY}")
 
 # json
-find_package(nlohmann_json 3.2.0 REQUIRED)
+find_package(nlohmann_json 3.11.1 REQUIRED)
+message(STATUS "Found nlohmann")
+# header-only
 
-message(STATUS "Found Glut in ${GLUT_INCLUDE_DIR}")
-if (WIN32)
-    target_link_libraries(${CMAKE_PROJECT_NAME}_lib PRIVATE opengl32 glu32 freeglut)
-else ()
-    target_link_libraries(${CMAKE_PROJECT_NAME}_lib PRIVATE GL GLU glut)
-endif ()
-#target_link_libraries(${CMAKE_PROJECT_NAME}_lib PRIVATE nlohmann_json)
+# libpng
+find_package(PNG REQUIRED)
+message(STATUS "Found libPng version ${PNG_VERSION_STRING} in ${PNG_INCLUDE_DIR}")
+target_link_libraries(${CMAKE_PROJECT_NAME}_lib PRIVATE ${PNG_LIBRARIES})
+
 #
 #  Main Executable
 #

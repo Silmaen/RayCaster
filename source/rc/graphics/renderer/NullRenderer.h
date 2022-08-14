@@ -8,7 +8,11 @@
 
 #pragma once
 #include "BaseRenderer.h"
-namespace rc::core::renderer {
+
+/**
+ * @brief Namespace for the graphics renderers
+ */
+namespace rc::graphics::renderer {
 
 /**
  * @brief Class NullRenderer
@@ -57,20 +61,20 @@ public:
      * @param size Size of the point
      * @param color Color of the point
      */
-    void drawPoint([[maybe_unused]] const math::Vectf& location, [[maybe_unused]] double size, [[maybe_unused]] const graphics::Color& color) const override {}
+    void drawPoint([[maybe_unused]] const math::geometry::Vectf& location, [[maybe_unused]] double size, [[maybe_unused]] const graphics::Color& color) const override {}
     /**
      * @brief Draw a line
      * @param line Line's data
      * @param width Width of the line
      * @param color Line's color
      */
-    void drawLine([[maybe_unused]] const graphics::Line2<double>& line, [[maybe_unused]] double width, [[maybe_unused]] const graphics::Color& color) const override {}
+    void drawLine([[maybe_unused]] const math::geometry::Line2<double>& line, [[maybe_unused]] double width, [[maybe_unused]] const graphics::Color& color) const override {}
     /**
      * @brief Draw a quad
      * @param quad Quad's data
      * @param color Quad's color
      */
-    void drawQuad([[maybe_unused]] const graphics::Quad2<double>& quad, [[maybe_unused]] const graphics::Color& color) const override {}
+    void drawQuad([[maybe_unused]] const math::geometry::Quad2<double>& quad, [[maybe_unused]] const graphics::Color& color) const override {}
 
     /**
      * @brief Draw text on the screen
@@ -78,7 +82,7 @@ public:
      * @param location Localisation on the screen
      * @param color Color of the text
      */
-    void drawText([[maybe_unused]] const std::string& text, [[maybe_unused]] const math::Vectf& location, [[maybe_unused]] const graphics::Color& color) const override {}
+    void drawText([[maybe_unused]] const std::string& text, [[maybe_unused]] const math::geometry::Vectf& location, [[maybe_unused]] const graphics::Color& color) const override {}
 
 private:
 };

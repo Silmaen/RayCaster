@@ -10,14 +10,14 @@
 #include <functional>
 
 #include "graphics/Color.h"
-#include "graphics/Line2.h"
-#include "graphics/Quad2.h"
-#include "math/Vector2.h"
+#include "math/geometry/Line2.h"
+#include "math/geometry/Quad2.h"
+#include "math/geometry/Vector2.h"
 
-namespace rc::core::renderer {
+namespace rc::graphics::renderer {
 
 /// Base type for screen resolution
-using Resolution = math::Vector2<int32_t>;
+using Resolution = math::geometry::Vector2<int32_t>;
 
 /**
  * @brief The renderer statuses
@@ -135,20 +135,20 @@ public:
      * @param size Size of the point
      * @param color Color of the point
      */
-    virtual void drawPoint(const math::Vectf& location, double size, const graphics::Color& color) const = 0;
+    virtual void drawPoint(const math::geometry::Vectf& location, double size, const graphics::Color& color) const = 0;
     /**
      * @brief Draw a line
      * @param line Line's data
      * @param width Width of the line
      * @param color Line's color
      */
-    virtual void drawLine(const graphics::Line2<double>& line, double width, const graphics::Color& color) const = 0;
+    virtual void drawLine(const math::geometry::Line2<double>& line, double width, const graphics::Color& color) const = 0;
     /**
      * @brief Draw a quad
      * @param quad Quad's data
      * @param color Quad's color
      */
-    virtual void drawQuad(const graphics::Quad2<double>& quad, const graphics::Color& color) const = 0;
+    virtual void drawQuad(const math::geometry::Quad2<double>& quad, const graphics::Color& color) const = 0;
 
     /**
      * @brief Draw text on the screen
@@ -156,7 +156,7 @@ public:
      * @param location Localisation on the screen
      * @param color Color of the text
      */
-    virtual void drawText(const std::string& text, const math::Vectf& location, const graphics::Color& color) const = 0;
+    virtual void drawText(const std::string& text, const math::geometry::Vectf& location, const graphics::Color& color) const = 0;
 
 protected:
     /// The settings

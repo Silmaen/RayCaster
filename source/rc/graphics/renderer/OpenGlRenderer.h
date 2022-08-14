@@ -9,7 +9,7 @@
 #pragma once
 #include "BaseRenderer.h"
 
-namespace rc::core::renderer {
+namespace rc::graphics::renderer {
 
 /**
  * @brief OpenGL utilities
@@ -69,20 +69,20 @@ public:
      * @param size Size of the point
      * @param color Color of the point
      */
-    void drawPoint(const math::Vectf& location, double size, const graphics::Color& color) const override;
+    void drawPoint(const math::geometry::Vectf& location, double size, const graphics::Color& color) const override;
     /**
      * @brief Draw a line
      * @param line Line's data
      * @param width Width of the line
      * @param color Line's color
      */
-    void drawLine(const graphics::Line2<double>& line, double width, const graphics::Color& color) const override;
+    void drawLine(const math::geometry::Line2<double>& line, double width, const graphics::Color& color) const override;
     /**
      * @brief Draw a quad
      * @param quad Quad's data
      * @param color Quad's color
      */
-    void drawQuad(const graphics::Quad2<double>& quad, const graphics::Color& color) const override;
+    void drawQuad(const math::geometry::Quad2<double>& quad, const graphics::Color& color) const override;
 
     /**
      * @brief Draw text on the screen
@@ -90,7 +90,7 @@ public:
      * @param location Localisation on the screen
      * @param color Color of the text
      */
-    void drawText(const std::string& text, const math::Vectf& location, const graphics::Color& color) const override;
+    void drawText(const std::string& text, const math::geometry::Vectf& location, const graphics::Color& color) const override;
 
     /**
      * @brief Display call back
@@ -102,7 +102,7 @@ private:
 
     static void setColor(const graphics::Color& color);
 
-    static void pushVertex(const math::Vectf& vertex);
+    static void pushVertex(const math::geometry::Vectf& vertex);
 };
 
 }// namespace rc::core::renderer

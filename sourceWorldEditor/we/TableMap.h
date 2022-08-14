@@ -1,13 +1,13 @@
 /**
  * @file TableMap.h
- * @author argawaen
+ * @author Silmaen
  * @date 10/08/2022
  * Copyright © 2022 All rights reserved.
  * All modification must get authorization from the author.
  */
 
 #pragma once
-#include "core/Map.h"
+#include "game/Map.h"
 #include <QTableWidget>
 
 
@@ -33,7 +33,7 @@ public:
      * @brief Link to the map
      * @param map map to render
      */
-    void defineMap(const std::shared_ptr<rc::core::Map>& map, const QString& name){
+    void defineMap(const std::shared_ptr<rc::graphics::Map>& map, const QString& name){
         mapLink = map;
         mapName = name;
     }
@@ -58,7 +58,7 @@ private:
     /// Name of the map
     QString mapName = "";
     /// Link to the map
-    std::shared_ptr<rc::core::Map> mapLink;
+    std::shared_ptr<rc::graphics::Map> mapLink;
     /// if some modification occurs
     bool modified;
 };

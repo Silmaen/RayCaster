@@ -8,11 +8,11 @@
 
 #pragma once
 
-#include "Color.h"
-#include "math/Vector2.h"
+#include "Vector2.h"
+#include "graphics/Color.h"
 #include <algorithm>
 
-namespace rc::graphics {
+namespace rc::math::geometry {
 
 /**
  * @brief Class Quad2
@@ -22,7 +22,7 @@ template<class DataType>
 class Quad2 {
 public:
     /// Quad's vertex type
-    using VertexType= math::Vector2<DataType>;
+    using VertexType= math::geometry::Vector2<DataType>;
     /**
      * @brief Default constructor.
      */
