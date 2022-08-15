@@ -8,9 +8,10 @@
 
 #include "Engine.h"
 #include "core/fs/DataFile.h"
-#include "input/GlInput.h"
+#include "graphics/image/TextureManager.h"
 #include "graphics/renderer/NullRenderer.h"
 #include "graphics/renderer/OpenGlRenderer.h"
+#include "input/GlInput.h"
 
 namespace rc::core {
 
@@ -27,6 +28,8 @@ void EngineSettings::fromJson(const nlohmann::json& data) {
         layout3D = data["layout3D"];
     if (data.contains("layoutMap"))
         layoutMap = data["layoutMap"];
+    if (data.contains("drawTexture"))
+        drawTexture = data["drawTexture"];
     if (data.contains("drawMap"))
         drawMap = data["drawMap"];
     if (data.contains("drawRays"))
@@ -41,6 +44,7 @@ nlohmann::json EngineSettings::toJson() const {
     data["inputSettings"]    = inputSettings.toJson();
     data["layout3D"]         = layout3D;
     data["layoutMap"]        = layoutMap;
+    data["drawTexture"]      = drawTexture;
     data["drawMap"]          = drawMap;
     data["drawRays"]         = drawRays;
     return data;
@@ -107,8 +111,7 @@ void Engine::display() {
     // draw fps.
     std::stringstream text;
     text << "fps " << fps;
-    //renderer->drawPoint({-1,-1}, 1, {200U,20U,0U});
-    renderer->drawText(text.str(),{875,50},{200U,20U,0U});
+    renderer->drawText(text.str(), {875, 50}, {200U, 20U, 0U});
 }
 
 void Engine::button() {
@@ -119,16 +122,16 @@ void Engine::button() {
         player->rotate({0.2 * deltaMillis, math::geometry::Angle::Unit::Degree});
     }
     if (input->isKeyPressed(input::FunctionKey::Forward)) {
-        player->move(map->possibleMove(player->getPosition(), player->getDirection() * 5));
+        player->move(map->possibleMove(player->getPosition(), player->getDirection() * 0.2 * deltaMillis));
     }
     if (input->isKeyPressed(input::FunctionKey::Backward)) {
-        player->move(map->possibleMove(player->getPosition(), player->getDirection() * -5));
+        player->move(map->possibleMove(player->getPosition(), player->getDirection() * -0.2 * deltaMillis));
     }
     if (input->isKeyPressed(input::FunctionKey::StrafeLeft)) {
-        player->move(map->possibleMove(player->getPosition(), player->getDirection().rotated90() * 5));
+        player->move(map->possibleMove(player->getPosition(), player->getDirection().rotated90() * 0.2 * deltaMillis));
     }
     if (input->isKeyPressed(input::FunctionKey::StrafeRight)) {
-        player->move(map->possibleMove(player->getPosition(), player->getDirection().rotated90() * -5));
+        player->move(map->possibleMove(player->getPosition(), player->getDirection().rotated90() * -0.2 * deltaMillis));
     }
 
     // toggle button: freeze time
@@ -138,6 +141,10 @@ void Engine::button() {
     if (input->isKeyPressed(input::FunctionKey::Use)) {
         // use action
         freeze = frames;
+    }
+    if (input->isKeyPressed(input::FunctionKey::DisplayTexture)) {
+        settings.drawTexture = !settings.drawTexture;
+        freeze           = frames;
     }
     if (input->isKeyPressed(input::FunctionKey::DisplayMap)) {
         settings.drawMap = !settings.drawMap;
@@ -174,6 +181,7 @@ void Engine::drawRayCasting() {
     const double increment          = fov / settings.layout3D.width();
     auto ray                        = player->getDirection().rotated(rc::math::geometry::Angle{-fov / 2, Unit::Degree});
     auto [scaleFactor, offsetPoint] = getMapLayoutInfo();
+    auto& texMng = graphics::image::TextureManager::get();
     // Sky and floor
     renderer->drawQuad({{static_cast<double>(settings.layout3D[0][0]), static_cast<double>(settings.layout3D[0][1])},
                         {static_cast<double>(settings.layout3D[1][0]), static_cast<double>(settings.layout3D[0][1])},
@@ -190,20 +198,29 @@ void Engine::drawRayCasting() {
         auto result = map->castRay(player->getPosition(), ray);
 
         game::Map::BaseType& cell = map->at(map->whichCell(result.wallPoint));
+        if (cell.getTextureName() == "")
+            continue;
+        if (cell.textureId>6)
+            continue;
         graphics::Color color{cell.getRayColor()};
         cell.isViewed = true;
-        if (result.hitVertical)
-            color.darken();
-        if (settings.drawRays && settings.drawMap) {
+        if (settings.drawRays && settings.drawMap) {// draw the ray on map
+            if (result.hitVertical)
+                color.darken();
             renderer->drawLine({player->getPosition() * scaleFactor + offsetPoint, ray, result.distance * scaleFactor}, 2, color);//draw 2D ray
         }
         auto lineH = static_cast<int32_t>((map->getCellSize() * 1.2 * settings.layout3D.height()) /
                                           (result.distance * player->getDirection().dot(ray)));
-        if (lineH > settings.layout3D.height()) { lineH = settings.layout3D.height(); }//line height and limit
+        //if (lineH > settings.layout3D.height()) { lineH = settings.layout3D.height(); }//line height and limit
         double lineOff = settings.layout3D.center()[1] - (lineH >> 1);                 //line offset
         //draw vertical wall
         double lineX = rays + settings.layout3D[0][0];
-        renderer->drawLine({{lineX, lineOff}, {lineX, lineOff + lineH}}, 1, color);
+        if( settings.drawTexture) {
+            const auto& tex   = texMng.getTexture(cell.getTextureName());
+            double texX = tex.width() * result.hitXRatio / map->getCellSize();
+            renderer->drawTextureVerticalLine(lineX, lineOff, lineH, tex, texX, settings.layout3D, result.hitVertical);
+        }else
+            renderer->drawLine({{lineX, lineOff}, {lineX, lineOff + lineH}}, 1, color);
         ray.rotate(rc::math::geometry::Angle{increment, Unit::Degree});//go to next ray
     }
 }
@@ -212,9 +229,9 @@ void Engine::drawMap() {
     auto [scaleFactor, offsetPoint] = getMapLayoutInfo();
     double offset                   = map->getCellSize() * scaleFactor;
     math::geometry::Quad2<double> quad{math::geometry::Vectf{0, 0},
-                         math::geometry::Vectf{0, offset},
-                         math::geometry::Vectf{offset, offset},
-                         math::geometry::Vectf{offset, 0}};
+                                       math::geometry::Vectf{0, offset},
+                                       math::geometry::Vectf{offset, offset},
+                                       math::geometry::Vectf{offset, 0}};
     quad.move(offsetPoint);
     for (game::Map::LineType& line : map->getMapData()) {
         for (game::Map::BaseType cell : line) {
@@ -279,7 +296,7 @@ void Engine::mapLoad(const std::string& mapName) {
 void Engine::loadSettings(const std::string& filename) {
     // load setting at creation
     fs::DataFile settingsFile(filename);
-    if (settingsFile.exists()){
+    if (settingsFile.exists()) {
         settings.fromJson(settingsFile.readJson());
     }
 }

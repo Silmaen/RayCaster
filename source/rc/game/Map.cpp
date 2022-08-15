@@ -34,12 +34,28 @@ static const std::vector<graphics::Color> rayColors{
         graphics::Color{0xb0, 0x70, 0x40},
         graphics::Color{0x94, 0x62, 0x38},
 };
+/// Texture list
+static const std::vector<std::string> mapTextures{
+        "doorpattern.png",
+        "doorpattern.png",
+        "brickpattern.png",
+        "brickpattern.png",
+        "brickpattern.png",
+        "brickpattern.png",
+        "brickpattern.png",
+        "brickpattern.png",
+};
 
 const graphics::Color& mapCell::getMapColor() const {
     return mapColors[textureId];
 }
+
 const graphics::Color& mapCell::getRayColor() const {
     return rayColors[textureId];
+}
+
+const std::string& mapCell::getTextureName() const {
+    return mapTextures[textureId];
 }
 
 Map::Map(const Map::DataType& data, uint8_t cube) :
@@ -91,72 +107,52 @@ const Map::BaseType& Map::at(const gridCoordinate& location) const {
 }
 
 Map::rayCastResult Map::castRay(const worldCoordinates& from, const worldCoordinates& direction) const {
-    gridCoordinate playerCell = whichCell(from);
+    //gridCoordinate playerCell = whichCell(from);
     // check for vertical line
-    double verticalDistance = 100000000;
+    double verticalDistance = -1;
     worldCoordinates verticalPoint{from};
-    {
-        // Intersection with verticalsq
+    double verticalCellRatio = 0;
+    if (std::abs(direction[0]) > 0.001)  {
+        // Intersection with verticals
         worldCoordinates verticalOffset{};
-        double progression = 0;
-        if (direction[0] > 0.001) {// look to the right
-            verticalOffset[0] = cubeSize;
-            progression       = direction[1] / direction[0];
-            verticalPoint[0]  = cubeSize * (playerCell[0] + 1) + 0.001;
-        } else if (direction[0] < -0.001) {// look to the left
-            verticalOffset[0] = -cubeSize;
-            progression       = direction[1] / direction[0];
-            verticalPoint[0]  = cubeSize * playerCell[0] - 0.001;// just a little inside the left cube
-        } else {                                                 // ray is almost vertical: no projection
-            verticalDistance = -1;
+        verticalOffset = direction / std::abs(direction[0]);
+        verticalPoint  = from + math::geometry::Vectf{math::sign(direction[0]) * 0.001, 0.0} + verticalOffset * std::abs((static_cast<int32_t>(from[0] / cubeSize) + math::heaviside(direction[0])) * cubeSize - from[0]);
+        verticalOffset *= cubeSize;
+        gridCoordinate verticalCell = whichCell(verticalPoint);
+        while (isInVisible(verticalCell)) {
+            verticalPoint += verticalOffset;
+            verticalCell = whichCell(verticalPoint);
         }
-        if (verticalDistance > 0) {
-            verticalOffset[1] = verticalOffset[0] * progression;
-            verticalPoint[1]  = from[1] + progression * (verticalPoint[0] - from[0]);
-            while (isInVisible(verticalPoint)) {
-                verticalPoint += verticalOffset;
-            }
-            if (isIn(verticalPoint)) {
-                verticalDistance = (verticalPoint - from).lengthSQ();
-            }
-        }
+        if (isIn(verticalCell))
+            verticalDistance = (verticalPoint - from).lengthSQ();
+        verticalCellRatio = std::abs(verticalPoint[1] - (verticalCell[1] + math::heaviside(-direction[0])) * cubeSize);
     }
     // check for horizontal line
-    double horizontalDistance = 100000000;
+    double horizontalDistance = -1;
     worldCoordinates horizontalPoint{from};
-    {
+    double horizontalCellRatio = 0;
+    if (std::abs(direction[1]) > 0.001) {
         // Intersection with verticals
         worldCoordinates horizontalOffset{};
-        double progression = 0;
-        if (direction[1] > 0.001) {// look to the bottom
-            horizontalOffset[1] = cubeSize;
-            progression         = direction[0] / direction[1];
-            horizontalPoint[1]  = cubeSize * (playerCell[1] + 1) + 0.001;
-        } else if (direction[1] < -0.001) {// look to the top
-            horizontalOffset[1] = -cubeSize;
-            progression         = direction[0] / direction[1];
-            horizontalPoint[1]  = cubeSize * playerCell[1] - 0.001;// just a little inside the left cube
-        } else {                                                   // ray is almost horizontal: no projection
-            horizontalDistance = -1;
+        horizontalOffset = direction / std::abs(direction[1]);
+        horizontalPoint    = from + math::geometry::Vectf{0.0, math::sign(direction[1]) * 0.001} + horizontalOffset * std::abs((static_cast<int32_t>(from[1] / cubeSize) + math::heaviside(direction[1])) * cubeSize - from[1]);
+        horizontalOffset *= cubeSize;
+        gridCoordinate horizontalCell = whichCell(horizontalPoint);
+        while (isInVisible(horizontalCell)) {
+            horizontalPoint += horizontalOffset;
+            horizontalCell = whichCell(horizontalPoint);
         }
-        if (horizontalDistance > 0) {
-            horizontalOffset[0] = horizontalOffset[1] * progression;
-            horizontalPoint[0]  = from[0] + progression * (horizontalPoint[1] - from[1]);
-            while (isInVisible(horizontalPoint)) {
-                horizontalPoint += horizontalOffset;
-            }
-            if (isIn(horizontalPoint)) {
-                horizontalDistance = (horizontalPoint - from).lengthSQ();
-            }
-        }
+        if (isIn(horizontalCell))
+            horizontalDistance = (horizontalPoint - from).lengthSQ();
+        horizontalCellRatio = std::abs(horizontalPoint[0] - (horizontalCell[0] + math::heaviside(direction[1])) * cubeSize);
     }
     if (verticalDistance < 0)
-        return {std::sqrt(horizontalDistance), horizontalPoint, false};
+        return {std::sqrt(horizontalDistance), horizontalPoint, false, horizontalCellRatio};
     if (horizontalDistance < 0)
-        return {std::sqrt(verticalDistance), verticalPoint, true};
+        return {std::sqrt(verticalDistance), verticalPoint, true, verticalCellRatio};
     if (horizontalDistance < verticalDistance)
-        return {std::sqrt(horizontalDistance), horizontalPoint, false};
-    return {std::sqrt(verticalDistance), verticalPoint, true};
+        return {std::sqrt(horizontalDistance), horizontalPoint, false, horizontalCellRatio};
+    return {std::sqrt(verticalDistance), verticalPoint, true, verticalCellRatio};
 }
 
 Map::gridCoordinate Map::whichCell(const worldCoordinates& from) const {
@@ -177,6 +173,7 @@ bool Map::isIn(const gridCoordinate& from) const {
 bool Map::isInPassable(const worldCoordinates& from) const {
     return isIn(from) && at(whichCell(from)).passable;
 }
+
 bool Map::isInPassable(const Map::gridCoordinate& from) const {
     return isIn(from) && at(from).passable;
 }
@@ -184,6 +181,7 @@ bool Map::isInPassable(const Map::gridCoordinate& from) const {
 bool Map::isInVisible(const worldCoordinates& from) const {
     return isIn(from) && at(whichCell(from)).visibility;
 }
+
 bool Map::isInVisible(const Map::gridCoordinate& from) const {
     return isIn(from) && at(from).visibility;
 }
@@ -191,8 +189,8 @@ bool Map::isInVisible(const Map::gridCoordinate& from) const {
 Map::worldCoordinates Map::possibleMove(const worldCoordinates& Start, const worldCoordinates& Expected) const {
     if (isInPassable(Start + Expected))
         return Expected;
-    if (isInPassable(Start + worldCoordinates{Expected[0],0.0}))
-        return {Expected[0],0.0};
+    if (isInPassable(Start + worldCoordinates{Expected[0], 0.0}))
+        return {Expected[0], 0.0};
     if (isInPassable(Start + worldCoordinates{0.0, Expected[1]}))
         return {0.0, Expected[1]};
     return worldCoordinates();
@@ -254,4 +252,4 @@ nlohmann::json Map::toJson() const {
     return data;
 }
 
-}// namespace rc::core
+}// namespace rc::game

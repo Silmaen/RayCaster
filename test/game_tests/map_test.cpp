@@ -10,7 +10,7 @@ using timeDelta = testClock::duration;
 
 using Map = rc::game::Map;
 
-static Map ConstructBaseMap(){
+static Map ConstructBaseMap() {
     rc::game::mapCell walls{false, false, 10};
     rc::game::mapCell voids{true, true, 0};
     Map map{{{walls, walls, walls, walls, walls, walls, walls, walls},
@@ -34,23 +34,23 @@ TEST(Map, base) {
     EXPECT_FALSE(map.isValid());
     EXPECT_EQ(map.height(), 0);
     EXPECT_EQ(map.width(), 2);
-    map.setMap({{{false,false,1}, {false,false,1}}, {{false,false,1}}});
+    map.setMap({{{false, false, 1}, {false, false, 1}}, {{false, false, 1}}});
     EXPECT_FALSE(map.isValid());
-    Map::DataType data = {{{false,false,1}, {true,true,0}}, {{true,true,0}, {false,false,1}}};
+    Map::DataType data = {{{false, false, 1}, {true, true, 0}}, {{true, true, 0}, {false, false, 1}}};
     map.setMap(data);
     EXPECT_TRUE(map.isValid());
     EXPECT_EQ(map.getMapData(), data);
-    EXPECT_EQ(map({0, 1}), (Map::BaseType{true,true,0}));
+    EXPECT_EQ(map({0, 1}), (Map::BaseType{true, true, 0}));
 }
 
 TEST(Map, init) {
     {
-        const Map map({{{false,false,1}, {false,false,2}, {false,false,3}}, {{false,false,4}, {false,false,5}, {false,false,6}}, {{false,false,7}, {false,false,8}, {false,false,9}}});
-        EXPECT_EQ(map({0, 1}), (Map::BaseType{false,false,4}));
-        EXPECT_EQ(map({1, 2}), (Map::BaseType{false,false,8}));
+        const Map map({{{false, false, 1}, {false, false, 2}, {false, false, 3}}, {{false, false, 4}, {false, false, 5}, {false, false, 6}}, {{false, false, 7}, {false, false, 8}, {false, false, 9}}});
+        EXPECT_EQ(map({0, 1}), (Map::BaseType{false, false, 4}));
+        EXPECT_EQ(map({1, 2}), (Map::BaseType{false, false, 8}));
     }
     {
-        Map::DataType data = {{{false,false,1}, {false,false,2}, {false,false,3}}, {{false,false,4}, {false,false,5}, {false,false,6}}, {{false,false,7}, {false,false,8}, {false,false,9}}};
+        Map::DataType data = {{{false, false, 1}, {false, false, 2}, {false, false, 3}}, {{false, false, 4}, {false, false, 5}, {false, false, 6}}, {{false, false, 7}, {false, false, 8}, {false, false, 9}}};
         Map map(data);
         EXPECT_EQ(map.getMapData(), data);
     }
@@ -101,32 +101,32 @@ TEST(Map, castRay) {
              {walls, voids, voids, voids, voids, voids, voids, walls},
              {walls, walls, walls, walls, walls, walls, walls, walls}}};
     std::vector<Map::rayCastResult> expecteds = {
-            {198.00100000000000, {448.00100000000000, 320.00000000000000}, true}, //  0
-            {203.92674045587697, {448.00100000000000, 368.80286335819466}, true}, //  1
-            {223.61471858970370, {448.00100000000000, 423.91894133868175}, true}, //  2
-            {193.02763735984399, {394.48326125791681, 448.00100000000000}, false},//  3
-            {155.53281820538129, {338.35271098222279, 448.00100000000000}, false},//  4
-            {136.89708708415000, {298.54437610192713, 448.00100000000000}, false},//  5
-            {128.94112598348423, {265.54213527443255, 448.00100000000000}, false},//  6
-            {128.94112598348426, {234.45786472556742, 448.00100000000000}, false},//  7
-            {136.89708708415003, {201.45562389807279, 448.00100000000000}, false},//  8
-            {155.53281820538132, {161.64728901777715, 448.00100000000000}, false},//  9
-            {193.02763735984399, {105.51673874208318, 448.00100000000000}, false},// 10
-            {210.06237984860419, {63.999000000000000, 417.62085549030633}, true}, // 11
-            {191.56760648448025, {63.999000000000000, 365.84512900181090}, true}, // 12
-            {186.00100000000000, {63.999000000000000, 320.00000000000000}, true}, // 13
-            {191.56760648448025, {63.999000000000000, 274.15487099818910}, true}, // 14
-            {210.06237984860422, {63.999000000000000, 222.37914450969362}, true}, // 15
-            {248.49476170445357, {63.999000000000000, 155.21749305962976}, true}, // 16
-            {311.06442132011330, {73.295268285716332, 63.999000000000000}, false},// 17
-            {273.79310466816264, {152.91162704612108, 63.999000000000000}, false},// 18
-            {257.88124462229160, {218.91585087311816, 63.999000000000000}, false},// 19
-            {257.88124462229160, {281.08414912688193, 63.999000000000000}, false},// 20
-            {273.79310466816264, {347.08837295387895, 63.999000000000000}, false},// 21
-            {311.06442132011330, {426.70473171428370, 63.999000000000000}, false},// 22
-            {264.52659562176279, {448.00100000000000, 144.58642073590875}, true}, // 23
-            {223.61471858970370, {448.00100000000000, 216.08105866131825}, true}, // 24
-            {203.92674045587697, {448.00100000000000, 271.19713664180534}, true}, // 25
+            {198.00100000000000, {448.00100000000000, 320.00000000000000}, true, 0},       //  0
+            {203.92674045587697, {448.00100000000000, 368.80261688033164}, true, 48.8026}, //  1
+            {223.61447468465050, {448.00100000000000, 423.91841649819440}, true, 39.9184}, //  2
+            {193.02679246731799, {394.48213249125672, 448.00100000000000}, false, 53.5179},//  3
+            {155.53242609963525, {338.35202073206085, 448.00100000000000}, false, 45.648}, //  4
+            {136.89695260071460, {298.54399685195176, 448.00100000000000}, false, 21.456}, //  5
+            {128.94112598348423, {265.54201385244937, 448.00100000000000}, false, 54.458}, //  6
+            {128.94112598348426, {234.45798614755063, 448.00100000000000}, false, 21.542}, //  7
+            {136.89695260071460, {201.45600314804818, 448.00100000000000}, false, 54.544}, //  8
+            {155.53242609963530, {161.64797926793909, 448.00100000000000}, false, 30.352}, //  9
+            {193.02679246731799, {105.51786750874327, 448.00100000000000}, false, 22.4821},// 10
+            {210.06213594358218, {63.999000000000000, 417.62033064981898}, true, 30.3797}, // 11
+            {191.56760648448025, {63.999000000000000, 365.84488252394789}, true, 18.1551}, // 12
+            {186.00100000000000, {63.999000000000000, 320.00000000000000}, true, 64},      // 13
+            {191.56760648448025, {63.999000000000000, 274.15511747605211}, true, 45.8449}, // 14
+            {210.06213594358218, {63.999000000000000, 222.37966935018102}, true, 33.6203}, // 15
+            {248.49417422992676, {63.999000000000000, 155.21837898232343}, true, 36.7816}, // 16
+            {311.06402921384853, {73.295958535878299, 63.999000000000000}, false, 9.29596},// 17
+            {273.79297018449762, {152.91200629609648, 63.999000000000000}, false, 24.912}, // 18
+            {257.88124462229160, {218.91597229510137, 63.999000000000000}, false, 26.916}, // 19
+            {257.88124462229160, {281.08402770489874, 63.999000000000000}, false, 25.084}, // 20
+            {273.79297018449762, {347.08799370390352, 63.999000000000000}, false, 27.088}, // 21
+            {311.06402921384853, {426.70404146412170, 63.999000000000000}, false, 42.704}, // 22
+            {264.52600814718232, {448.00100000000000, 144.58730665860242}, true, 16.5873}, // 23
+            {223.61447468465050, {448.00100000000000, 216.08158350180560}, true, 24.0816}, // 24
+            {203.92674045587697, {448.00100000000000, 271.19738311966836}, true, 15.1974}, // 25
     };
     ASSERT_TRUE(map.isValid());
     const Map::worldCoordinates position{250, 320};
@@ -140,6 +140,7 @@ TEST(Map, castRay) {
         EXPECT_NEAR(cast.wallPoint[0], expected.wallPoint[0], 0.0001);
         EXPECT_NEAR(cast.wallPoint[1], expected.wallPoint[1], 0.0001);
         EXPECT_EQ(cast.hitVertical, expected.hitVertical);
+        EXPECT_NEAR(cast.hitXRatio, expected.hitXRatio, 0.0001);
         ray.rotate({360.0 / static_cast<double>(expecteds.size()), Unit::Degree});
     }
     {
@@ -183,7 +184,7 @@ TEST(Map, saveMap) {
     EXPECT_FALSE(testMap.exists());
 }
 
-TEST(Map, saveMapFile){
+TEST(Map, saveMapFile) {
     Map map = ConstructBaseMap();
     rc::core::fs::DataFile testMap("maps/test.map");
     ASSERT_FALSE(testMap.exists());
@@ -196,24 +197,24 @@ TEST(Map, saveMapFile){
     EXPECT_FALSE(testMap.exists());
 }
 
-TEST(Map, PassableVisibility){
+TEST(Map, PassableVisibility) {
     Map map = ConstructBaseMap();
-    EXPECT_FALSE(map.isInVisible(Map::gridCoordinate{255,255})); // outside
-    EXPECT_FALSE(map.isInVisible(Map::gridCoordinate{0,0})); // in a wall
-    EXPECT_TRUE(map.isInVisible(Map::gridCoordinate{1,1})); // in a visible zone
-    EXPECT_FALSE(map.isInVisible(Map::worldCoordinates{25500,25500})); // outside
-    EXPECT_FALSE(map.isInVisible(Map::worldCoordinates{1,1})); // in a wall
-    EXPECT_TRUE(map.isInVisible(Map::worldCoordinates{100,100})); // in a visible zone
-    EXPECT_FALSE(map.isInPassable(Map::gridCoordinate{255,255})); // outside
-    EXPECT_FALSE(map.isInPassable(Map::gridCoordinate{0,0})); // in a wall
-    EXPECT_TRUE(map.isInPassable(Map::gridCoordinate{1,1})); // in a visible zone
-    EXPECT_FALSE(map.isInPassable(Map::worldCoordinates{25500,25500})); // outside
-    EXPECT_FALSE(map.isInPassable(Map::worldCoordinates{1,1})); // in a wall
-    EXPECT_TRUE(map.isInPassable(Map::worldCoordinates{100,100})); // in a visible zone
+    EXPECT_FALSE(map.isInVisible(Map::gridCoordinate{255, 255}));       // outside
+    EXPECT_FALSE(map.isInVisible(Map::gridCoordinate{0, 0}));           // in a wall
+    EXPECT_TRUE(map.isInVisible(Map::gridCoordinate{1, 1}));            // in a visible zone
+    EXPECT_FALSE(map.isInVisible(Map::worldCoordinates{25500, 25500})); // outside
+    EXPECT_FALSE(map.isInVisible(Map::worldCoordinates{1, 1}));         // in a wall
+    EXPECT_TRUE(map.isInVisible(Map::worldCoordinates{100, 100}));      // in a visible zone
+    EXPECT_FALSE(map.isInPassable(Map::gridCoordinate{255, 255}));      // outside
+    EXPECT_FALSE(map.isInPassable(Map::gridCoordinate{0, 0}));          // in a wall
+    EXPECT_TRUE(map.isInPassable(Map::gridCoordinate{1, 1}));           // in a visible zone
+    EXPECT_FALSE(map.isInPassable(Map::worldCoordinates{25500, 25500}));// outside
+    EXPECT_FALSE(map.isInPassable(Map::worldCoordinates{1, 1}));        // in a wall
+    EXPECT_TRUE(map.isInPassable(Map::worldCoordinates{100, 100}));     // in a visible zone
 }
 
-TEST(Map, Colors){
-    rc::game::mapCell cell{true,true,0};
+TEST(Map, Colors) {
+    rc::game::mapCell cell{true, true, 0};
     EXPECT_EQ(cell.getMapColor(), (rc::graphics::Color{255, 0, 255}));
     EXPECT_EQ(cell.getRayColor(), (rc::graphics::Color{0, 0, 0}));
     cell.textureId = 1;
@@ -239,29 +240,29 @@ TEST(Map, Colors){
     EXPECT_EQ(cell.getRayColor(), (rc::graphics::Color{0x94, 0x62, 0x38}));
 }
 
-TEST(Map, possibleMove){
+TEST(Map, possibleMove) {
     Map map = ConstructBaseMap();
     {
         Map::worldCoordinates expected{5, 0};
         auto result = map.possibleMove(Map::worldCoordinates{100, 100}, expected);
         EXPECT_NEAR((expected - result).length(), 0, 0.001);
     }
-    { // X movement possible, not Y
+    {// X movement possible, not Y
         Map::worldCoordinates expected{5, -50};
         auto result = map.possibleMove(Map::worldCoordinates{100, 100}, expected);
-        Map::worldCoordinates expectedResult{5,0};
+        Map::worldCoordinates expectedResult{5, 0};
         EXPECT_NEAR((expectedResult - result).length(), 0, 0.001);
     }
-    { // Y movement possible, not X
+    {// Y movement possible, not X
         Map::worldCoordinates expected{-50, 5};
         auto result = map.possibleMove(Map::worldCoordinates{100, 100}, expected);
-        Map::worldCoordinates expectedResult{0,5};
+        Map::worldCoordinates expectedResult{0, 5};
         EXPECT_NEAR((expectedResult - result).length(), 0, 0.001);
     }
-    { // movement impossible
+    {// movement impossible
         Map::worldCoordinates expected{-50, -50};
         auto result = map.possibleMove(Map::worldCoordinates{100, 100}, expected);
-        Map::worldCoordinates expectedResult{0,0};
+        Map::worldCoordinates expectedResult{0, 0};
         EXPECT_NEAR((expectedResult - result).length(), 0, 0.001);
     }
 }

@@ -30,6 +30,8 @@ static void buttonUp(uint8_t key, int32_t /*x*/, int32_t /*y*/) {
     globalPtr->button_cb(static_cast<char>(key), false);
 }
 
+GLInput::GLInput():BaseInput() {}
+
 GLInput::~GLInput() {
     globalPtr = nullptr;
 }

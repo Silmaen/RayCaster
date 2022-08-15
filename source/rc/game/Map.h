@@ -31,22 +31,27 @@ struct mapCell {
      * @brief Get the associated color for map and 3D view
      * @return the color
      */
-    const graphics::Color& getMapColor()const;
+    const graphics::Color& getMapColor() const;
     /**
      * @brief Get the associated color for ray on map
      * @return the color
      */
-    const graphics::Color& getRayColor()const;
+    const graphics::Color& getRayColor() const;
+    /**
+     * @brief Get the name of the textue
+     * @return Texture's name
+     */
+    const std::string& getTextureName() const;
     /**
      * @brief Comparison operator
      * @return True if equal
      */
-    [[nodiscard]] bool operator==(const mapCell& )const =default;
+    [[nodiscard]] bool operator==(const mapCell&) const = default;
     /**
      * @brief Comparison operator
      * @return True if not equal
      */
-    [[nodiscard]] bool operator!=(const mapCell& )const =default;
+    [[nodiscard]] bool operator!=(const mapCell&) const = default;
     /// if the player has seen this wall
     bool isViewed = false;
 };
@@ -56,20 +61,20 @@ struct mapCell {
  * @param jso The json output
  * @param mCell The mapCell to serialize
  */
-inline void to_json(nlohmann::json& jso, const mapCell& mCell){
+inline void to_json(nlohmann::json& jso, const mapCell& mCell) {
     uint8_t result = (mCell.passable * 0b10000000) | (mCell.visibility * 0b01000000) | (mCell.textureId & 0b00111111);
-    jso = nlohmann::json{result};
+    jso            = nlohmann::json{result};
 }
 /**
  * @brief Deserialize this object from json
  * @param jso Json source
  * @param mCell Destination mapCell
  */
-inline void from_json(const nlohmann::json& jso, mapCell& mCell){
-    uint8_t result =  jso.at(0);
-    mCell.textureId = result & 0b00111111;
+inline void from_json(const nlohmann::json& jso, mapCell& mCell) {
+    uint8_t result   = jso.at(0);
+    mCell.textureId  = result & 0b00111111;
     mCell.visibility = (result & 0b01000000) == 0b01000000;
-    mCell.passable = (result & 0b10000000) == 0b10000000;
+    mCell.passable   = (result & 0b10000000) == 0b10000000;
 }
 
 /**
@@ -206,9 +211,10 @@ public:
      * @brief Ray casting result
      */
     struct rayCastResult {
-        double distance;                ///< Distance of the hit
+        double distance;           ///< Distance of the hit
         worldCoordinates wallPoint;///< Point on the wall
-        bool hitVertical;               ///< If we hit a vertical wall
+        bool hitVertical;          ///< If we hit a vertical wall
+        double hitXRatio;          ///< In cell ratio of x hit
     };
     /**
      * @brief Cast a ray in the 2D space
@@ -285,7 +291,7 @@ public:
      * @param Expected Expected move
      * @return Effective move
      */
-    [[nodiscard]] Map::worldCoordinates possibleMove(const worldCoordinates& Start, const worldCoordinates& Expected)const;
+    [[nodiscard]] Map::worldCoordinates possibleMove(const worldCoordinates& Start, const worldCoordinates& Expected) const;
 
     /**
      * @brief Define player starts
@@ -323,6 +329,7 @@ public:
      * @param mapName Map's name
      */
     void saveToFile(const std::string& mapName);
+
 private:
     /**
      * @brief Reset the map to the given size
@@ -346,7 +353,7 @@ private:
     double maxHeight = 0;
 
     void fromJson(const nlohmann::json& data);
-    nlohmann::json toJson()const;
+    nlohmann::json toJson() const;
 };
 
-}// namespace rc::core
+}// namespace rc::game

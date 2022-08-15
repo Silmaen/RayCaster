@@ -69,6 +69,18 @@ public:
      * @param color Line's color
      */
     void drawLine([[maybe_unused]] const math::geometry::Line2<double>& line, [[maybe_unused]] double width, [[maybe_unused]] const graphics::Color& color) const override {}
+
+    /**
+     * @brief Draw a textured vertical line
+     * @param lineX X coordinate of the line
+     * @param lineY Y starting of the line (may be outside the layout)
+     * @param lineLength Length of the line
+     * @param tex Texture to apply
+     * @param texX X coordinate on the texture image
+     * @param drawBox Drawing layout
+     * @param dark If the color should be shaded
+     */
+    virtual void drawTextureVerticalLine([[maybe_unused]] double lineX, [[maybe_unused]] double lineY, [[maybe_unused]] double lineLength, [[maybe_unused]] const image::Texture& tex, [[maybe_unused]] double texX, [[maybe_unused]] const math::geometry::Box2& drawBox, [[maybe_unused]] bool dark=false) const override{};
     /**
      * @brief Draw a quad
      * @param quad Quad's data
