@@ -10,7 +10,13 @@
 
 namespace rc::graphics::image {
 
+/**
+ * @brief a void texture
+ */
+static Texture dummyTex;
+
 const Texture& TextureManager::getTexture(const std::string& name) {
+    if (name.empty()) return dummyTex;
     if (m_textures.contains(name)) { // texture already loaded
         m_textures[name].m_lastCalled = texClock::now(); // update the touch time
         return m_textures[name].m_texture;

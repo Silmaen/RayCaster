@@ -30,7 +30,8 @@ TEST(InputSetting, conversonValue){
     EXPECT_EQ(settings[settings.keyByChar('a')],'a');
     EXPECT_EQ(settings[settings.keyByChar('l')],'l');
     EXPECT_EQ(settings[settings.keyByChar('m')],'m');
+    EXPECT_EQ(settings[settings.keyByChar('t')],'t');
     EXPECT_EQ(settings[settings.keyByChar('!')],'!');
     EXPECT_EQ(settings[settings.keyByChar(' ')],' ');
-    EXPECT_EQ(settings[settings.keyByChar('_')],'$');
+    EXPECT_EQ(settings[settings.keyByChar('_')],'*');
 }

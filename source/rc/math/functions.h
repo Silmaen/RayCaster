@@ -38,4 +38,26 @@ constexpr data clampSafe(const data& input, data minValue, data maxValue) {
                                                             input;
 }
 
+/**
+ * @brief Heaviside function
+ * @tparam data Data's type
+ * @param input Value to check
+ * @return 1 if input positive, else return 0
+ */
+template<typename data>
+constexpr data heaviside(const data& input) {
+    return input > 0 ? data{1} : data{};
+}
+
+/**
+ * @brief Sign function
+ * @tparam data Data's type
+ * @param input Value to check
+ * @return 0 if input is 0 1 if input positive, else return -1
+ */
+template<typename data>
+constexpr data sign(const data& input) {
+    return input > 0 ? data{1} : (input < 0 ? data{-1} : 0);
+}
+
 }// namespace rc::math

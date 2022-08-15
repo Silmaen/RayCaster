@@ -7,6 +7,7 @@
  */
 
 #pragma once
+#include "magic_enum.hpp"
 #include <nlohmann/json.hpp>
 
 namespace rc::core::input {
@@ -15,7 +16,7 @@ namespace rc::core::input {
  * @brief Type of inputs
  */
 enum struct InputType {
-    Unknown,///< unknown input
+    Unknown,///< Unknown input
     GL,     ///< Glut-based input
 };
 
@@ -31,6 +32,7 @@ enum struct FunctionKey : uint8_t {
     StrafeLeft,     ///< Instruct to move left
     StrafeRight,    ///< Instruct to move right
     Use,            ///< Use item or open door
+    DisplayTexture, ///< Toggle texture render
     DisplayMap,     ///< Toggle map display
     DisplayRayOnMap,///< toggle ray display on map
     lastKey         ///< lst key for enumeration
@@ -46,37 +48,61 @@ struct Settings {
      * @param key The desired key
      * @return The corresponding char
      */
-    char& operator[](const FunctionKey& key);
+    char& operator[](const FunctionKey& key) { return m_keys[key]; }
     /**
      * @brief Set from json
      * @param data The input json
      */
-    void fromJson(const nlohmann::json& data);
+    void fromJson(const nlohmann::json& data) {
+        for (auto& key : m_keys) {
+            if (key.first == FunctionKey::lastKey) continue;// not saving this one!
+            if (data.contains(magic_enum::enum_name(key.first)))
+                key.second = std::string(data[magic_enum::enum_name(key.first)]).front();
+        }
+    }
     /**
      * @brief Write to json
      * @return The resulting json
      */
-    [[nodiscard]] nlohmann::json toJson() const;
+    [[nodiscard]] nlohmann::json toJson() const {
+        nlohmann::json data;
+        for (const auto& key : m_keys) {
+            if (key.first == FunctionKey::lastKey) continue;// not saving this one!
+            data[magic_enum::enum_name(key.first)] = std::string(1, key.second);
+        }
+        return data;
+    }
 
     /**
      * @brief Get the key corresponding to the char
      * @param input The char to check
      * @return The key, or 'lastKey'
      */
-    FunctionKey keyByChar(const char& input);
+    FunctionKey keyByChar(const char& input) {
+        auto result = std::find_if(m_keys.begin(), m_keys.end(), [&input](const auto& item) { return item.second == input; });
+        if (result == m_keys.end())
+            return FunctionKey::lastKey;
+        return result->first;
+    }
 
 private:
-    char mExitKey            = '!';///< Exit Game key
-    char mForwardKey         = 'z';///< Instruct to move forward key
-    char mBackwardKey        = 's';///< Instruct to move backward key
-    char mTurnLeftKey        = 'q';///< Instruct to turn left key
-    char mTurnRightKey       = 'd';///< Instruct to turn right key
-    char mStrafeLeftKey      = 'a';///< Instruct to move left key
-    char mStrafeRightKey     = 'e';///< Instruct to move right key
-    char mUseKey             = ' ';///< Use item or open door key
-    char mDisplayMapKey      = 'm';///< Toggle map display key
-    char mDisplayRayOnMapKey = 'l';///< toggle ray display on map key
-    char mVoidChar           = '$';///< The Void
+    /**
+     * @brief The list of keys
+     */
+    std::map<FunctionKey, char> m_keys = {
+            {FunctionKey::Exit, '!'},           ///< Exit Game key
+            {FunctionKey::Forward, 'z'},        ///< Instruct to move forward key
+            {FunctionKey::Backward, 's'},       ///< Instruct to move backward key
+            {FunctionKey::TurnLeft, 'q'},       ///< Instruct to turn left key
+            {FunctionKey::TurnRight, 'd'},      ///< Instruct to turn right key
+            {FunctionKey::StrafeLeft, 'a'},     ///< Instruct to move left key
+            {FunctionKey::StrafeRight, 'e'},    ///< Instruct to move right key
+            {FunctionKey::Use, ' '},            ///< Use item or open door key
+            {FunctionKey::DisplayTexture, 't'}, ///< Toggle map display key
+            {FunctionKey::DisplayMap, 'm'},     ///< Toggle map display key
+            {FunctionKey::DisplayRayOnMap, 'l'},///< toggle ray display on map key
+            {FunctionKey::lastKey, '*'},        ///< The Void
+    };
 };
 
 
@@ -92,7 +118,7 @@ public:
     /**
      * @brief Default constructor.
      */
-    BaseInput() = default;
+    BaseInput();
     /**
      * @brief Destructor.
      */
@@ -102,7 +128,7 @@ public:
      * @brief Access to renderer Settings
      * @return Renderer Settings
      */
-    Settings& settings() { return settingInternal; }
+    Settings& settings() { return m_settingInternal; }
     /**
      * @brief Initialize the renderer
      */
@@ -112,8 +138,9 @@ public:
      * @param key Key to check
      * @return True if key pressed
      */
-    virtual bool isKeyPressed(const FunctionKey& key) const {
-        return state[key];
+    [[nodiscard]] bool isKeyPressed(const FunctionKey& key) const {
+        auto res = m_keyStates.find(key);
+        return (res == m_keyStates.end()) ? false : res->second;
     }
     /**
      * @brief Defines the main draw call back
@@ -133,45 +160,17 @@ protected:
      * @return Link to the key state
      */
     bool& getState(const FunctionKey& key) {// ---UNCOVER---
-        return state[key];                  // ---UNCOVER---
+        return m_keyStates[key];            // ---UNCOVER---
     }
 
 private:
     /// The settings
-    Settings settingInternal;
+    Settings m_settingInternal;
 
     /**
-     * @brief Structure holding the key state
+     * @brief Key states
      */
-    struct KeyState {
-        /**
-         * @brief Member access
-         * @param key The desired key
-         * @return The corresponding char
-         */
-        bool& operator[](const FunctionKey& key);
-        /**
-         * @brief Member access
-         * @param key The desired key
-         * @return The corresponding char
-         */
-        const bool& operator[](const FunctionKey& key) const;
-
-    private:
-        bool mExitKey            = false;///< Exit Game key
-        bool mForwardKey         = false;///< Instruct to move forward key
-        bool mBackwardKey        = false;///< Instruct to move backward key
-        bool mTurnLeftKey        = false;///< Instruct to turn left key
-        bool mTurnRightKey       = false;///< Instruct to turn right key
-        bool mStrafeLeftKey      = false;///< Instruct to move left key
-        bool mStrafeRightKey     = false;///< Instruct to move right key
-        bool mUseKey             = false;///< Use item or open door key
-        bool mDisplayMapKey      = false;///< Toggle map display key
-        bool mDisplayRayOnMapKey = false;///< toggle ray display on map key
-        bool mVoidChar           = false;///< The Void
-    };
-    /// keyboard state
-    KeyState state;
+    std::map<FunctionKey, bool> m_keyStates;
 };
 
 }// namespace rc::core::input

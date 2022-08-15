@@ -93,6 +93,25 @@ void OpenGLRenderer::drawLine(const math::geometry::Line2<double>& line, double 
     pushVertex(line.getPoint(1));
     glEnd();
 }
+
+void OpenGLRenderer::drawTextureVerticalLine(double lineX, double lineY, double lineLength, const image::Texture& tex, double texX, const math::geometry::Box2& drawBox, bool shade) const {
+    if (status != Status::Running)
+        return;
+    double textureIncrement = tex.height() / lineLength;
+    glPointSize(static_cast<GLfloat>(1));
+    glBegin(GL_POINTS);
+    for(uint16_t pixel=0;pixel<lineLength;++pixel) {
+        if (!drawBox.isIn({static_cast<int32_t>(lineX), static_cast<int32_t>(lineY+pixel)}))
+            continue;
+        if (shade)
+            setColor(tex.getPixel(texX,pixel*textureIncrement).darker());
+        else
+            setColor(tex.getPixel(texX,pixel*textureIncrement));
+        glVertex2d(lineX, lineY + pixel);
+    }
+    glEnd();
+}
+
 void OpenGLRenderer::drawQuad(const math::geometry::Quad2<double>& quad, const graphics::Color& color) const {
     if (status != Status::Running)
         return;
@@ -117,5 +136,6 @@ void OpenGLRenderer::display_cb() {
         mainDraw();
     glutSwapBuffers();
 }
+
 
 }// namespace rc::core::renderer

@@ -44,6 +44,8 @@ struct EngineSettings {
     /// Screen zone where to draw the map
     math::geometry::Box2 layoutMap{{880, 150}, {1280, 550}};
     /// If daw the rays in the map
+    bool drawTexture = true;
+    /// If daw the rays in the map
     bool drawMap = false;
     /// If daw the rays in the map
     bool drawRays = false;

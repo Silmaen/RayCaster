@@ -23,7 +23,7 @@ public:
     /**
      * @brief Default constructor.
      */
-    GLInput() = default;
+    GLInput();
     /**
      * @brief Destructor.
      */
