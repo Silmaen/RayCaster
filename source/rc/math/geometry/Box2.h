@@ -58,13 +58,13 @@ public:
      * @param other Other box to compare
      * @return True if equal
      */
-    bool operator==(const Box2& other) const{ return topLeft == other.topLeft && bottomRight == other.bottomRight; }
+    bool operator==(const Box2& other) const { return topLeft == other.topLeft && bottomRight == other.bottomRight; }
     /**
      * @brief Comparison operator
      * @param other Other box to compare
      * @return True if not equal
      */
-    bool operator!=(const Box2& other) const{ return topLeft != other.topLeft || bottomRight != other.bottomRight; }
+    bool operator!=(const Box2& other) const { return topLeft != other.topLeft || bottomRight != other.bottomRight; }
     /**
      * @brief Data access
      * @param idx component index
@@ -112,28 +112,61 @@ public:
      * @brief Get the box width
      * @return Width
      */
-    [[nodiscard]] int32_t width()const{return bottomRight[0] - topLeft[0];}
+    [[nodiscard]] int32_t width() const { return bottomRight[0] - topLeft[0]; }
     /**
      * @brief Get the box height
      * @return Height
      */
-    [[nodiscard]] int32_t height()const{return bottomRight[1] - topLeft[1];}
+    [[nodiscard]] int32_t height() const { return bottomRight[1] - topLeft[1]; }
     /**
      * @brief Get the center of the box
      * @return The center of the box
      */
-    [[nodiscard]] VertexType center()const{return {(bottomRight[0] + topLeft[0])/2,(bottomRight[1] + topLeft[1])/2};}
+    [[nodiscard]] VertexType center() const { return {(bottomRight[0] + topLeft[0]) / 2, (bottomRight[1] + topLeft[1]) / 2}; }
 
     /**
      * @brief Get the quad associated with the box
      * @return A quad
      */
-    [[nodiscard]] Quad2<double> getQuad()const {
-        return {{static_cast<double>(topLeft[0]),static_cast<double>(topLeft[1])},
-                {static_cast<double>(topLeft[0]),static_cast<double>(bottomRight[1])},
+    [[nodiscard]] Quad2<double> getQuad() const {
+        return {{static_cast<double>(topLeft[0]), static_cast<double>(topLeft[1])},
+                {static_cast<double>(topLeft[0]), static_cast<double>(bottomRight[1])},
                 {static_cast<double>(bottomRight[0]), static_cast<double>(bottomRight[1])},
-                {static_cast<double>(bottomRight[0]),static_cast<double>(topLeft[1])}};
+                {static_cast<double>(bottomRight[0]), static_cast<double>(topLeft[1])}};
     }
+
+    /**
+     * @brief Get the right side
+     * @return Right coordinate
+     */
+    [[nodiscard]] const int32_t& right() const {
+        return bottomRight[0];
+    }
+
+    /**
+     * @brief Get the bottom side
+     * @return Bottom coordinate
+     */
+    [[nodiscard]] const int32_t& bottom() const {
+        return bottomRight[1];
+    }
+
+    /**
+     * @brief Get the left side
+     * @return Left coordinate
+     */
+    [[nodiscard]] const int32_t& left() const {
+        return topLeft[0];
+    }
+
+    /**
+     * @brief Get the top side
+     * @return Top coordinate
+     */
+    [[nodiscard]] const int32_t& top() const {
+        return topLeft[1];
+    }
+
 private:
     /// Top Left Corner
     VertexType topLeft;
@@ -146,18 +179,18 @@ private:
  * @param jso The json output
  * @param box The vector to serialize
  */
-inline void to_json(nlohmann::json& jso, const Box2& box){
-    jso = nlohmann::json{box[0], box [1]};
+inline void to_json(nlohmann::json& jso, const Box2& box) {
+    jso = nlohmann::json{box[0], box[1]};
 }
 /**
  * @brief Deserialize this object from json
  * @param jso Json source
  * @param box Destination vector
  */
-inline void from_json(const nlohmann::json& jso, Box2& box){
+inline void from_json(const nlohmann::json& jso, Box2& box) {
     box[0] = jso.at(0);
     box[1] = jso.at(1);
 }
 
 
-}// namespace rc::graphics
+}// namespace rc::math::geometry

@@ -14,16 +14,16 @@ namespace rc::graphics::renderer {
 
 
 namespace gl {
-    static bool initialized = false; ///< If glut already initialized
-    void init(){
-        if (initialized) return;
-        int param    = 1;
-        char toto1[] = "Raycaster";
-        char* toto[] = {&toto1[0]};
-        glutInit(&param, toto);
-        initialized = true;
-    }
+static bool initialized = false;///< If glut already initialized
+void init() {
+    if (initialized) return;
+    int param    = 1;
+    char toto1[] = "Raycaster";
+    char* toto[] = {&toto1[0]};
+    glutInit(&param, toto);
+    initialized = true;
 }
+}// namespace gl
 
 
 // hat trick
@@ -83,6 +83,7 @@ void OpenGLRenderer::drawPoint(const math::geometry::Vectf& location, double siz
     pushVertex(location);
     glEnd();
 }
+
 void OpenGLRenderer::drawLine(const math::geometry::Line2<double>& line, double width, const graphics::Color& color) const {
     if (status != Status::Running)
         return;
@@ -97,17 +98,32 @@ void OpenGLRenderer::drawLine(const math::geometry::Line2<double>& line, double 
 void OpenGLRenderer::drawTextureVerticalLine(double lineX, double lineY, double lineLength, const image::Texture& tex, double texX, const math::geometry::Box2& drawBox, bool shade) const {
     if (status != Status::Running)
         return;
+    // Coordinate are input in the layout's frame: conversion into Scree coordinates
+    lineX += drawBox.left();
+    lineY += drawBox.top();
+    // check vertical is in the layout
+    if (lineX<drawBox.left() ||lineX> drawBox.right())
+        return;
     double textureIncrement = tex.height() / lineLength;
+    auto cols = tex.getPixelColumn(static_cast<uint16_t>(texX));
+    uint16_t beginCoord = static_cast<uint16_t>(std::max((int16_t)lineY, (int16_t)drawBox.top()));
+    uint16_t endCoord = lineY + lineLength > drawBox.bottom() ? drawBox.bottom() : lineY + lineLength;
+    uint16_t length = endCoord - beginCoord;
+    uint16_t beginTex = (uint16_t)std::max((int16_t)0,(int16_t)(-lineY*textureIncrement));
+    cols+= beginTex;
     glPointSize(static_cast<GLfloat>(1));
     glBegin(GL_POINTS);
-    for(uint16_t pixel=0;pixel<lineLength;++pixel) {
-        if (!drawBox.isIn({static_cast<int32_t>(lineX), static_cast<int32_t>(lineY+pixel)}))
-            continue;
+
+
+
+    for (uint16_t pixel = 0; pixel < length; ++pixel) {
+        //if (!drawBox.isIn({static_cast<int32_t>(lineX), static_cast<int32_t>(lineY + pixel)}))
+        //    continue;
         if (shade)
-            setColor(tex.getPixel(texX,pixel*textureIncrement).darker());
+            setColor((*(cols + pixel * textureIncrement)).darker());
         else
-            setColor(tex.getPixel(texX,pixel*textureIncrement));
-        glVertex2d(lineX, lineY + pixel);
+            setColor(*(cols + pixel * textureIncrement));
+        glVertex2d(lineX, beginCoord + pixel);
     }
     glEnd();
 }
@@ -138,4 +154,4 @@ void OpenGLRenderer::display_cb() {
 }
 
 
-}// namespace rc::core::renderer
+}// namespace rc::graphics::renderer
