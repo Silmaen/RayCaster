@@ -6,13 +6,14 @@
  * All modification must get authorization from the author.
  */
 
+#include "core/tool/Tracker.h"
 #include "graphics/image/Texture.h"
 #include "testHelper.h"
 
 using namespace rc::graphics::image;
 
 TEST(Texture, dummy){
-    Texture voidTex;
+    const Texture voidTex;
     EXPECT_EQ(voidTex.width(), 0);
     EXPECT_EQ(voidTex.height(), 0);
     EXPECT_EQ(voidTex.getPixel(45,45),rc::graphics::Color(0,0,0,0));
@@ -39,4 +40,15 @@ TEST(Texture, LoadSavePNG){
     EXPECT_EQ(baseTex2.getPixel(45,45),rc::graphics::Color(0,0,0));
     rc::core::fs::DataFile file("textures/testSave.png");
     file.remove();
+}
+
+
+TEST(Texture, Column) {
+    rc::core::tool::Tracker::get().checkState();
+    Texture baseTex;
+    baseTex.loadFromFile("brickpattern.png");
+    auto col = baseTex.getPixelColumn(3);
+    EXPECT_EQ(col->code(), 0xFFFFFFFF);
+    auto res = rc::core::tool::Tracker::get().checkState();
+    EXPECT_EQ(res.m_allocationCalls, 11);
 }

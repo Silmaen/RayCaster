@@ -12,6 +12,9 @@
 #include "graphics/renderer/NullRenderer.h"
 #include "graphics/renderer/OpenGlRenderer.h"
 #include "input/GlInput.h"
+#include "tool/Tracker.h"
+
+#include <iostream>
 
 namespace rc::core {
 
@@ -157,6 +160,9 @@ void Engine::button() {
     if (input->isKeyPressed(input::FunctionKey::Exit)) {
         // exit action
         freeze = frames;
+        graphics::image::TextureManager::get().unloadAll();
+        auto& res = tool::Tracker::get().globals();
+        std::cout << "Memory Statistics: " << res.m_allocatedMemory << " bytes remaing, calls alloc/dealloc: " << res.m_allocationCalls << "/" << res.m_deallocationCalls << "\n";
         exit(0);
     }
 }
@@ -193,6 +199,7 @@ void Engine::drawRayCasting() {
                         {static_cast<double>(settings.layout3D[1][0]), static_cast<double>(settings.layout3D[1][1])},
                         {static_cast<double>(settings.layout3D[0][0]), static_cast<double>(settings.layout3D[1][1])}},
                        {105, 105, 105});
+    uint16_t halfHeight = settings.layout3D.height()/2;
     // ray casting
     for (int32_t rays = 0; rays <= settings.layout3D.width(); ++rays) {
         auto result = map->castRay(player->getPosition(), ray);
@@ -209,18 +216,19 @@ void Engine::drawRayCasting() {
                 color.darken();
             renderer->drawLine({player->getPosition() * scaleFactor + offsetPoint, ray, result.distance * scaleFactor}, 2, color);//draw 2D ray
         }
-        auto lineH = static_cast<int32_t>((map->getCellSize() * 1.2 * settings.layout3D.height()) /
+        auto lineH = static_cast<int32_t>((map->getCellSize() * 2.4 * halfHeight) /
                                           (result.distance * player->getDirection().dot(ray)));
-        //if (lineH > settings.layout3D.height()) { lineH = settings.layout3D.height(); }//line height and limit
-        double lineOff = settings.layout3D.center()[1] - (lineH >> 1);                 //line offset
+        double lineOff = halfHeight - (lineH >> 1);                 //line offset
         //draw vertical wall
-        double lineX = rays + settings.layout3D[0][0];
         if( settings.drawTexture) {
             const auto& tex   = texMng.getTexture(cell.getTextureName());
             double texX = tex.width() * result.hitXRatio / map->getCellSize();
-            renderer->drawTextureVerticalLine(lineX, lineOff, lineH, tex, texX, settings.layout3D, result.hitVertical);
-        }else
+            renderer->drawTextureVerticalLine(rays, lineOff, lineH, tex, texX, settings.layout3D, result.hitVertical);
+        }else {
+            double lineX = rays + settings.layout3D.left();
+            lineOff += settings.layout3D.top();
             renderer->drawLine({{lineX, lineOff}, {lineX, lineOff + lineH}}, 1, color);
+        }
         ray.rotate(rc::math::geometry::Angle{increment, Unit::Degree});//go to next ray
     }
 }

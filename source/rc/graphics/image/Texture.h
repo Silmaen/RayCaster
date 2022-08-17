@@ -63,12 +63,12 @@ public:
      * @brief Get texture's width
      * @return Texture's width
      */
-    [[nodiscard]] const size_t& width() const { return _width; }
+    [[nodiscard]] const size_t& width() const { return m_width; }
     /**
      * @brief Get texture's height
      * @return Texture's height
      */
-    [[nodiscard]] const size_t& height() const { return _height; }
+    [[nodiscard]] const size_t& height() const { return m_height; }
 
     /**
      * @brief Get texture pixel at coordinate
@@ -87,11 +87,27 @@ public:
      */
     [[nodiscard]] Color getPixel(uint16_t u, uint16_t v, uint16_t radius) const;
 
+    /**
+     * @brief Get texture pixel at coordinate
+     * @param u Horizontal coordinate
+     * @param v Vertical coordinate
+     * @return Color value
+     */
+    [[nodiscard]] Color& getPixel(uint16_t u, uint16_t v);
+
+    /**
+     * @brief Get iterator to the begin of the column
+     * @param col Column's index
+     * @return Iterator to the column
+     */
+    [[nodiscard]] std::vector<Color>::const_iterator getPixelColumn(uint16_t col)const{
+        return m_pixels.begin() + (col * m_height);
+    }
 private:
     using DataFile = core::fs::DataFile;
-    size_t _width  = 0;
-    size_t _height = 0;
-    std::vector<Color> _pixels;
+    size_t m_width  = 0;
+    size_t m_height = 0;
+    std::vector<Color> m_pixels;
 
     void readPNG(const DataFile& file);
     void savePNG(const DataFile& file);

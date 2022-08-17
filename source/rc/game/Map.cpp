@@ -38,12 +38,12 @@ static const std::vector<graphics::Color> rayColors{
 static const std::vector<std::string> mapTextures{
         "doorpattern.png",
         "doorpattern.png",
-        "brickpattern.png",
-        "brickpattern.png",
-        "brickpattern.png",
-        "brickpattern.png",
-        "brickpattern.png",
-        "brickpattern.png",
+        "greystone.png",
+        "greystone.png",
+        "bluestone_h.png",
+        "bluestone_h.png",
+        "wood.png",
+        "wood.png",
 };
 
 const graphics::Color& mapCell::getMapColor() const {

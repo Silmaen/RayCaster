@@ -7,7 +7,6 @@
  */
 
 #include "Texture.h"
-#include <fstream>
 #include <iostream>
 #include <png.h>
 
@@ -20,17 +19,17 @@ void Texture::loadFromFile(const std::string& textureName) {
     readPNG(file);
 }
 
-void Texture::saveToFile(const std::string& textureName){
+void Texture::saveToFile(const std::string& textureName) {
     DataFile file("textures/" + textureName);
     savePNG(file);
 }
 
-void Texture::readPNG(const DataFile& file){
+void Texture::readPNG(const DataFile& file) {
     png_FILE_p pngFile = fopen(file.getFullPath().string().c_str(), "rb");
     png_byte header[8];
     fread(header, 1, 8, pngFile);
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-    png_infop info_ptr = png_create_info_struct(png_ptr);
+    png_infop info_ptr  = png_create_info_struct(png_ptr);
     // set error handling to not abort the entire program
     setjmp(png_jmpbuf(png_ptr));
     // initialize png reading
@@ -57,33 +56,33 @@ void Texture::readPNG(const DataFile& file){
     // convert tRNS to alpha channel
     if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) != 0U)
         png_set_tRNS_to_alpha(png_ptr);
-    _width  = png_get_image_width(png_ptr, info_ptr);
-    _height = png_get_image_height(png_ptr, info_ptr);
+    m_width  = png_get_image_width(png_ptr, info_ptr);
+    m_height = png_get_image_height(png_ptr, info_ptr);
     png_read_update_info(png_ptr, info_ptr);
     // begin reading in the image
     setjmp(png_jmpbuf(png_ptr));
     size_t bpr          = png_get_rowbytes(png_ptr, info_ptr);// number of bytes in a row
     uint8_t numchannels = png_get_channels(png_ptr, info_ptr);
     // initialie our image storage
-    _pixels.resize(_height * _width);
+    m_pixels.resize(m_height * m_width);
     std::vector<png_byte> row(bpr);
-    for (auto& pixel : _pixels) {
-        auto GlobalIndex = static_cast<size_t>(&pixel - _pixels.data());
-        size_t RowIndex    = (GlobalIndex % _width) * numchannels;
-        if (RowIndex == 0)
-            png_read_row(png_ptr, row.data(), nullptr);
-        if (numchannels == 1) {
-            // monochrome
-            pixel = Color(row[RowIndex], row[RowIndex], row[RowIndex], 255);
-        } else if (numchannels == 2) {
-            // monochrome + alpha
-            pixel = Color(row[RowIndex], row[RowIndex], row[RowIndex], row[RowIndex + 1]);
-        } else if (numchannels == 3) {
-            // RGB
-            pixel = Color(row[RowIndex], row[RowIndex + 1], row[RowIndex + 2], 255);
-        } else if (numchannels == 4) {
-            // RGBA
-            pixel = Color(row[RowIndex], row[RowIndex + 1], row[RowIndex + 2], row[RowIndex + 3]);
+    for (uint32_t irow = 0; irow < m_height; ++irow) {
+        png_read_row(png_ptr, row.data(), nullptr);
+        for (uint32_t icol = 0; icol < m_width; ++icol) {
+            auto& pixel = getPixel(icol, irow);
+            if (numchannels == 1) {
+                // monochrome
+                pixel = Color(row[icol], row[icol], row[icol], 255);
+            } else if (numchannels == 2) {
+                // monochrome + alpha
+                pixel = Color(row[2 * icol], row[2 * icol], row[2 * icol], row[2 * icol + 1]);
+            } else if (numchannels == 3) {
+                // RGB
+                pixel = Color(row[3 * icol], row[3 * icol + 1], row[3 * icol + 2], 255);
+            } else if (numchannels == 4) {
+                // RGBA
+                pixel = Color(row[4 * icol], row[4 * icol + 1], row[4 * icol + 2], row[4 * icol + 3]);
+            }
         }
     }
     // cleanup
@@ -92,74 +91,76 @@ void Texture::readPNG(const DataFile& file){
     fclose(pngFile);
 }
 
-void Texture::savePNG(const DataFile& file){
+void Texture::savePNG(const DataFile& file) {
     png_FILE_p pngFile = fopen(file.getFullPath().string().c_str(), "wb");
-    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-    png_infop info = png_create_info_struct(png);
+    png_structp png    = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    png_infop info     = png_create_info_struct(png);
     if (setjmp(png_jmpbuf(png))) abort();
     png_init_io(png, pngFile);
     // Output is 8bit depth, RGBA format.
     png_set_IHDR(
             png,
             info,
-            _width, _height,
+            m_width, m_height,
             8,
             PNG_COLOR_TYPE_RGBA,
             PNG_INTERLACE_NONE,
             PNG_COMPRESSION_TYPE_DEFAULT,
-            PNG_FILTER_TYPE_DEFAULT
-    );
+            PNG_FILTER_TYPE_DEFAULT);
     png_write_info(png, info);
 
     // To remove the alpha channel for PNG_COLOR_TYPE_RGB format,
     // Use png_set_filler().
     //png_set_filler(png, 0, PNG_FILLER_AFTER);
 
-    std::vector<png_byte> row(4*_width);
-    uint16_t counter = 0;
-    for(auto& pixel:_pixels){
-        row[counter] = pixel.red();
-        row[counter+1] = pixel.green();
-        row[counter+2] = pixel.blue();
-        row[counter+3] = pixel.alpha();
-        counter+=4;
-        if (counter>=row.size()) {
-            png_write_row(png, row.data());
-            counter = 0;
+    std::vector<png_byte> row(4 * m_width);
+    for (uint32_t irow = 0; irow < m_height; ++irow) {
+        for (uint32_t icol = 0; icol < m_width; ++icol) {
+            const auto& pixel = getPixel(icol, irow);
+            row[4 * icol]     = pixel.red();
+            row[4 * icol + 1] = pixel.green();
+            row[4 * icol + 2] = pixel.blue();
+            row[4 * icol + 3] = pixel.alpha();
         }
+        png_write_row(png, row.data());
     }
-    //png_write_image(png, reinterpret_cast<png_bytepp>(_pixels.data()));
     png_write_end(png, nullptr);
     fclose(pngFile);
     png_destroy_write_struct(&png, &info);
-
 }
 
 /// just a dummy color
-static Color dummyColor{0,0,0,0};
+static Color dummyColor{0, 0, 0, 0};
 
-const Color& Texture::getPixel(uint16_t u, uint16_t v)const{
-    if (u>width() || v > height())
+const Color& Texture::getPixel(uint16_t u, uint16_t v) const {
+    if (u > width() || v > height())
         return dummyColor;
-    return _pixels[u + _width * v];
+    return m_pixels[u * m_height + v];
+    //return m_pixels[u + v * m_width];
 }
 
-Color Texture::getPixel(uint16_t u, uint16_t v, uint16_t radius)const{
-    if (u>width() || v > height())
-        return Color{0,0,0,0};
+Color& Texture::getPixel(uint16_t u, uint16_t v) {
+    if (u > width() || v > height())
+        return dummyColor;
+    return m_pixels[u * m_height + v];
+    //return m_pixels[u + v * m_width];
+}
+
+Color Texture::getPixel(uint16_t u, uint16_t v, uint16_t radius) const {
+    if (u > width() || v > height())
+        return Color{0, 0, 0, 0};
     int count = 0;
     double R{0};
     double G{0};
     double B{0};
     double A{0};
-    for (int32_t i=-radius;i<=radius;++i){
-        for (int32_t j=-radius;j<=radius;++j){
-            if (u+i < 0 || v+j<0 ) continue;
-            uint16_t uu = static_cast<uint16_t>(u + i);
-            uint16_t vv = static_cast<uint16_t>(v + j);
+    for (int32_t i = -radius; i <= radius; ++i) {
+        for (int32_t j = -radius; j <= radius; ++j) {
+            if (u + i < 0 || v + j < 0) continue;
+            auto uu = static_cast<uint16_t>(u + i);
+            auto vv = static_cast<uint16_t>(v + j);
             if (uu > width() || vv > height()) continue;
-            size_t idx = uu + _width * vv;
-            Color Pixel = _pixels[idx];
+            const auto& Pixel = getPixel(uu,vv);
             R += Pixel.redf();
             G += Pixel.greenf();
             B += Pixel.bluef();
@@ -168,12 +169,12 @@ Color Texture::getPixel(uint16_t u, uint16_t v, uint16_t radius)const{
         }
     }
     A /= count;
-    if (A<0.5) return {0,0,0,0};
+    if (A < 0.5) return {0, 0, 0, 0};
     A = 1.0;
-    R/=count;
-    G/=count;
-    B/=count;
-    return Color::fromDouble(R,G,B,A);
+    R /= count;
+    G /= count;
+    B /= count;
+    return Color::fromDouble(R, G, B, A);
 }
 
-}// namespace rc::graphics
+}// namespace rc::graphics::image
