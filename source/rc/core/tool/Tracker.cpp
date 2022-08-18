@@ -28,15 +28,21 @@ void operator delete(void* memory, size_t size){
     rc::core::tool::Tracker::get().deallocate(size);
     free(memory);
 }
+/**
+ * @brief Overload of standard memory deallocation
+ * @param memory Memory to free
+ */
+void operator delete(void* memory){ free(memory);}
 
 namespace rc::core::tool {
 
 void Tracker::allocate(size_t size) {
     ++m_currentAllocationState.m_allocationCalls;
     m_currentAllocationState.m_allocatedMemory+=size;
+    m_currentAllocationState.m_memoryPeek = std::max(m_currentAllocationState.m_memoryPeek, m_currentAllocationState.m_allocatedMemory);
     ++m_globalAllocationState.m_allocationCalls;
     m_globalAllocationState.m_allocatedMemory+=size;
-
+    m_globalAllocationState.m_memoryPeek = std::max(m_globalAllocationState.m_memoryPeek, m_globalAllocationState.m_allocatedMemory);
 }
 void Tracker::deallocate(size_t size) {
     ++m_currentAllocationState.m_deallocationCalls;
@@ -50,6 +56,7 @@ const Tracker::AllocationState& Tracker::checkState() {
     m_lastAllocationState.m_allocatedMemory=0;
     m_lastAllocationState.m_allocationCalls=0;
     m_lastAllocationState.m_deallocationCalls=0;
+    m_lastAllocationState.m_memoryPeek=0;
     std::swap(m_currentAllocationState,m_lastAllocationState);
     return m_lastAllocationState;
 }

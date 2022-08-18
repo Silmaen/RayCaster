@@ -50,7 +50,8 @@ public:
     struct AllocationState{
         size_t m_allocatedMemory = 0; ///< Amount of allocated memory
         size_t m_allocationCalls = 0; ///< Amount of memory allocation calls
-        size_t m_deallocationCalls = 0; ///< Amount of deallocation cals
+        size_t m_deallocationCalls = 0; ///< Amount of deallocation calls
+        size_t m_memoryPeek = 0; ///< Max seen amount of memory
     };
 
     /**

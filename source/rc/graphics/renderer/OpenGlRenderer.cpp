@@ -8,7 +8,7 @@
 
 #include "OpenGlRenderer.h"
 #include <GL/freeglut.h>
-
+#include <execution>
 
 namespace rc::graphics::renderer {
 
@@ -106,23 +106,19 @@ void OpenGLRenderer::drawTextureVerticalLine(double lineX, double lineY, double 
         return;
     double textureIncrement = tex.height() / lineLength;
     auto cols = tex.getPixelColumn(static_cast<uint16_t>(texX));
-    uint16_t beginCoord = static_cast<uint16_t>(std::max((int16_t)lineY, (int16_t)drawBox.top()));
-    uint16_t endCoord = lineY + lineLength > drawBox.bottom() ? drawBox.bottom() : lineY + lineLength;
-    uint16_t length = endCoord - beginCoord;
-    uint16_t beginTex = (uint16_t)std::max((int16_t)0,(int16_t)(-lineY*textureIncrement));
-    cols+= beginTex;
+    double beginCoord = std::max(lineY, static_cast<double>(drawBox.top()));
+    double endCoord = lineY + lineLength > drawBox.bottom() ? drawBox.bottom() : lineY + lineLength;
+    double length = endCoord - beginCoord;
+    double beginTex = std::max(0.0, -lineY * textureIncrement);
     glPointSize(static_cast<GLfloat>(1));
     glBegin(GL_POINTS);
-
-
-
-    for (uint16_t pixel = 0; pixel < length; ++pixel) {
-        //if (!drawBox.isIn({static_cast<int32_t>(lineX), static_cast<int32_t>(lineY + pixel)}))
-        //    continue;
-        if (shade)
-            setColor((*(cols + pixel * textureIncrement)).darker());
-        else
-            setColor(*(cols + pixel * textureIncrement));
+    for (double pixel = 0; pixel < length; ++pixel) {
+        double inc = beginTex + pixel * textureIncrement;
+        if (shade) {
+            setColor((*(cols + inc)).darker());
+        } else{
+            setColor(*(cols + inc));
+        }
         glVertex2d(lineX, beginCoord + pixel);
     }
     glEnd();

@@ -90,7 +90,7 @@ private:
      * @brief The list of keys
      */
     std::map<FunctionKey, char> m_keys = {
-            {FunctionKey::Exit, '!'},           ///< Exit Game key
+            {FunctionKey::Exit, char(27)},           ///< Exit Game key
             {FunctionKey::Forward, 'z'},        ///< Instruct to move forward key
             {FunctionKey::Backward, 's'},       ///< Instruct to move backward key
             {FunctionKey::TurnLeft, 'q'},       ///< Instruct to turn left key
@@ -99,7 +99,7 @@ private:
             {FunctionKey::StrafeRight, 'e'},    ///< Instruct to move right key
             {FunctionKey::Use, ' '},            ///< Use item or open door key
             {FunctionKey::DisplayTexture, 't'}, ///< Toggle map display key
-            {FunctionKey::DisplayMap, 'm'},     ///< Toggle map display key
+            {FunctionKey::DisplayMap, char(9)},     ///< Toggle map display key
             {FunctionKey::DisplayRayOnMap, 'l'},///< toggle ray display on map key
             {FunctionKey::lastKey, '*'},        ///< The Void
     };

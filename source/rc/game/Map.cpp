@@ -40,8 +40,8 @@ static const std::vector<std::string> mapTextures{
         "doorpattern.png",
         "greystone.png",
         "greystone.png",
-        "bluestone_h.png",
-        "bluestone_h.png",
+        "bluestone.png",
+        "bluestone.png",
         "wood.png",
         "wood.png",
 };
