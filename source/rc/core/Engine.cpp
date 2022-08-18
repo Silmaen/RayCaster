@@ -184,54 +184,82 @@ std::shared_ptr<graphics::renderer::BaseRenderer> Engine::getRenderer() {
 
 void Engine::drawRayCasting() {
     using Unit             = rc::math::geometry::Angle::Unit;
-    double fov             = 60.0;
-    const double increment = fov / settings.layout3D.width();
+    const double fov             = 60.0;
+    const uint16_t halfHeight = settings.layout3D.height() / 2;
+    const uint16_t halfWidth = settings.layout3D.width() / 2;
+    const auto increment = rc::math::geometry::Angle{fov / settings.layout3D.width(), Unit::Degree};
+    const double screenDistance = halfWidth / std::tan(rc::math::geometry::Angle{fov / 2, Unit::Degree}.get());
+    const math::geometry::Vect3f eyePos{
+            player->getPosition()[0],
+            player->getPosition()[1],
+            map->getCellSize()/2.0
+    };
+    const math::geometry::Vect3f ScreenPosition = eyePos + player->getDirection() * screenDistance;
+    const math::geometry::Vect3f screen3X = player->getDirection().rotated90() * -1;
+
     auto& texMng = graphics::image::TextureManager::get();
+    auto& groundTexture = texMng.getTexture("ground1.png");
     // Sky and floor
-    renderer->drawQuad({{static_cast<double>(settings.layout3D[0][0]), static_cast<double>(settings.layout3D[0][1])},
-                        {static_cast<double>(settings.layout3D[1][0]), static_cast<double>(settings.layout3D[0][1])},
-                        {static_cast<double>(settings.layout3D[1][0]), static_cast<double>(settings.layout3D.center()[1])},
-                        {static_cast<double>(settings.layout3D[0][0]), static_cast<double>(settings.layout3D.center()[1])}},
+    // Backgrounds
+    renderer->drawQuad({{static_cast<double>(settings.layout3D.left()), static_cast<double>(settings.layout3D.top())},
+                        {static_cast<double>(settings.layout3D.right()), static_cast<double>(settings.layout3D.top())},
+                        {static_cast<double>(settings.layout3D.right()), static_cast<double>(settings.layout3D.center()[1])},
+                        {static_cast<double>(settings.layout3D.left()), static_cast<double>(settings.layout3D.center()[1])}},
                        {65, 65, 65});
-    renderer->drawQuad({{static_cast<double>(settings.layout3D[0][0]), static_cast<double>(settings.layout3D.center()[1])},
-                        {static_cast<double>(settings.layout3D[1][0]), static_cast<double>(settings.layout3D.center()[1])},
-                        {static_cast<double>(settings.layout3D[1][0]), static_cast<double>(settings.layout3D[1][1])},
-                        {static_cast<double>(settings.layout3D[0][0]), static_cast<double>(settings.layout3D[1][1])}},
+    renderer->drawQuad({{static_cast<double>(settings.layout3D.left()), static_cast<double>(settings.layout3D.center()[1])},
+                        {static_cast<double>(settings.layout3D.right()), static_cast<double>(settings.layout3D.center()[1])},
+                        {static_cast<double>(settings.layout3D.right()), static_cast<double>(settings.layout3D.bottom())},
+                        {static_cast<double>(settings.layout3D.left()), static_cast<double>(settings.layout3D.bottom())}},
                        {105, 105, 105});
-    uint16_t halfHeight = settings.layout3D.height() / 2;
     // ray casting
-    std::vector<std::pair<int32_t, math::geometry::Vectf>> items;
     {
-        auto ray = player->getDirection().rotated(rc::math::geometry::Angle{-fov / 2, Unit::Degree});
-        for (int32_t rays = 0; rays <= settings.layout3D.width(); ++rays) {
-            items.emplace_back(rays, ray);
-            ray.rotate(rc::math::geometry::Angle{increment, Unit::Degree});//go to next ray
+        std::vector<std::pair<int32_t, math::geometry::Vectf>> items;
+        {
+            auto ray = player->getDirection().rotated(rc::math::geometry::Angle{-fov / 2, Unit::Degree});
+            for (int32_t rays = 0; rays <= settings.layout3D.width(); ++rays) {
+                items.emplace_back(rays, ray);
+                ray.rotate(increment);//go to next ray
+            }
         }
+        std::for_each(std::execution::par_unseq, items.begin(), items.end(), [&halfHeight, &halfWidth, &texMng, &screenDistance, &screen3X, &eyePos, this, &groundTexture](const auto& item) {
+            auto [scaleFactor, offsetPoint] = getMapLayoutInfo();
+            auto result                     = map->cast2DRay(player->getPosition(), item.second);
+            game::Map::BaseType& cell       = map->at(map->whichCell(result.wallPoint));
+            graphics::Color color{cell.getRayColor()};
+            cell.isViewed = true;
+            if (settings.drawRays && settings.drawMap) {// draw the ray on map
+                if (result.hitVertical) color.darken();
+                renderer->drawLine({player->getPosition() * scaleFactor + offsetPoint, item.second, result.distance * scaleFactor}, 2, color);//draw 2D ray
+            }
+            auto lineH     = static_cast<int32_t>((map->getCellSize() * 2.4 * halfHeight) /
+                                              (result.distance * player->getDirection().dot(item.second)));
+            double lineOff = halfHeight - (lineH >> 1);//line offset
+            //draw vertical wall
+            if (settings.drawTexture) {
+                const auto& tex = texMng.getTexture(cell.getTextureName());
+                double texX     = tex.width() * result.hitXRatio / map->getCellSize();
+                renderer->drawTextureVerticalLine(item.first, lineOff, lineH, tex, texX, settings.layout3D, result.hitVertical);
+                // ---------------------------------------------------
+                if (lineH < settings.layout3D.height()){
+                    // check for ground
+                    math::geometry::Vect3f screenColumn = screen3X * (item.first - halfWidth) + player->getDirection() * screenDistance;
+                    for(int i=halfHeight+(lineH>>1); i < settings.layout3D.bottom();++i){
+                        screenColumn[2] = i;
+                        auto resultFloor = map->cast3DRay(eyePos,screenColumn);
+                        if (resultFloor.hit){
+                            resultFloor.texUV *= groundTexture.width();
+                            renderer->drawPoint({static_cast<double>(item.first),static_cast<double>(i)},1,groundTexture.getPixel(resultFloor.texUV[0],resultFloor.texUV[1]));
+                        }
+                    }
+                }
+                // ----------------------------------------------------
+            } else {
+                double lineX = item.first + settings.layout3D.left();
+                lineOff += settings.layout3D.top();
+                renderer->drawLine({{lineX, lineOff}, {lineX, lineOff + lineH}}, 1, color);
+            }
+        });
     }
-    std::for_each(std::execution::par_unseq, items.begin(), items.end(), [&halfHeight, &texMng, this](const auto& item) {
-        auto [scaleFactor, offsetPoint] = getMapLayoutInfo();
-        auto result                     = map->castRay(player->getPosition(), item.second);
-        game::Map::BaseType& cell       = map->at(map->whichCell(result.wallPoint));
-        graphics::Color color{cell.getRayColor()};
-        cell.isViewed = true;
-        if (settings.drawRays && settings.drawMap) {// draw the ray on map
-            if (result.hitVertical) color.darken();
-            renderer->drawLine({player->getPosition() * scaleFactor + offsetPoint, item.second, result.distance * scaleFactor}, 2, color);//draw 2D ray
-        }
-        auto lineH     = static_cast<int32_t>((map->getCellSize() * 2.4 * halfHeight) /
-                                          (result.distance * player->getDirection().dot(item.second)));
-        double lineOff = halfHeight - (lineH >> 1);//line offset
-        //draw vertical wall
-        if (settings.drawTexture) {
-            const auto& tex = texMng.getTexture(cell.getTextureName());
-            double texX     = tex.width() * result.hitXRatio / map->getCellSize();
-            renderer->drawTextureVerticalLine(item.first, lineOff, lineH, tex, texX, settings.layout3D, result.hitVertical);
-        } else {
-            double lineX = item.first + settings.layout3D.left();
-            lineOff += settings.layout3D.top();
-            renderer->drawLine({{lineX, lineOff}, {lineX, lineOff + lineH}}, 1, color);
-        }
-    });
 }
 
 void Engine::drawMap() {

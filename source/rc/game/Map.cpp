@@ -106,13 +106,13 @@ const Map::BaseType& Map::at(const gridCoordinate& location) const {
     return mapArray[location[1]][location[0]];
 }
 
-Map::rayCastResult Map::castRay(const worldCoordinates& from, const worldCoordinates& direction) const {
+Map::rayCastResult2D Map::cast2DRay(const worldCoordinates& from, const worldCoordinates& direction) const {
     //gridCoordinate playerCell = whichCell(from);
     // check for vertical line
     double verticalDistance = -1;
     worldCoordinates verticalPoint{from};
     double verticalCellRatio = 0;
-    if (std::abs(direction[0]) > 0.001)  {
+    if (std::abs(direction[0]) > 0.001) {
         // Intersection with verticals
         worldCoordinates verticalOffset{};
         verticalOffset = direction / std::abs(direction[0]);
@@ -135,7 +135,7 @@ Map::rayCastResult Map::castRay(const worldCoordinates& from, const worldCoordin
         // Intersection with verticals
         worldCoordinates horizontalOffset{};
         horizontalOffset = direction / std::abs(direction[1]);
-        horizontalPoint    = from + math::geometry::Vectf{0.0, math::sign(direction[1]) * 0.001} + horizontalOffset * std::abs((static_cast<int32_t>(from[1] / cubeSize) + math::heaviside(direction[1])) * cubeSize - from[1]);
+        horizontalPoint  = from + math::geometry::Vectf{0.0, math::sign(direction[1]) * 0.001} + horizontalOffset * std::abs((static_cast<int32_t>(from[1] / cubeSize) + math::heaviside(direction[1])) * cubeSize - from[1]);
         horizontalOffset *= cubeSize;
         gridCoordinate horizontalCell = whichCell(horizontalPoint);
         while (isInVisible(horizontalCell)) {
@@ -250,6 +250,18 @@ nlohmann::json Map::toJson() const {
     data["playerStart"]    = PlayerInitialPosition;
     data["playerStartDir"] = PlayerInitialDirection;
     return data;
+}
+Map::rayCastResult3D Map::cast3DRay(const Map::world3DCoordinates& from, const Map::world3DCoordinates& direction) const {
+    if (std::abs(direction[2]) < 0.001)
+        return {};
+    Map::world3DCoordinates dirIni = direction / direction.length();
+    // WARNING: we suppose that lhoriz != 0 -> mean we never look at the vertical
+    world3DCoordinates dir = from + dirIni * ((direction[2] > 0)?cubeSize:0 - from[2]) / dirIni[2];
+    if (dir[0] < 0) return {};
+    if (dir[1] < 0) return {};
+    gridCoordinate grid{ dir.toVector2() / cubeSize };
+    worldCoordinates UVTex = dir.toVector2() / cubeSize - grid ;
+    return {isIn(grid),grid, UVTex};
 }
 
 }// namespace rc::game

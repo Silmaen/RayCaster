@@ -100,7 +100,7 @@ TEST(Map, castRay) {
              {walls, voids, voids, voids, voids, voids, voids, walls},
              {walls, voids, voids, voids, voids, voids, voids, walls},
              {walls, walls, walls, walls, walls, walls, walls, walls}}};
-    std::vector<Map::rayCastResult> expecteds = {
+    std::vector<Map::rayCastResult2D> expecteds = {
             {198.00100000000000, {448.00100000000000, 320.00000000000000}, true, 0},       //  0
             {203.92674045587697, {448.00100000000000, 368.80261688033164}, true, 48.8026}, //  1
             {223.61447468465050, {448.00100000000000, 423.91841649819440}, true, 39.9184}, //  2
@@ -132,10 +132,10 @@ TEST(Map, castRay) {
     const Map::worldCoordinates position{250, 320};
     ASSERT_TRUE(map.isIn(position));
     Map::worldCoordinates ray{1, 0};
-    Map::rayCastResult cast;
+    Map::rayCastResult2D cast;
     auto starting = testClock::now();
     for (auto expected : expecteds) {
-        cast = map.castRay(position, ray);
+        cast = map.cast2DRay(position, ray);
         EXPECT_NEAR(cast.distance, expected.distance, 0.0001);
         EXPECT_NEAR(cast.wallPoint[0], expected.wallPoint[0], 0.0001);
         EXPECT_NEAR(cast.wallPoint[1], expected.wallPoint[1], 0.0001);
@@ -145,7 +145,7 @@ TEST(Map, castRay) {
     }
     {
         ray  = {0, 1};
-        cast = map.castRay(position, ray);
+        cast = map.cast2DRay(position, ray);
         EXPECT_NEAR(cast.distance, 128.001, 0.0001);
         EXPECT_NEAR(cast.wallPoint[0], 250, 0.0001);
         EXPECT_NEAR(cast.wallPoint[1], 448.001, 0.0001);
@@ -153,7 +153,7 @@ TEST(Map, castRay) {
     }
     {
         ray  = {0, -1};
-        cast = map.castRay(position, ray);
+        cast = map.cast2DRay(position, ray);
         EXPECT_NEAR(cast.distance, 256.001, 0.0001);
         EXPECT_NEAR(cast.wallPoint[0], 250, 0.0001);
         EXPECT_NEAR(cast.wallPoint[1], 63.999, 0.0001);
@@ -265,4 +265,28 @@ TEST(Map, possibleMove) {
         Map::worldCoordinates expectedResult{0, 0};
         EXPECT_NEAR((expectedResult - result).length(), 0, 0.001);
     }
+}
+
+TEST(Map, castRay3D) {
+    Map map = ConstructBaseMap();
+    Map::world3DCoordinates position{map.fullWidth()/2.0,map.fullHeight()/2.0, map.getCellSize()/2.0};
+    auto result = map.cast3DRay(position,{0,1,-0.5});
+    EXPECT_EQ(result.hit, true);
+    EXPECT_EQ(result.hCell, Map::gridCoordinate(4,5));
+    EXPECT_EQ(result.texUV, Map::worldCoordinates(0,0));
+    position += {map.getCellSize()/2.0,map.getCellSize()/2.0,0};
+    result = map.cast3DRay(position,{0,1,-0.5});
+    EXPECT_EQ(result.hit, true);
+    EXPECT_EQ(result.hCell, Map::gridCoordinate(4,5));
+    EXPECT_EQ(result.texUV, Map::worldCoordinates(0.5,0.5));
+    position += {static_cast<double>(-map.getCellSize()),0,0};
+    result = map.cast3DRay(position,{1,1,-0.5});
+    EXPECT_EQ(result.hit, true);
+    EXPECT_EQ(result.hCell, Map::gridCoordinate(4,5));
+    EXPECT_EQ(result.texUV, Map::worldCoordinates(0.5,0.5));
+    position = {map.getCellSize()/2.0,map.getCellSize()/2.0,map.getCellSize()/2.0};
+    result = map.cast3DRay(position,{4,5,-0.5});
+    EXPECT_EQ(result.hit, true);
+    EXPECT_EQ(result.hCell, Map::gridCoordinate(4,5));
+    EXPECT_EQ(result.texUV, Map::worldCoordinates(0.5,0.5));
 }

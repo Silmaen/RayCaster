@@ -3,7 +3,7 @@
 Basic Idea is to render 2D-tiled world in 3D. It requires to know the distance from the point of view 
 (usually the player) and object in it field of view.
 
-## World representation
+## Walls representation
 
 ### The map
 
@@ -46,3 +46,7 @@ Let's put a different color if we hit a horizontal wall:
 ![](images/FinalRayCastColored.svg "Screen with final ray cast and color")
 
 Amazing!
+
+## Ground representation
+
+

@@ -10,6 +10,7 @@
 
 #include "graphics/Color.h"
 #include "math/geometry/Vector2.h"
+#include "math/geometry/Vector3.h"
 #include <string>
 #include <tuple>
 #include <vector>
@@ -94,6 +95,8 @@ public:
     using gridCoordinate = math::geometry::Vector2<IndexType>;
     /// World coordinate's type
     using worldCoordinates = math::geometry::Vectf;
+    /// World coordinate's type
+    using world3DCoordinates = math::geometry::Vect3f;
 
     /**
      * @brief Default constructor.
@@ -210,7 +213,7 @@ public:
     /**
      * @brief Ray casting result
      */
-    struct rayCastResult {
+    struct rayCastResult2D {
         double distance;           ///< Distance of the hit
         worldCoordinates wallPoint;///< Point on the wall
         bool hitVertical;          ///< If we hit a vertical wall
@@ -222,7 +225,14 @@ public:
      * @param direction Ray's direction
      * @return Hit data
      */
-    [[nodiscard]] rayCastResult castRay(const worldCoordinates& from, const worldCoordinates& direction) const;
+    [[nodiscard]] rayCastResult2D cast2DRay(const worldCoordinates& from, const worldCoordinates& direction) const;
+
+    struct rayCastResult3D{
+        bool hit = false;
+        gridCoordinate hCell{};
+        worldCoordinates texUV{};
+    };
+    [[nodiscard]] rayCastResult3D cast3DRay(const world3DCoordinates& from, const world3DCoordinates& direction) const;
 
     /**
      * @brief Determine the cell where the point lies.
