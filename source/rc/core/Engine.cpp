@@ -14,6 +14,7 @@
 #include "input/GlInput.h"
 #include "tool/Tracker.h"
 
+#include <execution>
 #include <iostream>
 
 namespace rc::core {
@@ -125,16 +126,16 @@ void Engine::button() {
         player->rotate({0.2 * deltaMillis, math::geometry::Angle::Unit::Degree});
     }
     if (input->isKeyPressed(input::FunctionKey::Forward)) {
-        player->move(map->possibleMove(player->getPosition(), player->getDirection() * 0.2 * deltaMillis));
+        player->move(map->possibleMove(player->getPosition(), player->getDirection() * static_cast<double>(deltaMillis)) * 0.2);
     }
     if (input->isKeyPressed(input::FunctionKey::Backward)) {
-        player->move(map->possibleMove(player->getPosition(), player->getDirection() * -0.2 * deltaMillis));
+        player->move(map->possibleMove(player->getPosition(), player->getDirection() * -static_cast<double>(deltaMillis)) * 0.2);
     }
     if (input->isKeyPressed(input::FunctionKey::StrafeLeft)) {
-        player->move(map->possibleMove(player->getPosition(), player->getDirection().rotated90() * 0.2 * deltaMillis));
+        player->move(map->possibleMove(player->getPosition(), player->getDirection().rotated90() * static_cast<double>(deltaMillis)) * 0.2);
     }
     if (input->isKeyPressed(input::FunctionKey::StrafeRight)) {
-        player->move(map->possibleMove(player->getPosition(), player->getDirection().rotated90() * -0.2 * deltaMillis));
+        player->move(map->possibleMove(player->getPosition(), player->getDirection().rotated90() * -static_cast<double>(deltaMillis)) * 0.2);
     }
 
     // toggle button: freeze time
@@ -147,7 +148,7 @@ void Engine::button() {
     }
     if (input->isKeyPressed(input::FunctionKey::DisplayTexture)) {
         settings.drawTexture = !settings.drawTexture;
-        freeze           = frames;
+        freeze               = frames;
     }
     if (input->isKeyPressed(input::FunctionKey::DisplayMap)) {
         settings.drawMap = !settings.drawMap;
@@ -161,8 +162,8 @@ void Engine::button() {
         // exit action
         freeze = frames;
         graphics::image::TextureManager::get().unloadAll();
-        auto& res = tool::Tracker::get().globals();
-        std::cout << "Memory Statistics: " << res.m_allocatedMemory << " bytes remaing, calls alloc/dealloc: " << res.m_allocationCalls << "/" << res.m_deallocationCalls << "\n";
+        const auto& res = tool::Tracker::get().globals();
+        std::cout << "\n\nMemory Statistics: " << res.m_allocatedMemory << " bytes remaining, max memory used: " << res.m_memoryPeek << ".\n Calls alloc/dealloc: " << res.m_allocationCalls << "/" << res.m_deallocationCalls << "\n\n";
         exit(0);
     }
 }
@@ -182,11 +183,9 @@ std::shared_ptr<graphics::renderer::BaseRenderer> Engine::getRenderer() {
 }
 
 void Engine::drawRayCasting() {
-    using Unit                      = rc::math::geometry::Angle::Unit;
-    double fov                      = 60.0;
-    const double increment          = fov / settings.layout3D.width();
-    auto ray                        = player->getDirection().rotated(rc::math::geometry::Angle{-fov / 2, Unit::Degree});
-    auto [scaleFactor, offsetPoint] = getMapLayoutInfo();
+    using Unit             = rc::math::geometry::Angle::Unit;
+    double fov             = 60.0;
+    const double increment = fov / settings.layout3D.width();
     auto& texMng = graphics::image::TextureManager::get();
     // Sky and floor
     renderer->drawQuad({{static_cast<double>(settings.layout3D[0][0]), static_cast<double>(settings.layout3D[0][1])},
@@ -199,38 +198,40 @@ void Engine::drawRayCasting() {
                         {static_cast<double>(settings.layout3D[1][0]), static_cast<double>(settings.layout3D[1][1])},
                         {static_cast<double>(settings.layout3D[0][0]), static_cast<double>(settings.layout3D[1][1])}},
                        {105, 105, 105});
-    uint16_t halfHeight = settings.layout3D.height()/2;
+    uint16_t halfHeight = settings.layout3D.height() / 2;
     // ray casting
-    for (int32_t rays = 0; rays <= settings.layout3D.width(); ++rays) {
-        auto result = map->castRay(player->getPosition(), ray);
-
-        game::Map::BaseType& cell = map->at(map->whichCell(result.wallPoint));
-        if (cell.getTextureName() == "")
-            continue;
-        if (cell.textureId>6)
-            continue;
+    std::vector<std::pair<int32_t, math::geometry::Vectf>> items;
+    {
+        auto ray = player->getDirection().rotated(rc::math::geometry::Angle{-fov / 2, Unit::Degree});
+        for (int32_t rays = 0; rays <= settings.layout3D.width(); ++rays) {
+            items.emplace_back(rays, ray);
+            ray.rotate(rc::math::geometry::Angle{increment, Unit::Degree});//go to next ray
+        }
+    }
+    std::for_each(std::execution::par_unseq, items.begin(), items.end(), [&halfHeight, &texMng, this](const auto& item) {
+        auto [scaleFactor, offsetPoint] = getMapLayoutInfo();
+        auto result                     = map->castRay(player->getPosition(), item.second);
+        game::Map::BaseType& cell       = map->at(map->whichCell(result.wallPoint));
         graphics::Color color{cell.getRayColor()};
         cell.isViewed = true;
         if (settings.drawRays && settings.drawMap) {// draw the ray on map
-            if (result.hitVertical)
-                color.darken();
-            renderer->drawLine({player->getPosition() * scaleFactor + offsetPoint, ray, result.distance * scaleFactor}, 2, color);//draw 2D ray
+            if (result.hitVertical) color.darken();
+            renderer->drawLine({player->getPosition() * scaleFactor + offsetPoint, item.second, result.distance * scaleFactor}, 2, color);//draw 2D ray
         }
-        auto lineH = static_cast<int32_t>((map->getCellSize() * 2.4 * halfHeight) /
-                                          (result.distance * player->getDirection().dot(ray)));
-        double lineOff = halfHeight - (lineH >> 1);                 //line offset
+        auto lineH     = static_cast<int32_t>((map->getCellSize() * 2.4 * halfHeight) /
+                                          (result.distance * player->getDirection().dot(item.second)));
+        double lineOff = halfHeight - (lineH >> 1);//line offset
         //draw vertical wall
-        if( settings.drawTexture) {
-            const auto& tex   = texMng.getTexture(cell.getTextureName());
-            double texX = tex.width() * result.hitXRatio / map->getCellSize();
-            renderer->drawTextureVerticalLine(rays, lineOff, lineH, tex, texX, settings.layout3D, result.hitVertical);
-        }else {
-            double lineX = rays + settings.layout3D.left();
+        if (settings.drawTexture) {
+            const auto& tex = texMng.getTexture(cell.getTextureName());
+            double texX     = tex.width() * result.hitXRatio / map->getCellSize();
+            renderer->drawTextureVerticalLine(item.first, lineOff, lineH, tex, texX, settings.layout3D, result.hitVertical);
+        } else {
+            double lineX = item.first + settings.layout3D.left();
             lineOff += settings.layout3D.top();
             renderer->drawLine({{lineX, lineOff}, {lineX, lineOff + lineH}}, 1, color);
         }
-        ray.rotate(rc::math::geometry::Angle{increment, Unit::Degree});//go to next ray
-    }
+    });
 }
 
 void Engine::drawMap() {
