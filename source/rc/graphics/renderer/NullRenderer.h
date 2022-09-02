@@ -80,7 +80,7 @@ public:
      * @param drawBox Drawing layout
      * @param dark If the color should be shaded
      */
-    virtual void drawTextureVerticalLine([[maybe_unused]] double lineX, [[maybe_unused]] double lineY, [[maybe_unused]] double lineLength, [[maybe_unused]] const image::Texture& tex, [[maybe_unused]] double texX, [[maybe_unused]] const math::geometry::Box2& drawBox, [[maybe_unused]] bool dark=false) const override{};
+    virtual void drawTextureVerticalLine([[maybe_unused]] double lineX, [[maybe_unused]] double lineY, [[maybe_unused]] double lineLength, [[maybe_unused]] const image::Texture& tex, [[maybe_unused]] double texX, [[maybe_unused]] const math::geometry::Box2& drawBox, [[maybe_unused]] bool dark=false) const override{}
     /**
      * @brief Draw a quad
      * @param quad Quad's data

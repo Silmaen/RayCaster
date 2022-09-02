@@ -10,21 +10,23 @@
 #include <memory>
 
 /**
- * @brief Overload of the standard memory allocator
- * @param size Size to allocate
- * @return Pointer to allocated memory
- */
-void* operator new(size_t size){
-    rc::core::tool::Tracker::get().allocate(size);
-    return malloc(size);
-}
-
-/**
  * @brief Overload of standard memory deallocation
  * @param memory Memory to free
  * @param size Amount to free
  */
-void operator delete(void* memory, size_t size){
+void operator delete(void* memory, size_t size)noexcept;
+
+/**
+ * @brief Overload of the standard memory allocator
+ * @param size Size to allocate
+ * @return Pointer to allocated memory
+ */
+[[nodiscard]] void* operator new(size_t size){
+    rc::core::tool::Tracker::get().allocate(size);
+    return malloc(size);
+}
+
+void operator delete(void* memory, size_t size)noexcept{
     rc::core::tool::Tracker::get().deallocate(size);
     free(memory);
 }
@@ -32,7 +34,7 @@ void operator delete(void* memory, size_t size){
  * @brief Overload of standard memory deallocation
  * @param memory Memory to free
  */
-void operator delete(void* memory){ free(memory);}
+void operator delete(void* memory)noexcept{ free(memory);}
 
 namespace rc::core::tool {
 
@@ -62,6 +64,9 @@ const Tracker::AllocationState& Tracker::checkState() {
 }
 const Tracker::AllocationState& Tracker::globals()const {
     return m_globalAllocationState;
+}
+
+Tracker::~Tracker() {
 }
 
 }// namespace rc::core::tool

@@ -93,9 +93,9 @@ void TableMap::fillingUp() {
         auto* label = new QLabel("Player Start X", this);
         auto* edit  = new QSpinBox(this);
         edit->setMinimum(0);
-        edit->setMaximum(mapLink->fullWidth());
+        edit->setMaximum(static_cast<int32_t>(mapLink->fullWidth()));
         edit->setSingleStep(mapLink->getCellSize());
-        edit->setValue(pPos[0]);
+        edit->setValue(static_cast<int32_t>(pPos[0]));
         setCellWidget(row, 0, label);
         setCellWidget(row, 1, edit);
         connect(edit, SIGNAL(valueChanged(int)), this, SLOT(updatePlayer()));
@@ -107,9 +107,9 @@ void TableMap::fillingUp() {
         auto* label = new QLabel("Player Start Y", this);
         auto* edit  = new QSpinBox(this);
         edit->setMinimum(0);
-        edit->setMaximum(mapLink->fullHeight());
+        edit->setMaximum(static_cast<int32_t>(mapLink->fullHeight()));
         edit->setSingleStep(mapLink->getCellSize());
-        edit->setValue(pPos[1]);
+        edit->setValue(static_cast<int32_t>(pPos[1]));
         setCellWidget(row, 0, label);
         setCellWidget(row, 1, edit);
         connect(edit, SIGNAL(valueChanged(int)), this, SLOT(updatePlayer()));
@@ -123,7 +123,7 @@ void TableMap::fillingUp() {
         edit->setMinimum(0);
         edit->setMaximum(360);
         edit->setSingleStep(15);
-        edit->setValue(pDir.getAngle().getUnit(rc::math::Angle::Unit::Degree));
+        edit->setValue(static_cast<int32_t>((pDir.getAngle().getUnit(rc::math::geometry::Angle::Unit::Degree))));
         setCellWidget(row, 0, label);
         setCellWidget(row, 1, edit);
         connect(edit, SIGNAL(valueChanged(int)), this, SLOT(updatePlayer()));
@@ -135,12 +135,12 @@ void TableMap::fillingUp() {
 void TableMap::updatePlayer() {
     if (rowCount() < 7)
         return;
-    rc::math::Vecti pPos{
+    rc::math::geometry::Vecti pPos{
             (dynamic_cast<QSpinBox*>(cellWidget(4, 1)))->value(),
             (dynamic_cast<QSpinBox*>(cellWidget(5, 1)))->value(),
     };
-    rc::math::Vectf pDir{1, 0};
-    pDir.rotate({static_cast<double>((dynamic_cast<QSpinBox*>(cellWidget(6, 1)))->value()), rc::math::Angle::Unit::Degree});
+    rc::math::geometry::Vectf pDir{1, 0};
+    pDir.rotate({static_cast<double>((dynamic_cast<QSpinBox*>(cellWidget(6, 1)))->value()), rc::math::geometry::Angle::Unit::Degree});
     mapLink->setPlayerStart(pPos, pDir);
     modified = true;
 }

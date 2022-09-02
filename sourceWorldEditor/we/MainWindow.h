@@ -87,7 +87,7 @@ private:
     bool mapModified = false;
 
     /// map objet to manipulate
-    std::shared_ptr<rc::graphics::Map> theMap;
+    std::shared_ptr<rc::game::Map> theMap;
 
     QTimer* timer;
 
@@ -113,7 +113,7 @@ private:
      * @brief Define the map pointer everywhere it is needed
      * @param map the map to set
      */
-    void setMap(const std::shared_ptr<rc::graphics::Map>& map);
+    void setMap(const std::shared_ptr<rc::game::Map>& map);
 };
 
 }// namespace we

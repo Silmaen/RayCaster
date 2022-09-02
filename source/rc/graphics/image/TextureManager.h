@@ -23,7 +23,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~TextureManager() = default;
+    ~TextureManager() = default;
     /**
      * @brief Get engine instance
      * @return The engine instance
@@ -47,9 +47,9 @@ public:
 
     /**
      * @brief Get the loaded texture amount
-     * @return Number of loaded texture
+     * @return Count of loaded texture
      */
-    uint16_t getLoadedTextureCount()const{return m_textures.size();}
+    uint16_t getLoadedTextureCount()const{return static_cast<uint16_t>(m_textures.size());}
 
     /**
      * @brief Get the percentage of used memory
@@ -58,8 +58,8 @@ public:
     double getMemoryPercentage()const{return 100.0*static_cast<double>(m_MemoryUsage)/static_cast<double>(m_MemoryLimit);}
 
     /**
-     * @brief Get the memory limit of the
-     * @return
+     * @brief Get the memory limit of the Texture manager
+     * @return Memory linit
      */
     const size_t& getMemoryLimit()const{return m_MemoryLimit;}
     /**
@@ -105,7 +105,7 @@ private:
     void unloadTexture(const std::string& name);
 
     /**
-     * @brief
+     * @brief Check actual memory
      */
     void memoryCheck();
 

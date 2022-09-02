@@ -50,5 +50,9 @@ TEST(Texture, Column) {
     auto col = baseTex.getPixelColumn(3);
     EXPECT_EQ(col->code(), 0xFFFFFFFF);
     auto res = rc::core::tool::Tracker::get().checkState();
+#ifdef WIN32
     EXPECT_EQ(res.m_allocationCalls, 11);
+#else
+    EXPECT_EQ(res.m_allocationCalls, 31);
+#endif
 }

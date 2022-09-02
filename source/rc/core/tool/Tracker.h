@@ -7,7 +7,7 @@
  */
 
 #pragma once
-#include <cstdint>
+#include <cstdlib>
 
 namespace rc::core::tool {
 /**
@@ -22,7 +22,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~Tracker() = default;
+    virtual ~Tracker();
     /**
      * @brief Get engine instance
      * @return The engine instance

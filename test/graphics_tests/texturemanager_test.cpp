@@ -50,13 +50,13 @@ TEST(TextureManager, memoryClean){
     EXPECT_EQ(tex.width(), 64);
     EXPECT_EQ(tex.height(), 64);
     EXPECT_EQ(texMng.getLoadedTextureCount(), 1);
-    EXPECT_NEAR(texMng.getMemoryPercentage(), 66.86, 0.01);
+    EXPECT_NEAR(texMng.getMemoryPercentage(), 66.83, 0.01);
     // load a second texture... should unload the first one
     auto tex2 = texMng.getTexture("doorpattern.png");
     EXPECT_EQ(tex.width(), 64);
     EXPECT_EQ(tex.height(), 64);
     EXPECT_EQ(texMng.getLoadedTextureCount(), 1);
-    EXPECT_NEAR(texMng.getMemoryPercentage(), 66.86, 0.01);
+    EXPECT_NEAR(texMng.getMemoryPercentage(), 66.83, 0.01);
     // reset limit to default
     texMng.setMemoryLimit(memLimit);
     // should have 2 textures in manager
