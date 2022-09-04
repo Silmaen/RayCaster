@@ -13,6 +13,9 @@ file(GLOB_RECURSE SRCS_RESOURCE
         )
 
 add_executable(${CMAKE_PROJECT_NAME}_world_editor main.cpp ${SRCS_UI} ${SRCS_RESOURCE})
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    target_compile_options(${CMAKE_PROJECT_NAME}_world_editor PRIVATE -Wno-reserved-identifier)
+endif()
 target_include_directories(${CMAKE_PROJECT_NAME}_world_editor PRIVATE we)
 target_link_libraries(${CMAKE_PROJECT_NAME}_world_editor
         ${CMAKE_PROJECT_NAME}_lib

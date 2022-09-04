@@ -46,7 +46,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~Texture() = default;
+    ~Texture() = default;
 
     /**
      * @brief Load texture from the file in data
@@ -101,7 +101,7 @@ public:
      * @return Iterator to the column
      */
     [[nodiscard]] std::vector<Color>::const_iterator getPixelColumn(uint16_t col)const{
-        return m_pixels.begin() + (col * m_height);
+        return m_pixels.begin() + (static_cast<long long int>(col * m_height));
     }
 private:
     using DataFile = core::fs::DataFile;

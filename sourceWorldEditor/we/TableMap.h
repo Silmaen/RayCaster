@@ -33,7 +33,7 @@ public:
      * @brief Link to the map
      * @param map map to render
      */
-    void defineMap(const std::shared_ptr<rc::graphics::Map>& map, const QString& name){
+    void defineMap(const std::shared_ptr<rc::game::Map>& map, const QString& name){
         mapLink = map;
         mapName = name;
     }
@@ -58,7 +58,7 @@ private:
     /// Name of the map
     QString mapName = "";
     /// Link to the map
-    std::shared_ptr<rc::graphics::Map> mapLink;
+    std::shared_ptr<rc::game::Map> mapLink;
     /// if some modification occurs
     bool modified;
 };

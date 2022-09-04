@@ -161,11 +161,18 @@ TEST(Map, castRay) {
     }
     auto duration = testClock::now() - starting;
     auto micros   = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(duration).count()) / (static_cast<double>(expecteds.size()) + 2.0);
-
+#ifdef WIN32
 #ifdef NDEBUG
-    const double maxDuration = 0.5;
+    const double maxDuration = 0.75;
 #else
-    const double maxDuration = 3.5;
+    const double maxDuration = 5.5;
+#endif
+#else
+#ifdef NDEBUG
+    const double maxDuration = 1.25;
+#else
+    const double maxDuration = 50.;
+#endif
 #endif
     EXPECT_LE(micros, maxDuration);
 }

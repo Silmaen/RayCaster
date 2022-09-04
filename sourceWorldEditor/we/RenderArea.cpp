@@ -28,7 +28,7 @@ QPoint RenderArea::mapCoordToRectCoord(const QPointF& mapPoint) {
         return {-1, -1};
     if (!mapLink->isValid())
         return {-1, -1};
-    if (!mapLink->isIn(rc::math::Vectf {mapPoint.x(), mapPoint.y()}))
+    if (!mapLink->isIn(rc::math::geometry::Vectf {mapPoint.x(), mapPoint.y()}))
         return {-1, -1};
     QRect drawArea = getMapRect();
     return QPoint{
@@ -46,8 +46,8 @@ QPointF RenderArea::rectCoordToMapCoord(const QPoint& drawPoint) {
     if (!drawArea.contains(drawPoint))
         return {-1, -1};
     return QPointF{
-            static_cast<qreal>((drawPoint.x()-drawArea.x()) * mapLink->fullWidth()) / drawArea.width(),
-            static_cast<qreal>((drawPoint.y()-drawArea.y()) * mapLink->fullHeight()) / drawArea.height()
+            static_cast<qreal>((drawPoint.x()-drawArea.x()) * static_cast<int32_t>(mapLink->fullWidth())) / drawArea.width(),
+            static_cast<qreal>((drawPoint.y()-drawArea.y()) * static_cast<int32_t>(mapLink->fullHeight())) / drawArea.height()
     };
 }
 
@@ -63,7 +63,7 @@ void RenderArea::paintEvent(QPaintEvent*) {
     int increment = getMapIncrement();
     if (increment < 0)
         return;
-    QPoint Start{static_cast<int>((width() - increment * mapLink->width()) / 2), static_cast<int>((height() - increment * mapLink->height()) / 2)};
+    QPoint Start{static_cast<int>((width() - increment * static_cast<int32_t>(mapLink->width())) / 2), static_cast<int>((height() - increment * static_cast<int32_t>(mapLink->height())) / 2)};
     QRect CellRect{Start.x(), Start.y(), increment, increment};
     for (auto& line : mapLink->getMapData()) {
         for (auto& cell : line) {
@@ -99,10 +99,10 @@ void RenderArea::mouseMoveEvent(QMouseEvent* event) {
         return;
     }
     MousePos = mouse - rect.topLeft();
-    MouseCell.setX(MousePos.x() * mapLink->width() / rect.width());
-    MouseCell.setY(MousePos.y() * mapLink->height() / rect.height());
-    MousePos.setX(MousePos.x() * mapLink->fullWidth() / rect.width());
-    MousePos.setY(MousePos.y() * mapLink->fullHeight() / rect.height());
+    MouseCell.setX(MousePos.x() * static_cast<int32_t>(mapLink->width()) / rect.width());
+    MouseCell.setY(MousePos.y() * static_cast<int32_t>(mapLink->height()) / rect.height());
+    MousePos.setX(MousePos.x() * static_cast<int32_t>(mapLink->fullWidth()) / rect.width());
+    MousePos.setY(MousePos.y() * static_cast<int32_t>(mapLink->fullHeight()) / rect.height());
 }
 
 double RenderArea::getMapRatio() const {
@@ -122,7 +122,7 @@ int32_t RenderArea::getMapIncrement() const {
 QRect RenderArea::getMapRect() const {
     int increment = getMapIncrement();
     if (increment < 0) return QRect();
-    QPoint Start{static_cast<int>((width() - increment * mapLink->width()) / 2), static_cast<int>((height() - increment * mapLink->height()) / 2)};
+    QPoint Start{static_cast<int>((width() - increment * static_cast<int32_t>(mapLink->width())) / 2), static_cast<int>((height() - increment * static_cast<int32_t>(mapLink->height())) / 2)};
     return QRect{Start, Start + QPoint{static_cast<int>(mapLink->width()), static_cast<int>(mapLink->height())} * increment};
 }
 

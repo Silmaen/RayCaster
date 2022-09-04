@@ -104,7 +104,7 @@ void OpenGLRenderer::drawTextureVerticalLine(double lineX, double lineY, double 
     // check vertical is in the layout
     if (lineX<drawBox.left() ||lineX> drawBox.right())
         return;
-    double textureIncrement = tex.height() / lineLength;
+    double textureIncrement = static_cast<double>(tex.height()) / lineLength;
     auto cols = tex.getPixelColumn(static_cast<uint16_t>(texX));
     double beginCoord = std::max(lineY, static_cast<double>(drawBox.top()));
     double endCoord = lineY + lineLength > drawBox.bottom() ? drawBox.bottom() : lineY + lineLength;
@@ -113,7 +113,7 @@ void OpenGLRenderer::drawTextureVerticalLine(double lineX, double lineY, double 
     glPointSize(static_cast<GLfloat>(1));
     glBegin(GL_POINTS);
     for (double pixel = 0; pixel < length; ++pixel) {
-        double inc = beginTex + pixel * textureIncrement;
+        int32_t inc = static_cast<int32_t>(beginTex + pixel * textureIncrement);
         if (shade) {
             setColor((*(cols + inc)).darker());
         } else{

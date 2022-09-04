@@ -198,7 +198,7 @@ void Engine::drawRayCasting() {
                         {static_cast<double>(settings.layout3D[1][0]), static_cast<double>(settings.layout3D[1][1])},
                         {static_cast<double>(settings.layout3D[0][0]), static_cast<double>(settings.layout3D[1][1])}},
                        {105, 105, 105});
-    uint16_t halfHeight = settings.layout3D.height() / 2;
+    uint16_t halfHeight = static_cast<uint16_t>(settings.layout3D.height() / 2);
     // ray casting
     std::vector<std::pair<int32_t, math::geometry::Vectf>> items;
     {
@@ -224,7 +224,7 @@ void Engine::drawRayCasting() {
         //draw vertical wall
         if (settings.drawTexture) {
             const auto& tex = texMng.getTexture(cell.getTextureName());
-            double texX     = tex.width() * result.hitXRatio / map->getCellSize();
+            double texX     = static_cast<double>(tex.width()) * result.hitXRatio / map->getCellSize();
             renderer->drawTextureVerticalLine(item.first, lineOff, lineH, tex, texX, settings.layout3D, result.hitVertical);
         } else {
             double lineX = item.first + settings.layout3D.left();

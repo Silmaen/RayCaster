@@ -66,9 +66,9 @@ void Texture::readPNG(const DataFile& file) {
     // initialie our image storage
     m_pixels.resize(m_height * m_width);
     std::vector<png_byte> row(bpr);
-    for (uint32_t irow = 0; irow < m_height; ++irow) {
+    for (uint16_t irow = 0; irow < m_height; ++irow) {
         png_read_row(png_ptr, row.data(), nullptr);
-        for (uint32_t icol = 0; icol < m_width; ++icol) {
+        for (uint16_t icol = 0; icol < m_width; ++icol) {
             auto& pixel = getPixel(icol, irow);
             if (numchannels == 1) {
                 // monochrome
@@ -101,7 +101,7 @@ void Texture::savePNG(const DataFile& file) {
     png_set_IHDR(
             png,
             info,
-            m_width, m_height,
+            static_cast<png_uint_32>(m_width), static_cast<png_uint_32>(m_height),
             8,
             PNG_COLOR_TYPE_RGBA,
             PNG_INTERLACE_NONE,
@@ -114,8 +114,8 @@ void Texture::savePNG(const DataFile& file) {
     //png_set_filler(png, 0, PNG_FILLER_AFTER);
 
     std::vector<png_byte> row(4 * m_width);
-    for (uint32_t irow = 0; irow < m_height; ++irow) {
-        for (uint32_t icol = 0; icol < m_width; ++icol) {
+    for (uint16_t irow = 0; irow < m_height; ++irow) {
+        for (uint16_t icol = 0; icol < m_width; ++icol) {
             const auto& pixel = getPixel(icol, irow);
             row[4 * icol]     = pixel.red();
             row[4 * icol + 1] = pixel.green();

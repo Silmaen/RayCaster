@@ -32,7 +32,7 @@ public:
      * @brief Link to the map
      * @param map map to render
      */
-    void defineMap(const std::shared_ptr<rc::graphics::Map>& map) {
+    void defineMap(const std::shared_ptr<rc::game::Map>& map) {
         mapLink = map;
     }
 
@@ -52,7 +52,7 @@ private:
     double getMapRatio() const;
     int32_t getMapIncrement() const;
     /// Link to the map
-    std::shared_ptr<rc::graphics::Map> mapLink = nullptr;
+    std::shared_ptr<rc::game::Map> mapLink = nullptr;
 
     QPoint MousePos{-1, -1};
 

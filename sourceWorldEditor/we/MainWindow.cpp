@@ -55,16 +55,16 @@ void MainWindow::actNew() {
             continue;
         }
         mapName = info.name;
-        setMap(std::make_shared<rc::graphics::Map>(info.width, info.height, info.cellSize));
+        setMap(std::make_shared<rc::game::Map>(info.width, info.height, info.cellSize));
         running = false;
     }
 }
 
 void MainWindow::actOpen() {
-    rc::graphics::fs::DataFile fs("maps");
+    rc::core::fs::DataFile fs("maps");
     QString file = QFileDialog::getOpenFileName(this, "Open Map files", QString::fromStdString(fs.getFullPath().string()), "Map files (*.map)", nullptr);
     if (file == "") return;
-    auto map = std::make_shared<rc::graphics::Map>();
+    auto map = std::make_shared<rc::game::Map>();
     map->loadFromFile(file.toStdString());
     if (!map->isValid())
         return;
@@ -79,7 +79,7 @@ void MainWindow::actSave() {
 }
 
 void MainWindow::actSaveAs() {
-    rc::graphics::fs::DataFile fs("maps");
+    rc::core::fs::DataFile fs("maps");
     QString file = QFileDialog::getSaveFileName(this, "Save Map file as", QString::fromStdString(fs.getFullPath().string()),"Map files (*.map)");
     if (file == "") return;
     mapName = file.split("/").back().split(".").front();
@@ -161,7 +161,7 @@ void MainWindow::actChangePattern(){
         ui->actionWallType_3b->setChecked(true);
 }
 
-void MainWindow::setMap(const std::shared_ptr<rc::graphics::Map>& map) {
+void MainWindow::setMap(const std::shared_ptr<rc::game::Map>& map) {
     ui->DrawArea->defineMap(map);
     ui->tableMap->defineMap(map, mapName);
     theMap = map;
