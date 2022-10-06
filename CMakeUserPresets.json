@@ -1,0 +1,106 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "release-gcc-mingw",
+      "displayName": "release gcc in mingw",
+      "inherits": ["default", "base-gcc", "toolchain-mingw"],
+      "binaryDir": "${sourceDir}/cmake-build-release-gcc-mingw",
+      "hidden": false
+    },
+    {
+      "name": "debug-gcc-mingw",
+      "displayName": "debug gcc in mingw",
+      "inherits": ["default-debug", "base-gcc", "toolchain-mingw"],
+      "binaryDir": "${sourceDir}/cmake-build-debug-gcc-mingw",
+      "hidden": false,
+      "cacheVariables": {
+        "RAYCAST_COVERAGE": "on"
+      }
+    },
+    {
+      "name": "release-clang-mingw",
+      "displayName": "release clang in mingw",
+      "inherits": ["default", "base-clang", "toolchain-mingw"],
+      "binaryDir": "${sourceDir}/cmake-build-release-clang-mingw",
+      "hidden": false
+    },
+    {
+      "name": "debug-clang-mingw",
+      "displayName": "debug clang in mingw",
+      "inherits": ["default-debug", "base-clang", "toolchain-mingw"],
+      "binaryDir": "${sourceDir}/cmake-build-debug-clang-mingw",
+      "hidden": false
+    },
+    {
+      "name": "release-gcc-wsl",
+      "displayName": "release gcc in wsl",
+      "inherits": ["default", "base-gcc", "toolchain-wsl"],
+      "binaryDir": "${sourceDir}/cmake-build-release-gcc-wsl",
+      "hidden": false
+    },
+    {
+      "name": "debug-gcc-wsl",
+      "displayName": "debug gcc in wsl",
+      "inherits": ["default-debug", "base-gcc", "toolchain-wsl"],
+      "binaryDir": "${sourceDir}/cmake-build-debug-gcc-wsl",
+      "hidden": false
+    },
+    {
+      "name": "release-clang-wsl",
+      "displayName": "release clang in wsl",
+      "inherits": ["default", "base-clang", "toolchain-wsl"],
+      "binaryDir": "${sourceDir}/cmake-build-release-clang-wsl",
+      "hidden": false
+    },
+    {
+      "name": "debug-clang-wsl",
+      "displayName": "debug clang in wsl",
+      "inherits": ["default-debug", "base-clang", "toolchain-wsl"],
+      "binaryDir": "${sourceDir}/cmake-build-debug-clang-wsl",
+      "hidden": false
+    },
+    {
+      "name": "toolchain-wsl_ub2204",
+      "hidden": true,
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "WSL_ub2204"
+        }
+      }
+    },
+    {
+      "name": "release-gcc-wsl_ub2204",
+      "displayName": "release gcc in wsl ubuntu 22.04",
+      "inherits": ["default", "base-gcc", "toolchain-wsl_ub2204"],
+      "binaryDir": "${sourceDir}/cmake-build-release-gcc-wsl-ub2204",
+      "hidden": false
+    },
+    {
+      "name": "debug-gcc-wsl_ub2204",
+      "displayName": "debug gcc in wsl ubuntu 22.04",
+      "inherits": ["default-debug", "base-gcc", "toolchain-wsl_ub2204"],
+      "binaryDir": "${sourceDir}/cmake-build-debug-gcc-wsl-ub2204",
+      "hidden": false
+    },
+    {
+      "name": "release-clang-wsl_ub2204",
+      "displayName": "release clang in wsl ubuntu 22.04",
+      "inherits": ["default", "base-clang", "toolchain-wsl"],
+      "binaryDir": "${sourceDir}/cmake-build-release-clang-wsl-ub2204",
+      "hidden": false
+    },
+    {
+      "name": "debug-clang-wsl_ub2204",
+      "displayName": "debug clang in wsl ubuntu 22.04",
+      "inherits": ["default-debug", "base-clang", "toolchain-wsl_ub2204"],
+      "binaryDir": "${sourceDir}/cmake-build-debug-clang-wsl-ub2204",
+      "hidden": false
+    }
+  ]
+}

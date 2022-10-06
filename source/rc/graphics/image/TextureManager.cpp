@@ -7,6 +7,7 @@
  */
 
 #include "TextureManager.h"
+#include <spdlog/spdlog.h>
 
 namespace rc::graphics::image {
 
@@ -17,16 +18,20 @@ static Texture dummyTex;
 
 const Texture& TextureManager::getTexture(const std::string& name) {
     if (name.empty()) return dummyTex;
+    operating.lock();
     if (m_textures.contains(name)) { // texture already loaded
         m_textures[name].m_lastCalled = texClock::now(); // update the touch time
+        operating.unlock();
         return m_textures[name].m_texture;
     }
     loadTexture(name);
     m_textures[name].m_lastCalled = texClock::now(); // update the touch time
+    operating.unlock();
     return m_textures[name].m_texture;
 }
 
 void TextureManager::loadTexture(const std::string& name) {
+    spdlog::debug("Loading texture {}",name);
     auto& tex = m_textures[name].m_texture;
     m_textures[name].m_lastCalled = texClock ::now();
     tex.loadFromFile(name);
@@ -50,8 +55,10 @@ void TextureManager::memoryCheck() {
 }
 
 void TextureManager::unloadAll() {
+    operating.lock();
     m_textures.clear();
     m_MemoryUsage = 0;
+    operating.unlock();
 }
 
 }// namespace rc::graphics::image

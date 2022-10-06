@@ -102,25 +102,42 @@ void OpenGLRenderer::drawTextureVerticalLine(double lineX, double lineY, double 
     lineX += drawBox.left();
     lineY += drawBox.top();
     // check vertical is in the layout
-    if (lineX<drawBox.left() ||lineX> drawBox.right())
+    if (lineX < drawBox.left() || lineX > drawBox.right())
         return;
-    double textureIncrement = static_cast<double>(tex.height()) / lineLength;
-    auto cols = tex.getPixelColumn(static_cast<uint16_t>(texX));
-    double beginCoord = std::max(lineY, static_cast<double>(drawBox.top()));
-    double endCoord = lineY + lineLength > drawBox.bottom() ? drawBox.bottom() : lineY + lineLength;
-    double length = endCoord - beginCoord;
-    double beginTex = std::max(0.0, -lineY * textureIncrement);
+    const double textureIncrement = static_cast<double>(tex.height()) / lineLength;
+    const double beginCoord       = std::max(lineY, static_cast<double>(drawBox.top()));
+    const double endCoord         = lineY + lineLength > drawBox.bottom() ? drawBox.bottom() : lineY + lineLength;
+    const double length           = endCoord - beginCoord;
+    const double beginTex         = std::max(0.0, -lineY * textureIncrement);
+#define FOREACH_LOOPS
+#ifdef FOREACH_LOOPS
+    std::vector<std::pair<int32_t, double>> pixNCoor;
+    for (double pixel = 0; pixel < length; ++pixel)
+        pixNCoor.emplace_back(std::pair<int32_t, double>{static_cast<int32_t>(beginTex + pixel * textureIncrement), beginCoord + pixel});
     glPointSize(static_cast<GLfloat>(1));
     glBegin(GL_POINTS);
+    if (shade) {
+        std::for_each(std::execution::unseq,pixNCoor.begin(), pixNCoor.end(), [&tex, &texX, &lineX](const auto& item) {
+            setColor(tex.getPixel(texX, item.first).darker());
+            glVertex2d(lineX, item.second);
+        });
+    } else {
+        std::for_each(std::execution::unseq,pixNCoor.begin(), pixNCoor.end(), [&tex, &texX, &lineX](const auto& item) {
+            setColor(tex.getPixel(texX, item.first));
+            glVertex2d(lineX, item.second);
+        });
+    }
+#else
     for (double pixel = 0; pixel < length; ++pixel) {
         int32_t inc = static_cast<int32_t>(beginTex + pixel * textureIncrement);
         if (shade) {
-            setColor((*(cols + inc)).darker());
+            setColor(tex.getPixel(texX, inc).darker());
         } else{
-            setColor(*(cols + inc));
+            setColor(tex.getPixel(texX, inc));
         }
         glVertex2d(lineX, beginCoord + pixel);
     }
+#endif
     glEnd();
 }
 

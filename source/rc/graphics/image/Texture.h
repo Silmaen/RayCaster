@@ -101,7 +101,15 @@ public:
      * @return Iterator to the column
      */
     [[nodiscard]] std::vector<Color>::const_iterator getPixelColumn(uint16_t col)const{
-        return m_pixels.begin() + (static_cast<long long int>(col * m_height));
+        return m_pixels.begin() + getPixelColumnIndex(col);
+    }
+    /**
+     * @brief Get iterator to the begin of the column
+     * @param col Column's index
+     * @return index of starting column to the column
+     */
+    [[nodiscard]] std::vector<Color>::size_type getPixelColumnIndex(uint16_t col)const{
+        return static_cast<std::vector<Color>::size_type>(col * m_height);
     }
 private:
     using DataFile = core::fs::DataFile;

@@ -53,6 +53,6 @@ TEST(Texture, Column) {
 #ifdef WIN32
     EXPECT_EQ(res.m_allocationCalls, 11);
 #else
-    EXPECT_EQ(res.m_allocationCalls, 31);
+    EXPECT_LT(res.m_allocationCalls, 32);
 #endif
 }

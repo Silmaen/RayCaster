@@ -19,11 +19,14 @@ This Project rely on several tools to build:
 
 Also, some external libraries:
 
-| name          | minimum version | Install command (mingw & arch linux) |
-|---------------|-----------------|--------------------------------------|
-| freeglut      | 3.2.2           | `pacman -S freeglut`                 |
-| nlohmann/json | 3.11            | `pacman -S nlohmann-json`            |
-| qt            | 6               | `pacman -S qt6`                      |
+| name          | minimum version | Install command (Arch linux) |
+|---------------|-----------------|------------------------------|
+| freeglut      | 3.2.2           | `pacman -S freeglut`         |
+| nlohmann/json | 3.11            | `pacman -S nlohmann-json`    |
+| qt            | 6               | `pacman -S qt6`              |
+| fmt           | 8               | `pacman -S fmt`              |
+| spdlog        | 1.10            | `pacman -S spdlog`           |
+| tbb           | 2021            | `pacman -S tbb`              |
 
 
 ### CMake command

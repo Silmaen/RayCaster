@@ -15,7 +15,10 @@ namespace rc::graphics::image {
 
 void Texture::loadFromFile(const std::string& textureName) {
     DataFile file("textures/" + textureName);
-    if (!file.exists()) return;
+    if (!file.exists()) {
+        spdlog::error("Unable to fine file {}", file.getPath().string());
+        return;
+    }
     readPNG(file);
 }
 
@@ -27,7 +30,10 @@ void Texture::saveToFile(const std::string& textureName) {
 void Texture::readPNG(const DataFile& file) {
     png_FILE_p pngFile = fopen(file.getFullPath().string().c_str(), "rb");
     png_byte header[8];
-    fread(header, 1, 8, pngFile);
+    if (fread(header, 1, 8, pngFile) != 8) {
+        spdlog::error("Bad header reading PNG {}", file.getPath().string());
+        return;
+    }
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     png_infop info_ptr  = png_create_info_struct(png_ptr);
     // set error handling to not abort the entire program
@@ -58,6 +64,7 @@ void Texture::readPNG(const DataFile& file) {
         png_set_tRNS_to_alpha(png_ptr);
     m_width  = png_get_image_width(png_ptr, info_ptr);
     m_height = png_get_image_height(png_ptr, info_ptr);
+    spdlog::debug("PNG size: {} {}", m_width, m_height);
     png_read_update_info(png_ptr, info_ptr);
     // begin reading in the image
     setjmp(png_jmpbuf(png_ptr));

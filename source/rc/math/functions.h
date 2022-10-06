@@ -9,6 +9,7 @@
 #pragma once
 #include <algorithm>
 #include <cstdint>
+#include <spdlog/spdlog.h>
 
 namespace rc::math {
 /**

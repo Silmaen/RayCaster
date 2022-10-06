@@ -81,6 +81,8 @@ private:
     size_t m_MemoryLimit = 1073741824;
     /// Current memory
     size_t m_MemoryUsage = 0;
+    /// Protection for concurrent texture loading or unloading
+    std::mutex operating;
 
     /**
      * @brief Structure holding info on texture

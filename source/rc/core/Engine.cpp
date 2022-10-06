@@ -198,7 +198,7 @@ void Engine::drawRayCasting() {
                         {static_cast<double>(settings.layout3D[1][0]), static_cast<double>(settings.layout3D[1][1])},
                         {static_cast<double>(settings.layout3D[0][0]), static_cast<double>(settings.layout3D[1][1])}},
                        {105, 105, 105});
-    uint16_t halfHeight = static_cast<uint16_t>(settings.layout3D.height() / 2);
+    auto halfHeight = static_cast<uint16_t>(settings.layout3D.height() / 2);
     // ray casting
     std::vector<std::pair<int32_t, math::geometry::Vectf>> items;
     {
@@ -208,7 +208,7 @@ void Engine::drawRayCasting() {
             ray.rotate(rc::math::geometry::Angle{increment, Unit::Degree});//go to next ray
         }
     }
-    std::for_each(std::execution::par_unseq, items.begin(), items.end(), [&halfHeight, &texMng, this](const auto& item) {
+    std::for_each(std::execution::unseq,items.begin(), items.end(), [&halfHeight, &texMng, this](const auto& item) {
         auto [scaleFactor, offsetPoint] = getMapLayoutInfo();
         auto result                     = map->castRay(player->getPosition(), item.second);
         game::Map::BaseType& cell       = map->at(map->whichCell(result.wallPoint));
