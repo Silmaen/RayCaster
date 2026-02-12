@@ -122,10 +122,10 @@ public:
     void run();
 
     /**
-     * @brief Access yto the Engine renderer
+     * @brief Access to the Engine renderer
      * @return The renderer
      */
-    std::shared_ptr<graphics::renderer::BaseRenderer> getRenderer();
+    graphics::renderer::BaseRenderer* getRenderer();
     /**
      * @brief Input callback function
      */
@@ -185,13 +185,13 @@ private:
     /// Current status of the engine
     Status status = Status::Uninitialized;
     /// Link to the renderer
-    std::shared_ptr<graphics::renderer::BaseRenderer> renderer = nullptr;
+    std::unique_ptr<graphics::renderer::BaseRenderer> renderer;
     /// Link to the input
-    std::shared_ptr<input::BaseInput> input = nullptr;
+    std::unique_ptr<input::BaseInput> input;
     /// Link to the map
-    std::shared_ptr<game::Map> map = nullptr;
+    std::unique_ptr<game::Map> map;
     /// Link to the player
-    std::shared_ptr<game::Player> player = nullptr;
+    std::unique_ptr<game::Player> player;
 
     std::vector<std::function<void()>> toRender;
 

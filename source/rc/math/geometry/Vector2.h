@@ -65,7 +65,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~Vector2()= default;//---UNCOVER---
+    ~Vector2()= default;
     /**
      * @brief Constructor with coordinates
      * @param x First coordinates
@@ -179,7 +179,7 @@ public:
         double csa = std::sin(angle.get());
         auto Tcx = static_cast<DataType>(cca * X - csa * Y);
         Y = static_cast<DataType>(csa * X + cca * Y);
-        std::swap(X, Tcx);
+        X = Tcx;
         return *this;
     }
     /**
@@ -216,8 +216,7 @@ public:
      * @return Vector Angle
      */
     [[nodiscard]] Angle getAngle()const{
-        double len =length();
-        return Angle{std::atan2(Y/len,X/len),Angle::Unit::Radian};
+        return Angle{std::atan2(Y,X),Angle::Unit::Radian};
     }
 
 private:

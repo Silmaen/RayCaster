@@ -44,9 +44,9 @@ protected:
     void mouseMoveEvent(QMouseEvent* event) override;
 
 private:
-    QPoint mapCoordToRectCoord(const QPointF& mapPoint);
+    QPoint mapCoordToRectCoord(const QPointF& mapPoint) const;
 
-    QPointF rectCoordToMapCoord(const QPoint& drawPoint);
+    QPointF rectCoordToMapCoord(const QPoint& drawPoint) const;
 
     [[nodiscard]] QRect getMapRect() const;
     double getMapRatio() const;

@@ -9,7 +9,6 @@
 #pragma once
 
 #include "Vector2.h"
-#include "graphics/Color.h"
 #include <algorithm>
 
 namespace rc::math::geometry {
@@ -48,7 +47,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~Quad2()= default;
+    ~Quad2()= default;
 
     /**
      * @brief Define a quad with its points and color

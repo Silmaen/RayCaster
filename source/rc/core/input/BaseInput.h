@@ -8,6 +8,7 @@
 
 #pragma once
 #include "magic_enum.hpp"
+#include <array>
 #include <nlohmann/json.hpp>
 
 namespace rc::core::input {
@@ -78,8 +79,8 @@ struct Settings {
      * @param input The char to check
      * @return The key, or 'lastKey'
      */
-    FunctionKey keyByChar(const char& input) {
-        auto result = std::find_if(m_keys.begin(), m_keys.end(), [&input](const auto& item) { return item.second == input; });
+    FunctionKey keyByChar(const char& input) const {
+        const auto result = std::find_if(m_keys.begin(), m_keys.end(), [&input](const auto& item) { return item.second == input; });
         if (result == m_keys.end())
             return FunctionKey::lastKey;
         return result->first;
@@ -139,8 +140,7 @@ public:
      * @return True if key pressed
      */
     [[nodiscard]] bool isKeyPressed(const FunctionKey& key) const {
-        auto res = m_keyStates.find(key);
-        return (res == m_keyStates.end()) ? false : res->second;
+        return m_keyStates[static_cast<size_t>(key)];
     }
     /**
      * @brief Defines the main draw call back
@@ -160,7 +160,7 @@ protected:
      * @return Link to the key state
      */
     bool& getState(const FunctionKey& key) {// ---UNCOVER---
-        return m_keyStates[key];            // ---UNCOVER---
+        return m_keyStates[static_cast<size_t>(key)]; // ---UNCOVER---
     }
 
 private:
@@ -170,7 +170,7 @@ private:
     /**
      * @brief Key states
      */
-    std::map<FunctionKey, bool> m_keyStates;
+    std::array<bool, static_cast<size_t>(FunctionKey::lastKey) + 1> m_keyStates{};
 };
 
 }// namespace rc::core::input

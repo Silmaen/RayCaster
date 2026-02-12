@@ -86,7 +86,7 @@ void TableMap::fillingUp() {
         setCellWidget(row, 1, edit);
         row++;
     }
-    auto [pPos, pDir] = mapLink->getPlayerStart();
+    const auto [pPos, pDir] = mapLink->getPlayerStart();
     // Fifth line: Player start X
     {
         insertRow(row);
@@ -135,7 +135,7 @@ void TableMap::fillingUp() {
 void TableMap::updatePlayer() {
     if (rowCount() < 7)
         return;
-    rc::math::geometry::Vecti pPos{
+    const rc::math::geometry::Vecti pPos{
             (dynamic_cast<QSpinBox*>(cellWidget(4, 1)))->value(),
             (dynamic_cast<QSpinBox*>(cellWidget(5, 1)))->value(),
     };

@@ -62,7 +62,7 @@ struct mapCell {
  * @param mCell The mapCell to serialize
  */
 inline void to_json(nlohmann::json& jso, const mapCell& mCell) {
-    uint8_t result = (mCell.passable * 0b10000000) | (mCell.visibility * 0b01000000) | (mCell.textureId & 0b00111111);
+    const uint8_t result = (mCell.passable * 0b10000000) | (mCell.visibility * 0b01000000) | (mCell.textureId & 0b00111111);
     jso            = nlohmann::json{result};
 }
 /**
@@ -71,7 +71,7 @@ inline void to_json(nlohmann::json& jso, const mapCell& mCell) {
  * @param mCell Destination mapCell
  */
 inline void from_json(const nlohmann::json& jso, mapCell& mCell) {
-    uint8_t result   = jso.at(0);
+    const uint8_t result = jso.at(0);
     mCell.textureId  = result & 0b00111111;
     mCell.visibility = (result & 0b01000000) == 0b01000000;
     mCell.passable   = (result & 0b10000000) == 0b10000000;

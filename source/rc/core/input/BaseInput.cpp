@@ -10,11 +10,7 @@
 
 namespace rc::core::input {
 
-BaseInput::BaseInput() {
-    constexpr auto values = magic_enum::enum_values<FunctionKey>();
-    for (const auto c : values)
-        m_keyStates[c] =false;
-}
+BaseInput::BaseInput() = default;
 
 BaseInput::~BaseInput() = default;
 

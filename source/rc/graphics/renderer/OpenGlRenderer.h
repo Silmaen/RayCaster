@@ -107,7 +107,7 @@ public:
     /**
      * @brief Display call back
      */
-    void display_cb();
+    void display_cb() const;
 
 private:
     std::function<void()> mainDraw;

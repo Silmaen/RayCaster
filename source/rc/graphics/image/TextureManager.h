@@ -66,7 +66,7 @@ public:
      * @brief Define the new memory limit
      * @param limit the new limit
      */
-    void setMemoryLimit(const size_t& limit){m_MemoryLimit=limit;}
+    void setMemoryLimit(size_t limit){m_MemoryLimit=limit;}
 private:
     /**
      * @brief Default constructor.

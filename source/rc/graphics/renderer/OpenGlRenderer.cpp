@@ -102,22 +102,27 @@ void OpenGLRenderer::drawTextureVerticalLine(double lineX, double lineY, double 
     lineX += drawBox.left();
     lineY += drawBox.top();
     // check vertical is in the layout
-    if (lineX<drawBox.left() ||lineX> drawBox.right())
+    if (lineX < drawBox.left() || lineX > drawBox.right())
         return;
     double textureIncrement = static_cast<double>(tex.height()) / lineLength;
-    auto cols = tex.getPixelColumn(static_cast<uint16_t>(texX));
-    double beginCoord = std::max(lineY, static_cast<double>(drawBox.top()));
-    double endCoord = lineY + lineLength > drawBox.bottom() ? drawBox.bottom() : lineY + lineLength;
-    double length = endCoord - beginCoord;
-    double beginTex = std::max(0.0, -lineY * textureIncrement);
+    const auto cols               = tex.getPixelColumn(static_cast<uint16_t>(texX));
+    const double beginCoord       = std::max(lineY, static_cast<double>(drawBox.top()));
+    const double endCoord         = lineY + lineLength > drawBox.bottom() ? drawBox.bottom() : lineY + lineLength;
+    const double length           = endCoord - beginCoord;
+    const double beginTex         = std::max(0.0, -lineY * textureIncrement);
     glPointSize(static_cast<GLfloat>(1));
     glBegin(GL_POINTS);
+    graphics::Color prevColor{};
+    bool hasColor = false;
     for (double pixel = 0; pixel < length; ++pixel) {
-        int32_t inc = static_cast<int32_t>(beginTex + pixel * textureIncrement);
-        if (shade) {
-            setColor((*(cols + inc)).darker());
-        } else{
-            setColor(*(cols + inc));
+        const int32_t inc         = static_cast<int32_t>(beginTex + pixel * textureIncrement);
+        graphics::Color col = *(cols + inc);
+        if (shade)
+            col.darken();
+        if (!hasColor || col != prevColor) {
+            setColor(col);
+            prevColor = col;
+            hasColor  = true;
         }
         glVertex2d(lineX, beginCoord + pixel);
     }
@@ -142,7 +147,7 @@ void OpenGLRenderer::drawText(const std::string& text, const math::geometry::Vec
     glutBitmapString(GLUT_BITMAP_HELVETICA_18, reinterpret_cast<const unsigned char*>(text.c_str()));
 }
 
-void OpenGLRenderer::display_cb() {
+void OpenGLRenderer::display_cb() const {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (mainDraw)
         mainDraw();

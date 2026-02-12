@@ -39,11 +39,11 @@ void Texture::readPNG(const DataFile& file) {
     // read in the basic image info
     png_read_info(png_ptr, info_ptr);
     // convert to 8 bits
-    png_byte bit_depth = png_get_bit_depth(png_ptr, info_ptr);
+    const png_byte bit_depth = png_get_bit_depth(png_ptr, info_ptr);
     if (bit_depth == 16)
         png_set_strip_16(png_ptr);
     // verify this is in RGBA format, and if not, convert it to RGBA
-    png_byte color_type = png_get_color_type(png_ptr, info_ptr);
+    const png_byte color_type = png_get_color_type(png_ptr, info_ptr);
     if (color_type != PNG_COLOR_TYPE_RGBA && color_type != PNG_COLOR_TYPE_RGB) {
         if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
             if (bit_depth < 8)
@@ -61,8 +61,8 @@ void Texture::readPNG(const DataFile& file) {
     png_read_update_info(png_ptr, info_ptr);
     // begin reading in the image
     setjmp(png_jmpbuf(png_ptr));
-    size_t bpr          = png_get_rowbytes(png_ptr, info_ptr);// number of bytes in a row
-    uint8_t numchannels = png_get_channels(png_ptr, info_ptr);
+    const size_t bpr          = png_get_rowbytes(png_ptr, info_ptr);// number of bytes in a row
+    const uint8_t numchannels = png_get_channels(png_ptr, info_ptr);
     // initialie our image storage
     m_pixels.resize(m_height * m_width);
     std::vector<png_byte> row(bpr);
@@ -133,21 +133,19 @@ void Texture::savePNG(const DataFile& file) {
 static Color dummyColor{0, 0, 0, 0};
 
 const Color& Texture::getPixel(uint16_t u, uint16_t v) const {
-    if (u > width() || v > height())
+    if (u >= width() || v >= height())
         return dummyColor;
     return m_pixels[u * m_height + v];
-    //return m_pixels[u + v * m_width];
 }
 
 Color& Texture::getPixel(uint16_t u, uint16_t v) {
-    if (u > width() || v > height())
+    if (u >= width() || v >= height())
         return dummyColor;
     return m_pixels[u * m_height + v];
-    //return m_pixels[u + v * m_width];
 }
 
 Color Texture::getPixel(uint16_t u, uint16_t v, uint16_t radius) const {
-    if (u > width() || v > height())
+    if (u >= width() || v >= height())
         return Color{0, 0, 0, 0};
     int count = 0;
     double R{0};
@@ -157,9 +155,9 @@ Color Texture::getPixel(uint16_t u, uint16_t v, uint16_t radius) const {
     for (int32_t i = -radius; i <= radius; ++i) {
         for (int32_t j = -radius; j <= radius; ++j) {
             if (u + i < 0 || v + j < 0) continue;
-            auto uu = static_cast<uint16_t>(u + i);
-            auto vv = static_cast<uint16_t>(v + j);
-            if (uu > width() || vv > height()) continue;
+            const auto uu = static_cast<uint16_t>(u + i);
+            const auto vv = static_cast<uint16_t>(v + j);
+            if (uu >= width() || vv >= height()) continue;
             const auto& Pixel = getPixel(uu,vv);
             R += Pixel.redf();
             G += Pixel.greenf();

@@ -7,6 +7,8 @@
  */
 
 #include "TextureManager.h"
+#include <algorithm>
+#include <vector>
 
 namespace rc::graphics::image {
 
@@ -35,17 +37,25 @@ void TextureManager::loadTexture(const std::string& name) {
 }
 
 void TextureManager::unloadTexture(const std::string& name) {
-    auto& tex = m_textures[name].m_texture;
+    const auto& tex = m_textures[name].m_texture;
     m_MemoryUsage -= tex.height() * tex.width() * 4 + sizeof(Texture);
     m_textures.erase(name);
 }
 
 void TextureManager::memoryCheck() {
-    while (m_MemoryUsage > m_MemoryLimit) {
-        // memory state not ok -> unload oldest texture
-        auto min = std::min_element(m_textures.begin(), m_textures.end(),
-                         [](const auto& l, const auto& r){return l.second.m_lastCalled<r.second.m_lastCalled;});
-        unloadTexture(min->first);
+    if (m_MemoryUsage <= m_MemoryLimit)
+        return;
+    // Sort texture names by last access time (oldest first)
+    std::vector<std::string> sortedNames;
+    sortedNames.reserve(m_textures.size());
+    for (const auto& [name, data] : m_textures)
+        sortedNames.push_back(name);
+    std::sort(sortedNames.begin(), sortedNames.end(),
+              [this](const auto& l, const auto& r) { return m_textures[l].m_lastCalled < m_textures[r].m_lastCalled; });
+    for (const auto& name : sortedNames) {
+        if (m_MemoryUsage <= m_MemoryLimit)
+            break;
+        unloadTexture(name);
     }
 }
 

@@ -16,12 +16,13 @@ TEST(Engine, base) {
     auto sets2 = engine.getSettings();
     EXPECT_EQ(sets2.rendererType, rc::graphics::renderer::RendererType::Null);
     engine.run();
-    auto renderer = engine.getRenderer();
+    auto* renderer = engine.getRenderer();
     engine.init();
     renderer = engine.getRenderer();
     EXPECT_EQ(renderer->getType(),rc::graphics::renderer::RendererType::Null);
     EXPECT_EQ(renderer->getStatus(), rc::graphics::renderer::Status::Ready);
     engine.setSettings(sets);
+    renderer = engine.getRenderer();
     EXPECT_EQ(renderer->getStatus(), rc::graphics::renderer::Status::Ready);
     renderer = engine.getRenderer();
     engine.run();
@@ -36,7 +37,7 @@ TEST(Engine, base2) {
     engine.mapLoad("E1L1");
     engine.saveSettings("settings_temp.json");
     engine.run();
-    auto renderer = engine.getRenderer();
+    auto* renderer = engine.getRenderer();
     EXPECT_EQ(renderer->getStatus(), rc::graphics::renderer::Status::Running);
     renderer->update();
     renderer->drawPoint({0,0},1,{0,0,0});

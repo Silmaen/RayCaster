@@ -35,6 +35,11 @@ find_package(PNG REQUIRED)
 message(STATUS "Found libPng version ${PNG_VERSION_STRING} in ${PNG_INCLUDE_DIR}")
 target_link_libraries(${CMAKE_PROJECT_NAME}_lib PRIVATE ${PNG_LIBRARIES})
 
+# TBB (required for std::execution parallel policies with GCC)
+find_package(TBB REQUIRED)
+message(STATUS "Found TBB version ${TBB_VERSION}")
+target_link_libraries(${CMAKE_PROJECT_NAME}_lib PRIVATE TBB::tbb)
+
 # magic_enum
 target_include_directories(${CMAKE_PROJECT_NAME}_lib PUBLIC ${MAGIC_ENUM_INCLUDE_DIR})
 message(STATUS "Found magic_enum in ${MAGIC_ENUM_INCLUDE_DIR}")

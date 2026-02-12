@@ -46,7 +46,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~Line2() = default;//---UNCOVER---
+    ~Line2() = default;
 
     /**
      * @brief Construct by point

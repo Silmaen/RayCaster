@@ -27,21 +27,16 @@ void Angle::set(double ang, const Angle::Unit& unit) {
     }
 }
 void Angle::clamp() {
-    while (Value < 0) {
+    Value = std::fmod(Value, Pi2);
+    if (Value < 0)
         Value += Pi2;
-    }
-    while (Value >= Pi2) {
-        Value -= Pi2;
-    }
 }
 
 void Angle::clampSigned() {
-    while (Value <= -Pi) {
+    Value = std::fmod(Value + Pi, Pi2);
+    if (Value < 0)
         Value += Pi2;
-    }
-    while (Value > Pi) {
-        Value -= Pi2;
-    }
+    Value -= Pi;
 }
 
 double Angle::RadToDeg(const double value) {

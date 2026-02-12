@@ -232,7 +232,7 @@ void Map::saveToData(const std::string& mapName) {
 }
 
 void Map::fromJson(const nlohmann::json& data) {
-    [[maybe_unused]] uint8_t version = data["version"];// but still to be read when map will contain more data
+    [[maybe_unused]] const uint8_t version = data["version"];// but still to be read when map will contain more data
     cubeSize                         = data["cubeSize"];
     mapArray                         = data["cells"];
     PlayerInitialPosition            = data["playerStart"];

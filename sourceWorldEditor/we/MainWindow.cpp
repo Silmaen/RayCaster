@@ -44,9 +44,9 @@ void MainWindow::actNew() {
     map.setModal(true);
     bool running = true;
     while (running) {
-        auto returnCode = map.exec();
+        const auto returnCode = map.exec();
         if (returnCode == 0) break;// user has canceled the action
-        auto info = map.getInfos();
+        const auto info = map.getInfos();
         // check information
         if (info.name == "") {
             QMessageBox::critical(this,
@@ -173,7 +173,7 @@ void MainWindow::paintEvent(QPaintEvent*) {
 }
 
 void MainWindow::mouseReleaseEvent(QMouseEvent* /*event*/) {
-    auto [mousePos,mouseCell] = ui->DrawArea->getMouseInfo();
+    const auto [mousePos,mouseCell] = ui->DrawArea->getMouseInfo();
     if (mousePos.x()<0)return; // nothing to do
     if (currentMode == Mode::Select){
         ui->tableCell->setCell(mouseCell);
@@ -232,7 +232,7 @@ void MainWindow::timedOut() {
         title += "*";
     this->setWindowTitle(title);
 
-    auto [mousePos,mouseCell] = ui->DrawArea->getMouseInfo();
+    const auto [mousePos,mouseCell] = ui->DrawArea->getMouseInfo();
     if (mousePos.x() < 0){
         ui->statusBar->showMessage("Mouse outside Map");
     }else{
